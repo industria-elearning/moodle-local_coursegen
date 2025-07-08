@@ -26,3 +26,9 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['pluginname'] = 'DataCurso';
+$string['tenantid'] = 'Tenant ID';
+$string['tenantid_desc'] = 'Enter your tenant ID here.';
+$string['tenanttoken'] = 'Tenant Token';
+$string['tenanttoken_desc'] = 'Enter your tenant token here.';
+$string['generalsettings'] = 'General Settings';
+
