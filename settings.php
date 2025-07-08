@@ -26,10 +26,31 @@
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
-    $settings = new admin_settingpage('local_datacurso_settings', new lang_string('pluginname', 'local_datacurso'));
+    $pluginname = 'local_datacurso';
+    $admincategory = new admin_category($pluginname, get_string('pluginname', $pluginname));
 
-    // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
-    if ($ADMIN->fulltree) {
-        // TO-DO: Define actual plugin settings page and add it to the tree - {@link https://docs.moodle.org/dev/Admin_settings}.
-    }
+    $ADMIN->add('localplugins', $admincategory);
+    $settings = new admin_settingpage("{$pluginname}_settings", get_string('generalsettings', $pluginname));
+
+    // Add tenantid setting.
+    $settings->add(
+        new admin_setting_configtext(
+            "{$pluginname}/tenantid",
+            get_string('tenantid', $pluginname),
+            get_string('tenantid_desc', $pluginname),
+            '',
+        )
+    );
+
+    // Add tenant token setting.
+    $settings->add(
+        new admin_setting_configpasswordunmask(
+            'local_datacurso/tenanttoken',
+            new lang_string('tenanttoken', 'local_datacurso'),
+            new lang_string('tenanttoken_desc', 'local_datacurso'),
+            '',
+        )
+    );
+
+    $ADMIN->add($pluginname, $settings);
 }
