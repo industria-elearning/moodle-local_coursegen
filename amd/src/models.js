@@ -1,4 +1,3 @@
-/* eslint-disable */
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -24,24 +23,21 @@
 
 import * as repository from 'local_datacurso/repository/models';
 import Templates from 'core/templates';
-import { exception as displayException } from 'core/notification';
+import {exception as displayException} from 'core/notification';
 
-
-
+/**
+ * Initialize the models page
+ */
 export async function init() {
-    // 
     const models = await repository.getModels();
 
     // This will call the function to load and render our template.
     Templates.renderForPromise('local_datacurso/model_list', {models})
 
         // It returns a promise that needs to be resoved.
-        .then(({ html, js }) => {
-            // Here eventually I have my compiled template, and any javascript that it generated.
-            // The templates object has append, prepend and replace functions.
-            Templates.replaceNodeContents('[data-region="local_datacurso-models-page"]', html, js);
+        .then(({html, js}) => {
+            return Templates.replaceNodeContents('[data-region="local_datacurso-models-page"]', html, js);
         })
-
         // Deal with this exception (Using core/notify exception function is recommended).
         .catch((error) => displayException(error));
 }

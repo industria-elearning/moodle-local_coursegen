@@ -1,5 +1,3 @@
-
-/* eslint-disable */
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -25,6 +23,11 @@
 
 import ajax from 'core/ajax';
 
+/**
+ * Get models from datacurso backend
+ *
+ * @return {Promise<Array>} Array of models
+ */
 export async function getModels() {
     return ajax.call([{
         methodname: 'local_datacurso_get_models_by_tenant',
