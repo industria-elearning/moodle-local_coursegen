@@ -33,5 +33,13 @@ $functions = [
         'methodname' => 'execute',
         'description' => 'Get auth token',
         'type' => 'read',
+        'ajax' => true,
+    ],
+    'local_datacurso_get_models_by_tenant' => [
+        'classname' => 'local_datacurso\external\get_models_by_tenant',
+        'methodname' => 'execute',
+        'description' => 'Get models by tenant',
+        'type' => 'read',
+        'ajax' => true,
     ],
 ];
