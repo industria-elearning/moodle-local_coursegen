@@ -21,6 +21,7 @@ use core_external\external_function_parameters;
 use core_external\external_single_structure;
 use core_external\external_value;
 use external_multiple_structure;
+use local_datacurso\httpclient\datacurso_api;
 
 
 defined('MOODLE_INTERNAL') || die();
@@ -50,27 +51,12 @@ class get_models_by_tenant extends external_api {
      * @return array
      */
     public static function execute(): array {
-        global $USER;
         // Validate all of the parameters.
         $params = self::validate_parameters(self::execute_parameters(), []);
 
-        $tenantid = get_config('local_datacurso', 'tenantid');
-        $tenanttoken = get_config('local_datacurso', 'tenanttoken');
+        $datacursoapi = new datacurso_api();
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, 'http://webhook:3001/models');
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'tenant-token: ' . $tenanttoken,
-            'tenant-id: ' . $tenantid,
-        ]);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $response = curl_exec($ch);
-        curl_close($ch);
-
-        $jsonresponse = json_decode($response);
-
-        return $jsonresponse;
+        return $datacursoapi->get('/models', [], false);
     }
 
     /**
