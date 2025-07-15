@@ -31,4 +31,8 @@ $string['tenantid_desc'] = 'Enter your tenant ID here.';
 $string['tenanttoken'] = 'Tenant Token';
 $string['tenanttoken_desc'] = 'Enter your tenant token here.';
 $string['generalsettings'] = 'General Settings';
+$string['cachedef_apitoken'] = 'Cache for API token obtained from DataCurso';
+$string['baseurl'] = 'API Base URL';
+$string['baseurl_desc'] = 'Enter the base URL of the DataCurso API with version. e.g. https://api.datacurso.com/api/v1';
+$string['unauthorized'] = 'Unauthorized access';
 
