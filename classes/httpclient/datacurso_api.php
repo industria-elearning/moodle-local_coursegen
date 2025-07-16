@@ -178,31 +178,31 @@ class datacurso_api {
      * @return string The JWT token.
      * @throws moodle_exception If the token endpoint is misconfigured or the response is invalid.
      */
-    public function fetch_token(array $credentials = []): string {
+    public function fetch_token(): string {
+        global $USER;
+
         if (empty($this->tokenendpoint)) {
             throw new moodle_exception('Token endpoint not configured');
         }
 
-        debugging("Fetching new token from endpoint: {$this->tokenendpoint}", DEBUG_DEVELOPER);
+        $credentials = [
+            'email' => $USER->email,
+            'username' => $USER->username,
+            'fullName' => $USER->fullname,
+            'tenantId' => get_config('local_datacurso', 'tenantid'),
+            'token' => get_config('local_datacurso', 'tenanttoken'),
+        ];
 
-        $response = $this->curl_request(
-            $this->tokenendpoint,
-            'POST',
-            $credentials,
-            ['Content-Type: application/json'],
-            false
-        );
+        $response = $this->post($this->tokenendpoint, $credentials, [], false);
 
-        $data = json_decode($response, true);
-
-        if (empty($data['jwt']) || empty($data['expirationDate'])) {
+        if (empty($response['jwt']) || empty($response['expirationDate'])) {
             throw new moodle_exception('Invalid token response: missing jwt or expirationDate');
         }
 
-        $this->cache->set('jwt', $data['jwt']);
-        $this->cache->set('expiration', $data['expirationDate']);
+        $this->cache->set('jwt', $response['jwt']);
+        $this->cache->set('expiration', $response['expirationDate']);
 
-        return $data['jwt'];
+        return $response['jwt'];
     }
 
     /**
