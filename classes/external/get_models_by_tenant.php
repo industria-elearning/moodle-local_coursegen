@@ -35,13 +35,15 @@ require_once($CFG->libdir . '/externallib.php');
  * @copyright  2025 Industria Elearning <info@industriaelearning.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class get_models_by_tenant extends external_api {
+class get_models_by_tenant extends external_api
+{
     /**
      * Returns description of method parameters.
      *
      * @return \external_function_parameters
      */
-    public static function execute_parameters(): \external_function_parameters {
+    public static function execute_parameters(): \external_function_parameters
+    {
         return new \external_function_parameters([]);
     }
 
@@ -50,13 +52,14 @@ class get_models_by_tenant extends external_api {
      *
      * @return array
      */
-    public static function execute(): array {
+    public static function execute(): array
+    {
         // Validate all of the parameters.
         $params = self::validate_parameters(self::execute_parameters(), []);
 
         $datacursoapi = new datacurso_api();
 
-        return $datacursoapi->get('/models', [], false);
+        return $datacursoapi->get('/v3/pedagogic-model');
     }
 
     /**
@@ -64,23 +67,24 @@ class get_models_by_tenant extends external_api {
      *
      * @return external_multiple_structure
      */
-    public static function execute_returns(): external_multiple_structure {
+    public static function execute_returns(): external_multiple_structure
+    {
         return new external_multiple_structure(
             new \external_single_structure([
-            'id' => new \external_value(PARAM_INT, 'The model id'),
-            'name' => new \external_value(PARAM_TEXT, 'The model name', VALUE_OPTIONAL),
-            'shortname' => new \external_value(PARAM_TEXT, 'The model short name', VALUE_OPTIONAL),
-            'title' => new \external_value(PARAM_TEXT, 'The model title', VALUE_OPTIONAL),
-            'image' => new \external_value(PARAM_TEXT, 'The model image', VALUE_OPTIONAL),
-            'description' => new \external_value(PARAM_TEXT, 'The model description', VALUE_OPTIONAL),
-            'default' => new \external_value(PARAM_BOOL, 'The model default', VALUE_OPTIONAL),
-            'user_id' => new \external_value(PARAM_INT, 'The model user id', VALUE_OPTIONAL),
-            'tenant_id' => new \external_value(PARAM_INT, 'The model tenant id', VALUE_OPTIONAL),
-            'status' => new \external_value(PARAM_INT, 'The model status', VALUE_OPTIONAL),
-            'schemauuid' => new \external_value(PARAM_TEXT, 'The model schema uuid', VALUE_OPTIONAL),
-            'version' => new \external_value(PARAM_INT, 'The model version', VALUE_OPTIONAL),
-            'parent_id' => new \external_value(PARAM_INT, 'The model parent id', VALUE_OPTIONAL),
-            'visible' => new \external_value(PARAM_BOOL, 'The model visible', VALUE_OPTIONAL),
+                'id' => new \external_value(PARAM_INT, 'The model id'),
+                'name' => new \external_value(PARAM_TEXT, 'The model name', VALUE_OPTIONAL),
+                'shortname' => new \external_value(PARAM_TEXT, 'The model short name', VALUE_OPTIONAL),
+                'title' => new \external_value(PARAM_TEXT, 'The model title', VALUE_OPTIONAL),
+                'image' => new \external_value(PARAM_TEXT, 'The model image', VALUE_OPTIONAL),
+                'description' => new \external_value(PARAM_TEXT, 'The model description', VALUE_OPTIONAL),
+                'default' => new \external_value(PARAM_BOOL, 'The model default', VALUE_OPTIONAL),
+                'user_id' => new \external_value(PARAM_INT, 'The model user id', VALUE_OPTIONAL),
+                'tenant_id' => new \external_value(PARAM_INT, 'The model tenant id', VALUE_OPTIONAL),
+                'status' => new \external_value(PARAM_INT, 'The model status', VALUE_OPTIONAL),
+                'schemauuid' => new \external_value(PARAM_TEXT, 'The model schema uuid', VALUE_OPTIONAL),
+                'version' => new \external_value(PARAM_INT, 'The model version', VALUE_OPTIONAL),
+                'parent_id' => new \external_value(PARAM_INT, 'The model parent id', VALUE_OPTIONAL),
+                'visible' => new \external_value(PARAM_BOOL, 'The model visible', VALUE_OPTIONAL),
             ]),
             'List of models',
             VALUE_DEFAULT,

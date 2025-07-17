@@ -26,7 +26,8 @@ use moodle_exception;
  * @copyright  2025 Industria Elearning <info@industriaelearning.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class datacurso_api {
+class datacurso_api
+{
     /** @var string $baseurl Base URL of the DataCurso API. */
     private $baseurl;
 
@@ -45,9 +46,10 @@ class datacurso_api {
      * @param string $baseurl Base URL of the external API.
      * @param string $tokenendpoint Endpoint used to fetch JWT token (optional).
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->baseurl = rtrim(get_config('local_datacurso', 'baseurl'), '/');
-        $this->tokenendpoint = '/auth/moodle-login';
+        $this->tokenendpoint = '/v3/auth/moodle-login';
         $this->cache = cache::make('local_datacurso', 'apitoken');
         $this->token = $this->get_valid_token();
     }
@@ -60,7 +62,8 @@ class datacurso_api {
      * @param bool $authrequired Whether to include the Authorization header.
      * @return array The API response.
      */
-    public function get(string $endpoint, array $headers = [], bool $authrequired = true): array {
+    public function get(string $endpoint, array $headers = [], bool $authrequired = true): array
+    {
         return $this->request_with_token_refresh('GET', $endpoint, null, $headers, $authrequired);
     }
 
@@ -73,7 +76,8 @@ class datacurso_api {
      * @param bool $authrequired Whether to include the Authorization header.
      * @return array The API response.
      */
-    public function post(string $endpoint, array $data = [], array $headers = [], bool $authrequired = true): array {
+    public function post(string $endpoint, array $data = [], array $headers = [], bool $authrequired = true): array
+    {
         return $this->request_with_token_refresh('POST', $endpoint, $data, $headers, $authrequired);
     }
 
@@ -88,7 +92,8 @@ class datacurso_api {
      * @return array The API response.
      * @throws moodle_exception On repeated failure or other errors.
      */
-    private function request_with_token_refresh(string $method, string $endpoint, ?array $data, array $headers, bool $authrequired): array {
+    private function request_with_token_refresh(string $method, string $endpoint, ?array $data, array $headers, bool $authrequired): array
+    {
         try {
             return $this->make_request($method, $endpoint, $data, $headers, $authrequired);
         } catch (moodle_exception $e) {
@@ -113,7 +118,8 @@ class datacurso_api {
      * @param bool $authrequired Whether to attach the JWT token.
      * @return array The API response.
      */
-    private function make_request(string $method, string $endpoint, ?array $data, array $headers, bool $authrequired): array {
+    private function make_request(string $method, string $endpoint, ?array $data, array $headers, bool $authrequired): array
+    {
         $url = $this->baseurl . '/' . ltrim($endpoint, '/');
 
         if ($authrequired) {
@@ -139,7 +145,8 @@ class datacurso_api {
      * @return array Response of the request.
      * @throws moodle_exception On HTTP error or cURL failure.
      */
-    private function curl_request(string $url, string $method, ?array $data, array $headers, bool $authrequired): array {
+    private function curl_request(string $url, string $method, ?array $data, array $headers, bool $authrequired): array
+    {
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -168,7 +175,7 @@ class datacurso_api {
             throw new moodle_exception('unauthorized', 'local_datacurso');
         }
 
-        return json_decode($response);
+        return json_decode($response, true);
     }
 
     /**
@@ -178,7 +185,8 @@ class datacurso_api {
      * @return string The JWT token.
      * @throws moodle_exception If the token endpoint is misconfigured or the response is invalid.
      */
-    public function fetch_token(): string {
+    public function fetch_token(): string
+    {
         global $USER;
 
         if (empty($this->tokenendpoint)) {
@@ -188,7 +196,7 @@ class datacurso_api {
         $credentials = [
             'email' => $USER->email,
             'username' => $USER->username,
-            'fullName' => $USER->fullname,
+            'fullName' => $USER->firstname . ' ' . $USER->lastname,
             'tenantId' => get_config('local_datacurso', 'tenantid'),
             'token' => get_config('local_datacurso', 'tenanttoken'),
         ];
@@ -210,7 +218,8 @@ class datacurso_api {
      *
      * @return string|null Cached token if valid.
      */
-    private function get_valid_token(): ?string {
+    private function get_valid_token(): ?string
+    {
         $token = $this->cache->get('jwt');
         $expiration = $this->cache->get('expiration');
 
@@ -224,7 +233,8 @@ class datacurso_api {
     /**
      * Ensure a valid token is available, fetching a new one if necessary.
      */
-    private function ensure_valid_token(): void {
+    private function ensure_valid_token(): void
+    {
         if (!$this->is_token_valid()) {
             debugging("Token is missing or expired. Fetching a new one.", DEBUG_DEVELOPER);
             $this->token = $this->fetch_token();
@@ -236,11 +246,10 @@ class datacurso_api {
      *
      * @return bool True if still valid for at least 60 seconds.
      */
-    private function is_token_valid(): bool {
+    private function is_token_valid(): bool
+    {
         $expiration = $this->cache->get('expiration');
         $token = $this->cache->get('jwt');
         return $token && $expiration && strtotime($expiration) > (time() + 60);
     }
 }
-
-
