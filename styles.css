@@ -1,0 +1,49 @@
+.local_datacurso_card{
+    border: 1px solid #ddd; 
+    padding: 10px; border-radius: 5px; 
+    width: 200px; display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    text-align: center;
+}
+
+.local_datacurso_img{
+    width: 100%; 
+    height: 150px; 
+    object-fit: contain; 
+    border-radius: 5px;
+}
+
+.local_datacurso_h3{
+    font-size: 16px; 
+    margin: 10px 0; 
+    word-wrap: break-word; 
+    overflow-wrap: break-word; 
+    white-space: normal;
+}
+
+.local_datacurso_p{
+    font-size: 14px; 
+    margin: 0; 
+    word-wrap: break-word; 
+    overflow-wrap: break-word; 
+    white-space: normal;
+}
+
+.local_datacurso_button{
+    background-color: white;
+    color: #9155fd;
+    border: 1px solid #9155fd;
+    padding: 5px 20px;
+    margin-top: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+.local_datacurso_button:hover{
+    background-color: #9155fd !important;
+    color: white !important;
+    border: 1px solid #9155fd !important;
+}

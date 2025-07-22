@@ -31,6 +31,9 @@ $PAGE->set_url($url);
 $PAGE->set_context(context_system::instance());
 
 $PAGE->set_heading($SITE->fullname);
+
+$PAGE->requires->css('/local/datacurso/styles.css');
+
 echo $OUTPUT->header();
 
 echo $OUTPUT->render_from_template('local_datacurso/models_page', []);

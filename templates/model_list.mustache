@@ -24,11 +24,20 @@
     }
 }}
 
-{{#models}}
-<ul>
-    <li style="display: flex; align-items: center;">
-        <img src="{{image}}" alt="No image" style="max-width: 100%; height: auto; margin-right: 10px;">
-        {{title}}
-    </li>
-</ul>
-{{/models}}
+
+<div style="display: flex; flex-wrap: wrap; gap: 10px;">
+    {{#models}}
+        <div class="local_datacurso_card">
+            <img src="{{image}}" alt="No image" class="local_datacurso_img">
+            <h3 class="local_datacurso_h3">{{title}}</h3>
+            <p class="local_datacurso_p">{{description}}</p>
+            <button class="local_datacurso_button">
+                 <span>Continuar</span>
+                <i class="fa fa-arrow-right" style="margin-left: 8px;"></i>
+            </button>
+        </div>
+    {{/models}}
+</div>
+
+
+
