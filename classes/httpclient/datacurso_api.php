@@ -49,9 +49,6 @@ class datacurso_api {
 
     /**
      * Constructor to initialize the API client.
-     *
-     * @param string $baseurl Base URL of the external API.
-     * @param string $tokenendpoint Endpoint used to fetch JWT token (optional).
      */
     public function __construct() {
         $this->baseurl = rtrim(get_config('local_datacurso', 'baseurl'), '/');
@@ -183,7 +180,6 @@ class datacurso_api {
     /**
      * Fetch a new JWT token and store it along with its expiration date in cache.
      *
-     * @param array $credentials Optional credentials to send with the request.
      * @return string The JWT token.
      * @throws moodle_exception If the token endpoint is misconfigured or the response is invalid.
      */
