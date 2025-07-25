@@ -65,8 +65,8 @@ class datacurso_api {
      * @param bool $authrequired Whether to include the Authorization header.
      * @return array The API response.
      */
-    public function get(string $endpoint, array $headers = [], bool $authrequired = true): array {
-        return $this->request_with_token_refresh('GET', $endpoint, null, $headers, $authrequired);
+    public function get(string $endpoint, array $queryparamms =[] , array $headers = [], bool $authrequired = true): array {
+        return $this->request_with_token_refresh('GET', $endpoint, $queryparamms, $headers, $authrequired);
     }
 
     /**
@@ -147,7 +147,7 @@ class datacurso_api {
      */
     private function curl_request(string $url, string $method, ?array $data, array $headers, bool $authrequired): array {
 
-        $ch = curl_init($url);
+        $ch = curl_init();
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 
@@ -156,6 +156,14 @@ class datacurso_api {
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
         }
 
+        if ($method === 'GET') {
+            if ($data) {
+                $query = http_build_query($data);
+                $url .= '?'. $query;
+            }
+        }
+
+        curl_setopt( $ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         $response = curl_exec($ch);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);

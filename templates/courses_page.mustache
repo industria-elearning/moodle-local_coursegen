@@ -15,29 +15,15 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template local_datacurso/model_list
+    @template local_datacurso/courses_model_id
 
-    TODO describe template model_list
+    TODO describe template courses_model_id
 
     Example context (json):
     {
     }
 }}
 
-
-<div style="display: flex; flex-wrap: wrap; gap: 10px;">
-    {{#models}}
-        <div class="local_datacurso_card">
-            <img src="{{image}}" alt="No image" class="local_datacurso_img">
-            <h3 class="local_datacurso_h3">{{title}}</h3>
-            <p class="local_datacurso_p">{{description}}</p>
-            <a href="{{wwwroot}}{{coursesurl}}?id={{id}}"  class="local_datacurso_button">
-                 <span>Continuar</span>
-                <i class="fa fa-arrow-right" style="margin-left: 8px;"></i>
-            </a>
-        </div>
-    {{/models}}
+<div data-region="local_datacurso-courses-page">
+    <span>loading cursos...</span>
 </div>
-
-
-

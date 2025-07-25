@@ -15,33 +15,28 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * External functions and service declaration for DataCurso
- *
- * Documentation: {@link https://moodledev.io/docs/apis/subsystems/external/description}
+ * TODO describe file models
  *
  * @package    local_datacurso
- * @category   webservice
  * @copyright  2025 Industria Elearning <info@industriaelearning.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+require('../../config.php');
 
-$functions = [
-    'local_datacurso_get_models_by_tenant' => [
-        'classname' => 'local_datacurso\external\get_models_by_tenant',
-        'methodname' => 'execute',
-        'description' => 'Get models by tenant',
-        'type' => 'read',
-        'ajax' => true,
-    ],   
-    'local_datacurso_get_courses_by_model' => [
-        'classname'   => 'local_datacurso\external\get_courses_by_model',
-        'methodname'  => 'execute',
-        'classpath'   => 'local/datacurso/externallib.php',
-        'description' => 'Get courses by model ID',
-        'type'        => 'read',
-        'ajax'        => true,
-        'capabilities' => '',
-    ]
-];
+require_login();
+$id = required_param('id', PARAM_INT);
+$url = new moodle_url('/local/datacurso/courses.php', ["id" => $id]);
+$PAGE->set_url($url);
+$PAGE->set_context(context_system::instance());
+
+$PAGE->set_heading($SITE->fullname);
+
+$PAGE->requires->css('/local/datacurso/styles.css');
+
+echo $OUTPUT->header();
+
+echo $OUTPUT->render_from_template('local_datacurso/courses_page', []);
+
+$PAGE->requires->js_call_amd('local_datacurso/courses', 'init');
+echo $OUTPUT->footer();
