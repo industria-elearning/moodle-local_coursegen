@@ -34,7 +34,7 @@ $functions = [
         'description' => 'Get models by tenant',
         'type' => 'read',
         'ajax' => true,
-    ],   
+    ],
     'local_datacurso_get_courses_by_model' => [
         'classname'   => 'local_datacurso\external\get_courses_by_model',
         'methodname'  => 'execute',
@@ -43,5 +43,5 @@ $functions = [
         'type'        => 'read',
         'ajax'        => true,
         'capabilities' => '',
-    ]
+    ],
 ];
