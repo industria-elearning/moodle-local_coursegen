@@ -6,7 +6,7 @@
 // (at your option) any later version.
 //
 // Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// but WITHOUT ANY WARRANTY without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
@@ -21,23 +21,36 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import * as repository from 'local_datacurso/repository/courses';
-import Templates from 'core/templates';
-import { exception as displayException } from 'core/notification';
+import * as repository from "local_datacurso/repository/courses";
+import Templates from "core/templates";
+import { exception as displayException } from "core/notification";
 
 /**
  * Initialize the courses page
  */
 export async function init() {
-    const courses = await repository.getCoursesByModel();
+  const urlParams = new URLSearchParams(window.location.search);
+  const modelId = urlParams.get("id");
 
-    // This will call the function to load and render our template.
-    Templates.renderForPromise('local_datacurso/courses_list', {courses})
+  if (!modelId) {
+    displayException(new Error("Invalid model ID"));
+    return;
+  }
 
-        // It returns a promise that needs to be resoved.
-        .then(({html, js}) => {
-            return Templates.replaceNodeContents('[data-region="local_datacurso-courses-page"]', html, js);
-        })
-        // Deal with this exception (Using core/notify exception function is recommended).
-        .catch((error) => displayException(error));
+  try {
+    const { courses } = await repository.getCoursesByModel(parseInt(modelId));
+
+    // Renderizar el template con los cursos obtenidos
+    Templates.renderForPromise("local_datacurso/courses_list", { courses })
+      .then(({ html, js }) => {
+        return Templates.replaceNodeContents(
+          '[data-region="local_datacurso-courses-page"]',
+          html,
+          js
+        );
+      })
+      .catch((error) => displayException(error));
+  } catch (error) {
+    displayException(error); // Manejo de errores
+  }
 }

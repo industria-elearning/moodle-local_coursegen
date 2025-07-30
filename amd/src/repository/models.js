@@ -21,7 +21,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import ajax from 'core/ajax';
+import ajax from "core/ajax";
 
 /**
  * Get models from datacurso backend
@@ -29,8 +29,10 @@ import ajax from 'core/ajax';
  * @return {Promise<Array>} Array of models
  */
 export async function getModels() {
-    return ajax.call([{
-        methodname: 'local_datacurso_get_models_by_tenant',
-        args: {},
-    }])[0];
+  return ajax.call([
+    {
+      methodname: "local_datacurso_get_models_by_tenant",
+      args: {},
+    },
+  ])[0];
 }

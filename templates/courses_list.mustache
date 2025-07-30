@@ -23,3 +23,19 @@
     {
     }
 }}
+
+
+<div style="display: flex; flex-wrap: wrap; gap: 10px;">
+    {{#courses}}
+        <div class="local_datacurso_card">
+            <img src="{{image}}" alt="No image" class="local_datacurso_img">
+            <h3 class="local_datacurso_h3">{{title}}</h3>
+        </div>
+    {{/courses}}
+
+    {{^courses}}
+        <div class="no-courses-message">
+            <p>No tienes cursos disponibles en este modelo.</p>
+        </div>
+    {{/courses}}
+</div>

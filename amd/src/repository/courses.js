@@ -21,16 +21,19 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import ajax from 'core/ajax';
+import ajax from "core/ajax";
 
 /**
- * Get coourses from datacurso backend for model id
+ * Get courses from datacurso backend for model id
  *
- * @return {Promise<Array>} Array of models
+ * @param {number} modelId - The ID of the model to fetch courses for
+ * @return {Promise<Array>} Array of courses
  */
-export async function getCoursesByModel() {
-    return ajax.call([{
-        methodname: 'local_datacurso_get_courses_by_model',
-        args: {},
-    }])[0];
+export async function getCoursesByModel(modelId) {
+  return ajax.call([
+    {
+      methodname: "local_datacurso_get_courses_by_model",
+      args: { id: modelId },
+    },
+  ])[0];
 }

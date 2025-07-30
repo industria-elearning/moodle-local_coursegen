@@ -21,21 +21,28 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import * as repository from 'local_datacurso/repository/models';
-import Templates from 'core/templates';
-import { exception as displayException } from 'core/notification';
+import * as repository from "local_datacurso/repository/models";
+import Templates from "core/templates";
+import { exception as displayException } from "core/notification";
 
 /**
  * Initialize the models page
  */
 export async function init() {
-    const models = await repository.getModels();
-    // This will call the function to load and render our template.
-    Templates.renderForPromise('local_datacurso/model_list', { models, coursesurl: "/local/datacurso/courses.php" })
-        // It returns a promise that needs to be resoved.
-        .then(({ html, js }) => {
-            return Templates.replaceNodeContents('[data-region="local_datacurso-models-page"]', html, js);
-        })
-        // Deal with this exception (Using core/notify exception function is recommended).
-        .catch((error) => displayException(error));
+  const models = await repository.getModels();
+  // This will call the function to load and render our template.
+  Templates.renderForPromise("local_datacurso/model_list", {
+    models,
+    coursesurl: "/local/datacurso/courses.php",
+  })
+    // It returns a promise that needs to be resoved.
+    .then(({ html, js }) => {
+      return Templates.replaceNodeContents(
+        '[data-region="local_datacurso-models-page"]',
+        html,
+        js
+      );
+    })
+    // Deal with this exception (Using core/notify exception function is recommended).
+    .catch((error) => displayException(error));
 }

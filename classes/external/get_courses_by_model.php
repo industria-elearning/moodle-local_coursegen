@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/externallib.php');
 
 /**
- * Class assign_course_to_user
+ * Class get_courses_by_model
  *
  * @package    local_datacurso
  * @copyright  2025 Industria Elearning <info@industriaelearning.com>
@@ -47,23 +47,26 @@ class get_courses_by_model extends external_api {
     }
 
     /**
-     * Make request to datacurso backend to assign a course to the user
+     * Make request to datacurso backend to get courses by model id
      *
-     * @param int $pedagogic_model The pedagogic model id.
-     * @return array
+     * @param int $pedagogicmodel The pedagogic model id.
+     * @return array List of courses
      */
     public static function execute(int $pedagogicmodel): array {
-        // Validate all of the parameters.
+        // Validate the parameters
         $params = self::validate_parameters(self::execute_parameters(), [
             'id' => $pedagogicmodel,
         ]);
 
+        // Initialize the API client
         $datacursoapi = new datacurso_api();
 
-        // Make the request to the backend API to assign the course
-        return $datacursoapi->get('/v3/course-administrator', [
-            'id' => $pedagogicmodel,
+        // Make the request to the backend API to fetch courses
+        $res =  $datacursoapi->get('/v3/course-administrator', [
+            'pedagogic_model' => $pedagogicmodel, 
         ]);
+
+        return $res;
     }
 
     /**
@@ -72,10 +75,51 @@ class get_courses_by_model extends external_api {
      * @return external_single_structure
      */
     public static function execute_returns(): external_single_structure {
-        return new external_single_structure([
-            'status' => new \external_value(PARAM_TEXT, 'The status of the course assignment'),
-            'message' => new \external_value(PARAM_TEXT, 'Additional message regarding the assignment'),
-        ]);
-    }
+        return new external_single_structure(
+            [
+                "courses" => new \external_multiple_structure(
+                    new \external_single_structure([
+                        'id' => new \external_value(PARAM_INT, 'The course id'),
+                        'user_id' => new \external_value(PARAM_INT, 'The user id', VALUE_OPTIONAL),
+                        'tenant_id' => new \external_value(PARAM_INT, 'The tenant id', VALUE_OPTIONAL),
+                        'pedagogic_model' => new \external_value(PARAM_INT, 'The pedagogic_model id', VALUE_OPTIONAL),
+                        'title' => new \external_value(PARAM_TEXT, 'The model image', VALUE_OPTIONAL),
+                        'status' => new \external_value(PARAM_INT, 'The model description', VALUE_OPTIONAL),
+                        'review_status' => new \external_value(PARAM_TEXT, 'The model default', VALUE_OPTIONAL),
+                        'full_name' => new \external_value(PARAM_TEXT, 'The model user id', VALUE_OPTIONAL),
+                        'username' => new \external_value(PARAM_TEXT, 'The model tenant id', VALUE_OPTIONAL),
+                        'updated_at' => new \external_value(PARAM_TEXT, 'The model status', VALUE_OPTIONAL),
+                        'created_at' => new \external_value(PARAM_TEXT, 'The model schema uuid', VALUE_OPTIONAL),
+                        'assisted_by_ai' => new \external_value(PARAM_BOOL, 'The model version', VALUE_OPTIONAL),
+                        'format' => new \external_value(PARAM_TEXT, 'The model parent id', VALUE_OPTIONAL),
+                        'image' => new \external_value(PARAM_TEXT, 'The model visible', VALUE_OPTIONAL),
+                    ]),'', VALUE_DEFAULT, []
+                ),
 
+                "pagination" => new \external_single_structure([
+                    'count' => new \external_value(PARAM_INT, 'The model name', VALUE_OPTIONAL),
+                    'currentPage' => new \external_value(PARAM_INT, 'The model short name', VALUE_OPTIONAL),
+                ])
+            ]
+        //     new \external_single_structure([
+        //         'id' => new \external_value(PARAM_INT, 'The model id'),
+        //         'user_id' => new \external_value(PARAM_INT, 'The model name', VALUE_OPTIONAL),
+        //         'tenant_id' => new \external_value(PARAM_INT, 'The model short name', VALUE_OPTIONAL),
+        //         'pedagogic_model' => new \external_value(PARAM_INT, 'The model title', VALUE_OPTIONAL),
+        //         'title' => new \external_value(PARAM_TEXT, 'The model image', VALUE_OPTIONAL),
+        //         'status' => new \external_value(PARAM_INT, 'The model description', VALUE_OPTIONAL),
+        //         'review_status' => new \external_value(PARAM_TEXT, 'The model default', VALUE_OPTIONAL),
+        //         'full_name' => new \external_value(PARAM_TEXT, 'The model user id', VALUE_OPTIONAL),
+        //         'username' => new \external_value(PARAM_TEXT, 'The model tenant id', VALUE_OPTIONAL),
+        //         'updated_at' => new \external_value(PARAM_TEXT, 'The model status', VALUE_OPTIONAL),
+        //         'created_at' => new \external_value(PARAM_TEXT, 'The model schema uuid', VALUE_OPTIONAL),
+        //         'assisted_by_ai' => new \external_value(PARAM_BOOL, 'The model version', VALUE_OPTIONAL),
+        //         'format' => new \external_value(PARAM_TEXT, 'The model parent id', VALUE_OPTIONAL),
+        //         'image' => new \external_value(PARAM_TEXT, 'The model visible', VALUE_OPTIONAL),
+        //     ]),
+        //     'List of courses',
+        //     VALUE_DEFAULT,
+        //     []
+        );
+    }
 }
