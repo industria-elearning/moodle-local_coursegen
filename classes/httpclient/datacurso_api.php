@@ -61,6 +61,7 @@ class datacurso_api {
      * Send a GET request to the API.
      *
      * @param string $endpoint The API endpoint (relative path).
+     * @param array $queryparamms Optional query parameters to include in the request.
      * @param array $headers Optional additional headers.
      * @param bool $authrequired Whether to include the Authorization header.
      * @return array The API response.
