@@ -25,4 +25,14 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['baseurl'] = 'API Base URL';
+$string['baseurl_desc'] = 'Enter the base URL of the DataCurso API with version. e.g. https://api.datacurso.com/api/v3';
+$string['cachedef_apitoken'] = 'Cache for API token obtained from DataCurso';
+$string['generalsettings'] = 'General Settings';
+$string['nocoursesavailable'] = 'No tienes cursos disponibles en este modelo.';
 $string['pluginname'] = 'DataCurso';
+$string['tenantid'] = 'Tenant ID';
+$string['tenantid_desc'] = 'Enter your tenant ID here.';
+$string['tenanttoken'] = 'Tenant Token';
+$string['tenanttoken_desc'] = 'Enter your tenant token here.';
+$string['unauthorized'] = 'Unauthorized access';
