@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * TODO describe file models
+ * TODO describe file courses
  *
  * @package    local_datacurso
  * @copyright  2025 Industria Elearning <info@industriaelearning.com>
