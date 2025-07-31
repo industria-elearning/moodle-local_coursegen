@@ -61,13 +61,13 @@ class datacurso_api {
      * Send a GET request to the API.
      *
      * @param string $endpoint The API endpoint (relative path).
-     * @param array $queryparamms Optional query parameters to include in the request.
+     * @param array $queryparams Optional query parameters to include in the request.
      * @param array $headers Optional additional headers.
      * @param bool $authrequired Whether to include the Authorization header.
      * @return array The API response.
      */
-    public function get(string $endpoint, array $queryparamms =[] , array $headers = [], bool $authrequired = true): array {
-        return $this->request_with_token_refresh('GET', $endpoint, $queryparamms, $headers, $authrequired);
+    public function get(string $endpoint, array $queryparams =[] , array $headers = [], bool $authrequired = true): array {
+        return $this->request_with_token_refresh('GET', $endpoint, $queryparams, $headers, $authrequired);
     }
 
     /**
