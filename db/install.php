@@ -23,10 +23,16 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->dirroot . '/local/datacurso/lib.php');
+
 /**
  * Custom code to be run on installing the plugin.
  */
 function xmldb_local_datacurso_install() {
+    // Crea la categoría "Datacurso Custom Fields" y los campos iniciales.
+    datacurso_course_custom_fields('install');
 
     return true;
 }

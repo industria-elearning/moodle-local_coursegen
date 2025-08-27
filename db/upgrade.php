@@ -23,6 +23,9 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->dirroot . '/local/datacurso/lib.php');
 
 /**
  * Execute local_datacurso upgrade from the given old version.
@@ -34,7 +37,8 @@ function xmldb_local_datacurso_upgrade($oldversion) {
     global $DB;
 
     $dbman = $DB->get_manager();
-
+    datacurso_course_custom_fields('update');
+    datacurso_sync_customfields();
     // For further information please read {@link https://docs.moodle.org/dev/Upgrade_API}.
     //
     // You will also have to create the db/install.xml file by using the XMLDB Editor.
