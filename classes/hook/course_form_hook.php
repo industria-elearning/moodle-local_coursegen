@@ -3,6 +3,7 @@ namespace local_datacurso\hook;
 
 use \core_course\hook\after_form_definition;
 use \core_course\hook\before_form_validation;
+use local_datacurso\httpclient\datacurso_api;
 
 class course_form_hook {
 
@@ -16,15 +17,44 @@ class course_form_hook {
         $mform->addElement('header', 'local_datacurso_header',
             get_string('custom_fields_header', 'local_datacurso'));
 
-        // Model selection
-        $options = [
-            '' => get_string('choose', 'core'),
-            'option1' => get_string('option1', 'local_datacurso'),
-            'option2' => get_string('option2', 'local_datacurso'),
-            'option3' => get_string('option3', 'local_datacurso'),
-        ];
-        $mform->addElement('select', 'local_datacurso_custom_select_model',
-            get_string('custom_model_select_field', 'local_datacurso'), $options);
+        $modeloptions = ['' => get_string('choose', 'core')];
+
+        try {
+            $client = new datacurso_api();
+
+            $models = $client->get('/v3/pedagogic-model');
+
+            if (is_array($models)) {
+                foreach ($models as $model) {
+                    $id = $model['id'] ?? null;
+                    if (!$id) {
+                        continue;
+                    }
+                    // Elegimos el mejor label disponible.
+                    $label = $model['title'];
+                    // Limpieza básica por si viniera con HTML.
+                    $label = format_string($label);
+                    $modeloptions[$id] = $label;
+                }
+
+            }
+        } catch (\Throwable $e) {
+            // En caso de error, deja opciones de respaldo
+            debugging('Error cargando modelos desde DataCurso API: ' . $e->getMessage(), DEBUG_DEVELOPER);
+            $modeloptions += [
+                'option1' => get_string('option1', 'local_datacurso'),
+                'option2' => get_string('option2', 'local_datacurso'),
+                'option3' => get_string('option3', 'local_datacurso'),
+            ];
+        }
+
+        // Select de modelos
+        $mform->addElement(
+            'select',
+            'local_datacurso_custom_select_model',
+            get_string('custom_model_select_field', 'local_datacurso'),
+            $modeloptions
+        );
         
         // Program definition text
         $mform->addElement('text', 'local_datacurso_custom_text_program',

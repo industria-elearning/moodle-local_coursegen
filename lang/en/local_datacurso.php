@@ -68,3 +68,4 @@ $string['learning_outcomes_field'] = 'Define los RESULTADOS DE APRENDIZAJE esper
 $string['course_summary_field'] = 'Define el resumen del curso.';
 $string['course_structure_field'] = 'Define la estructuración de la asigntura.';
 $string['number_of_modules_field'] = '¿Cuántos módulos o temas tendrá el curso?';
+$string['GAGNE_MODEL_TITLE'] = 'MODELO ADDIE';
