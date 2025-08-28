@@ -38,6 +38,9 @@ class course_form_hook {
         $mform->addElement('checkbox', 'local_datacurso_custom_checkbox',
             get_string('custom_checkbox_field', 'local_datacurso'));
 
+        $mform->addElement('checkbox', 'local_datacurso_custom_checkbox',
+            get_string('custom_checkbox2_field', 'local_datacurso'));
+
         // Campo textarea personalizado
         $mform->addElement('textarea', 'local_datacurso_custom_textarea',
             get_string('custom_textarea_field', 'local_datacurso'),

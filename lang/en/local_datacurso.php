@@ -43,6 +43,7 @@ $string['custom_text_field'] = 'Campo de Texto Personalizado';
 $string['custom_text_field_help'] = 'Ingresa un texto personalizado para este curso.';
 $string['custom_select_field'] = 'Campo Select Personalizado';
 $string['custom_checkbox_field'] = 'Campo Checkbox Personalizado';
+$string['custom_checkbox2_field'] = 'Campo Checkbox Personalizado2';
 $string['custom_textarea_field'] = 'Campo Textarea Personalizado';
 $string['custom_date_field'] = 'Campo de Fecha Personalizado';
 $string['option1'] = 'Opción 1';

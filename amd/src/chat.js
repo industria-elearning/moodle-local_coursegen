@@ -21,7 +21,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['core/notification'], function(notification) {
+define(['core/notification'], function (notification) {
     'use strict';
 
     /**
@@ -34,7 +34,7 @@ define(['core/notification'], function(notification) {
             this.userRole = 'Estudiante';
             this.courseId = null;
             this.isInCourseContext = false;
-            
+
             this.init();
         }
 
@@ -73,7 +73,7 @@ define(['core/notification'], function(notification) {
             const courseMatch = url.match(/course\/view\.php\?id=(\d+)/);
             const modMatch = url.match(/mod\/\w+\/view\.php.*course=(\d+)/);
             const activityMatch = url.match(/course\/modedit\.php.*course=(\d+)/);
-            
+
             if (courseMatch) {
                 this.courseId = courseMatch[1];
                 this.isInCourseContext = true;
@@ -89,11 +89,11 @@ define(['core/notification'], function(notification) {
             }
 
             // Verificar si hay elementos específicos de curso en la página
-            const courseContent = document.querySelector('#page-course-view') || 
-                                 document.querySelector('.course-content') ||
-                                 document.querySelector('[data-region="course-content"]') ||
-                                 document.querySelector('body.path-course') ||
-                                 document.querySelector('body.path-mod');
+            const courseContent = document.querySelector('#page-course-view') ||
+                document.querySelector('.course-content') ||
+                document.querySelector('[data-region="course-content"]') ||
+                document.querySelector('body.path-course') ||
+                document.querySelector('body.path-mod');
 
             if (courseContent) {
                 // Intentar obtener course ID del DOM
@@ -142,7 +142,7 @@ define(['core/notification'], function(notification) {
             }
 
             // Verificar permisos de edición
-            if (document.querySelector('a[href*="edit=on"]') || 
+            if (document.querySelector('a[href*="edit=on"]') ||
                 document.querySelector('.turn-editing-on') ||
                 document.querySelector('.editing-on')) {
                 this.userRole = 'Profesor';
@@ -165,7 +165,7 @@ define(['core/notification'], function(notification) {
                             <h3>Asistente IA</h3>
                             <span class="datacurso-chat-role" id="userRole">${this.userRole}</span>
                         </div>
-                        <button class="datacurso-chat-toggle" id="toggleBtn" aria-label="Minimizar/Maximizar chat">−</button>
+                        <button class="datacurso-chat-toggle" id="toggleBtn" aria-label="Minimizar/Maximizar chat">-</button>
                     </div>
 
                     <div class="datacurso-chat-body" id="chatBody">
@@ -184,7 +184,8 @@ define(['core/notification'], function(notification) {
                                     rows="1"
                                     aria-label="Mensaje para el asistente IA"></textarea>
                                 <button class="datacurso-chat-send" id="sendBtn" aria-label="Enviar mensaje">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <line x1="22" y1="2" x2="11" y2="13"></line>
                                         <polygon points="22,2 15,22 11,13 2,9"></polygon>
                                     </svg>
@@ -203,7 +204,7 @@ define(['core/notification'], function(notification) {
             const chatContainer = document.createElement('div');
             chatContainer.innerHTML = chatHTML;
             this.chatWidget = chatContainer.firstElementChild;
-            
+
             document.body.appendChild(this.chatWidget);
 
             // Agregar animación de entrada
@@ -222,10 +223,10 @@ define(['core/notification'], function(notification) {
 
             // Toggle chat
             header.addEventListener('click', () => this.toggleChat());
-            
+
             // Send message
             sendBtn.addEventListener('click', () => this.sendMessage());
-            
+
             // Enter key to send
             input.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
@@ -252,11 +253,11 @@ define(['core/notification'], function(notification) {
         toggleChat() {
             const body = this.chatWidget.querySelector('#chatBody');
             const toggleBtn = this.chatWidget.querySelector('#toggleBtn');
-            
+
             if (this.isMinimized) {
                 this.chatWidget.classList.remove('minimized');
                 body.style.display = 'flex';
-                toggleBtn.textContent = '−';
+                toggleBtn.textContent = '-';
                 toggleBtn.setAttribute('aria-label', 'Minimizar chat');
                 this.isMinimized = false;
             } else {
@@ -274,7 +275,7 @@ define(['core/notification'], function(notification) {
         sendMessage() {
             const input = this.chatWidget.querySelector('#chatInput');
             const sendBtn = this.chatWidget.querySelector('#sendBtn');
-            
+
             const messageText = input.value.trim();
             if (!messageText) {
                 return;
@@ -285,18 +286,18 @@ define(['core/notification'], function(notification) {
 
             // Agregar mensaje del usuario
             this.addMessage(messageText, 'user');
-            
+
             // Limpiar input
             input.value = '';
             input.style.height = 'auto';
-            
+
             // Scroll al final
             this.scrollToBottom();
-            
+
             // Aquí es donde se integraría la lógica de IA
             // Por ahora, simular una respuesta
             this.simulateAIResponse();
-            
+
             // Rehabilitar botón de envío
             setTimeout(() => {
                 sendBtn.disabled = false;
@@ -306,6 +307,7 @@ define(['core/notification'], function(notification) {
         /**
          * Agrega un mensaje al chat
          */
+
         addMessage(text, type) {
             const messages = this.chatWidget.querySelector('#chatMessages');
             const messageElement = document.createElement('div');
@@ -321,17 +323,17 @@ define(['core/notification'], function(notification) {
         simulateAIResponse() {
             // Mostrar indicador de escritura
             this.showTypingIndicator();
-            
+
             setTimeout(() => {
                 this.hideTypingIndicator();
-                
+
                 const responses = [
                     'Gracias por tu mensaje. Aquí es donde se integraría la lógica de IA.',
                     'Entiendo tu consulta. ¿Podrías proporcionar más detalles?',
                     'Estoy aquí para ayudarte con tus dudas sobre el curso.',
                     `Como ${this.userRole.toLowerCase()}, tienes acceso a funciones específicas. ¿En qué puedo asistirte?`
                 ];
-                
+
                 const randomResponse = responses[Math.floor(Math.random() * responses.length)];
                 this.addMessage(randomResponse, 'ai');
             }, 1500);
@@ -386,12 +388,12 @@ define(['core/notification'], function(notification) {
         /**
          * Inicializa el chat flotante
          */
-        init: function() {
+        init: function () {
             // Asegurar que solo hay una instancia
             if (datacursoChatInstance) {
                 datacursoChatInstance.destroy();
             }
-            
+
             try {
                 datacursoChatInstance = new DatacursoChat();
             } catch (error) {
@@ -402,7 +404,7 @@ define(['core/notification'], function(notification) {
         /**
          * Destruye el chat flotante
          */
-        destroy: function() {
+        destroy: function () {
             if (datacursoChatInstance) {
                 datacursoChatInstance.destroy();
                 datacursoChatInstance = null;
