@@ -186,7 +186,12 @@ Para completar la integración con IA:
 
 ## Changelog
 
-### Versión 1.1 (Actual)
+### Versión 1.2 (Actual)
+- ✅ Corregida ruta del archivo CSS
+- ✅ Movido CSS a ubicación estándar `/styles/chat.css`
+- ✅ Eliminados errores de carga de recursos
+
+### Versión 1.1
 - ✅ Corregidos errores de hooks legacy
 - ✅ Migrado a hooks modernos de Moodle 4.5
 - ✅ Eliminados warnings de deprecación
@@ -202,7 +207,7 @@ Para soporte técnico o preguntas sobre la implementación, contactar al equipo 
 
 ---
 
-**Versión**: 1.1  
+**Versión**: 1.2  
 **Fecha**: Agosto 2025  
 **Compatibilidad**: Moodle 4.5+
 

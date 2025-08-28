@@ -25,7 +25,8 @@ class chat_hook {
         }
         
         // Cargar CSS del chat
-        $PAGE->requires->css('/local/datacurso/styles/chat.css');
+        global $CFG;
+        //$PAGE->requires->css($CFG->wwwroot . '/local/datacurso/styles/chat.css');
         
         // Cargar JavaScript del chat
         $PAGE->requires->js_call_amd('local_datacurso/chat', 'init');
