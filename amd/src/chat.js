@@ -177,9 +177,9 @@ define(['core/notification'], function (notification) {
 
                         <div class="datacurso-chat-input-container">
                             <div class="datacurso-chat-input-wrapper">
-                                <textarea 
-                                    class="datacurso-chat-input" 
-                                    id="chatInput" 
+                                <textarea
+                                    class="datacurso-chat-input"
+                                    id="chatInput"
                                     placeholder="Escribe tu mensaje..."
                                     rows="1"
                                     aria-label="Mensaje para el asistente IA"></textarea>

@@ -38,6 +38,7 @@ $string['custom_model_select_field'] = 'Elige el modelo a utilizar';
 $string['custom_program_text_field'] = 'Define el PROGRAMA al que esta asociado la asignatura.';
 $string['custom_semester_select_field'] = 'Selecciona el SEMESTRE en el que se impartirá esta asignatura.';
 $string['custom_text_field_help'] = 'Ingresa un texto personalizado para este curso.';
+$string['error_invalid_number'] = 'Número invalido';
 $string['error_text_too_short'] = 'El texto debe tener al menos 3 caracteres.';
 $string['formation_option1'] = 'Técnica Profesional';
 $string['formation_option2'] = 'Tecnológico';
