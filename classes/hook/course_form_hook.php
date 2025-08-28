@@ -4,7 +4,6 @@ namespace local_datacurso\hook;
 use \core_course\hook\after_form_definition;
 use \core_course\hook\before_form_validation;
 
-
 class course_form_hook {
 
     /**
@@ -12,50 +11,93 @@ class course_form_hook {
      */
     public static function after_form_definition(after_form_definition $hook): void {
         $mform = $hook->mform;
-        //$mform = $form->_form;
 
         // Agregar una sección para los campos personalizados
         $mform->addElement('header', 'local_datacurso_header',
             get_string('custom_fields_header', 'local_datacurso'));
 
-        // Campo de texto personalizado
-        $mform->addElement('text', 'local_datacurso_custom_text',
-            get_string('custom_text_field', 'local_datacurso'));
-        $mform->setType('local_datacurso_custom_text', PARAM_TEXT);
-        $mform->addHelpButton('local_datacurso_custom_text', 'custom_text_field', 'local_datacurso');
-
-        // Campo select personalizado
+        // Model selection
         $options = [
             '' => get_string('choose', 'core'),
             'option1' => get_string('option1', 'local_datacurso'),
             'option2' => get_string('option2', 'local_datacurso'),
             'option3' => get_string('option3', 'local_datacurso'),
         ];
-        $mform->addElement('select', 'local_datacurso_custom_select',
-            get_string('custom_select_field', 'local_datacurso'), $options);
+        $mform->addElement('select', 'local_datacurso_custom_select_model',
+            get_string('custom_model_select_field', 'local_datacurso'), $options);
+        
+        // Program definition text
+        $mform->addElement('text', 'local_datacurso_custom_text_program',
+            get_string('custom_program_text_field', 'local_datacurso'));
+        $mform->setType('local_datacurso_custom_text_program', PARAM_TEXT);
+        
+        // Semester selection
+        $options = [
+            '' => get_string('choose', 'core'),
+            'semester_option1' => get_string('semester_option1', 'local_datacurso'),
+            'semester_option2' => get_string('semester_option2', 'local_datacurso'),
+            'semester_option3' => get_string('semester_option3', 'local_datacurso'),
+            'semester_option4' => get_string('semester_option4', 'local_datacurso'),
+            'semester_option5' => get_string('semester_option5', 'local_datacurso'),
+            'semester_option6' => get_string('semester_option6', 'local_datacurso'),
+            'semester_option7' => get_string('semester_option7', 'local_datacurso'),
+            'semester_option8' => get_string('semester_option8', 'local_datacurso'),
+            'semester_option9' => get_string('semester_option9', 'local_datacurso'),
+            'semester_option10' => get_string('semester_option10', 'local_datacurso')
+        ];
+        $mform->addElement('select', 'local_datacurso_custom_select_semester',
+            get_string('custom_semester_select_field', 'local_datacurso'), $options);
 
-        // Campo checkbox personalizado
-        $mform->addElement('checkbox', 'local_datacurso_custom_checkbox',
-            get_string('custom_checkbox_field', 'local_datacurso'));
+        // Training level selection
+        $options = [
+            '' => get_string('choose', 'core'),
+            'formation_option1' => get_string('formation_option1', 'local_datacurso'),
+            'formation_option2' => get_string('formation_option2', 'local_datacurso'),
+            'formation_option3' => get_string('formation_option3', 'local_datacurso'),
+        ];
+        $mform->addElement('select', 'local_datacurso_custom_select_formation',
+            get_string('custom_formation_select_field', 'local_datacurso'), $options);
 
-        $mform->addElement('checkbox', 'local_datacurso_custom_checkbox',
-            get_string('custom_checkbox2_field', 'local_datacurso'));
+        // Training objective textarea
+        $mform->addElement('editor', 'local_datacurso_training_objective',
+            get_string('training_objective_field', 'local_datacurso'),
+            null, ['rows' => 10, 'cols' => 60]);
+        $mform->setType('local_datacurso_training_objective', PARAM_RAW);
 
-        // Campo textarea personalizado
-        $mform->addElement('textarea', 'local_datacurso_custom_textarea',
-            get_string('custom_textarea_field', 'local_datacurso'),
-            'wrap="virtual" rows="5" cols="50"');
-        $mform->setType('local_datacurso_custom_textarea', PARAM_TEXT);
+        // Course description textarea
+        $mform->addElement('editor', 'local_datacurso_course_description',
+            get_string('course_description_field', 'local_datacurso'),
+            null, ['rows' => 10, 'cols' => 60]);
+        $mform->setType('local_datacurso_course_description', PARAM_RAW);
 
-        // Campo de fecha personalizado
-        $mform->addElement('date_selector', 'local_datacurso_custom_date',
-            get_string('custom_date_field', 'local_datacurso'),
-            array('optional' => true));
+        // Course content textarea
+        $mform->addElement('editor', 'local_datacurso_course_content',
+            get_string('course_content_field', 'local_datacurso'),
+            null, ['rows' => 10, 'cols' => 60]);
+        $mform->setType('local_datacurso_course_content', PARAM_RAW);
 
-        // Si estamos editando un curso existente, cargar los valores
-        /*if (!empty($hook->get_course()->id)) {
-            self::load_custom_data($form, $mform);
-        }*/
+        // Learning outcomes textarea
+        $mform->addElement('editor', 'local_datacurso_learning_outcomes',
+            get_string('learning_outcomes_field', 'local_datacurso'),
+            null, ['rows' => 10, 'cols' => 60]);
+        $mform->setType('local_datacurso_learning_outcomes', PARAM_RAW);
+
+        // Course summary textarea
+        $mform->addElement('editor', 'local_datacurso_course_summary',
+            get_string('course_summary_field', 'local_datacurso'),
+            null, ['rows' => 10, 'cols' => 60]);
+        $mform->setType('local_datacurso_course_summary', PARAM_RAW);
+
+        // Course structure textarea
+        $mform->addElement('editor', 'local_datacurso_course_structure',
+            get_string('course_structure_field', 'local_datacurso'),
+            null, ['rows' => 10, 'cols' => 60]);
+        $mform->setType('local_datacurso_course_structure', PARAM_RAW);
+
+        // Number of modules text field
+        $mform->addElement('text', 'local_datacurso_number_of_modules',
+            get_string('number_of_modules_field', 'local_datacurso'));
+        $mform->setType('local_datacurso_number_of_modules', PARAM_INT);
     }
 
     /**
@@ -66,17 +108,18 @@ class course_form_hook {
         $data = $hook->get_data();
         $errors = $hook->get_errors();
 
-        // Validación personalizada para el campo de texto
-        if (!empty($data['local_datacurso_custom_text'])) {
-            if (strlen($data['local_datacurso_custom_text']) < 3) {
-                $errors['local_datacurso_custom_text'] = get_string('error_text_too_short', 'local_datacurso');
+        // Validación personalizada para el campo de texto del programa
+        if (!empty($data['local_datacurso_custom_text_program'])) {
+            if (strlen($data['local_datacurso_custom_text_program']) < 3) {
+                $errors['local_datacurso_custom_text_program'] = get_string('error_text_too_short', 'local_datacurso');
             }
         }
 
-        // Validación para el campo select
-        if (empty($data['local_datacurso_custom_select'])) {
-            // Opcional: hacer el campo requerido
-            // $errors['local_datacurso_custom_select'] = get_string('required');
+        // Validación para la cantidad de módulos
+        if (!empty($data['local_datacurso_number_of_modules'])) {
+            if (!is_numeric($data['local_datacurso_number_of_modules']) || $data['local_datacurso_number_of_modules'] < 1) {
+                $errors['local_datacurso_number_of_modules'] = get_string('error_invalid_number', 'local_datacurso');
+            }
         }
 
         $hook->set_errors($errors);
@@ -95,11 +138,55 @@ class course_form_hook {
             ['courseid' => $courseid]);
 
         if ($customdata) {
-            $mform->setDefault('local_datacurso_custom_text', $customdata->custom_text);
-            $mform->setDefault('local_datacurso_custom_select', $customdata->custom_select);
-            $mform->setDefault('local_datacurso_custom_checkbox', $customdata->custom_checkbox);
-            $mform->setDefault('local_datacurso_custom_textarea', $customdata->custom_textarea);
-            $mform->setDefault('local_datacurso_custom_date', $customdata->custom_date);
+            // Establecer valores por defecto para cada campo
+            $mform->setDefault('local_datacurso_custom_select_model', $customdata->custom_select_model);
+            $mform->setDefault('local_datacurso_custom_text_program', $customdata->custom_text_program);
+            $mform->setDefault('local_datacurso_custom_select_semester', $customdata->custom_select_semester);
+            $mform->setDefault('local_datacurso_custom_select_formation', $customdata->custom_select_formation);
+            $mform->setDefault('local_datacurso_number_of_modules', $customdata->number_of_modules);
+            
+            // Para campos editor (necesitan formato especial)
+            if (isset($customdata->training_objective)) {
+                $mform->setDefault('local_datacurso_training_objective', [
+                    'text' => $customdata->training_objective,
+                    'format' => FORMAT_HTML
+                ]);
+            }
+            
+            if (isset($customdata->course_description)) {
+                $mform->setDefault('local_datacurso_course_description', [
+                    'text' => $customdata->course_description,
+                    'format' => FORMAT_HTML
+                ]);
+            }
+            
+            if (isset($customdata->course_content)) {
+                $mform->setDefault('local_datacurso_course_content', [
+                    'text' => $customdata->course_content,
+                    'format' => FORMAT_HTML
+                ]);
+            }
+            
+            if (isset($customdata->learning_outcomes)) {
+                $mform->setDefault('local_datacurso_learning_outcomes', [
+                    'text' => $customdata->learning_outcomes,
+                    'format' => FORMAT_HTML
+                ]);
+            }
+            
+            if (isset($customdata->course_summary)) {
+                $mform->setDefault('local_datacurso_course_summary', [
+                    'text' => $customdata->course_summary,
+                    'format' => FORMAT_HTML
+                ]);
+            }
+            
+            if (isset($customdata->course_structure)) {
+                $mform->setDefault('local_datacurso_course_structure', [
+                    'text' => $customdata->course_structure,
+                    'format' => FORMAT_HTML
+                ]);
+            }
         }
     }
 }
