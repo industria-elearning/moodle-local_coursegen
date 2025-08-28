@@ -30,7 +30,7 @@ define(['core/notification'], function (notification) {
     class DatacursoChat {
         constructor() {
             this.chatWidget = null;
-            this.isMinimized = false;
+            this.isMinimized = true;
             this.userRole = 'Estudiante';
             this.courseId = null;
             this.isInCourseContext = false;
@@ -204,6 +204,21 @@ define(['core/notification'], function (notification) {
             const chatContainer = document.createElement('div');
             chatContainer.innerHTML = chatHTML;
             this.chatWidget = chatContainer.firstElementChild;
+
+            // APLICAR ESTADO INICIAL SEGÚN this.isMinimized
+            const body = this.chatWidget.querySelector('#chatBody');
+            const toggleBtn = this.chatWidget.querySelector('#toggleBtn');
+
+            if (this.isMinimized) {
+                this.chatWidget.classList.add('minimized');
+                body.style.display = 'none';
+                toggleBtn.textContent = '+';
+                toggleBtn.setAttribute('aria-label', 'Maximizar chat');
+            } else {
+                body.style.display = 'flex';
+                toggleBtn.textContent = '-';
+                toggleBtn.setAttribute('aria-label', 'Minimizar chat');
+            }
 
             document.body.appendChild(this.chatWidget);
 
