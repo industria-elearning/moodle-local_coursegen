@@ -36,3 +36,16 @@ $string['tenantid_desc'] = 'Enter your tenant ID here.';
 $string['tenanttoken'] = 'Tenant Token';
 $string['tenanttoken_desc'] = 'Enter your tenant token here.';
 $string['unauthorized'] = 'Unauthorized access';
+
+
+$string['custom_fields_header'] = 'Campos Personalizados';
+$string['custom_text_field'] = 'Campo de Texto Personalizado';
+$string['custom_text_field_help'] = 'Ingresa un texto personalizado para este curso.';
+$string['custom_select_field'] = 'Campo Select Personalizado';
+$string['custom_checkbox_field'] = 'Campo Checkbox Personalizado';
+$string['custom_textarea_field'] = 'Campo Textarea Personalizado';
+$string['custom_date_field'] = 'Campo de Fecha Personalizado';
+$string['option1'] = 'Opción 1';
+$string['option2'] = 'Opción 2';
+$string['option3'] = 'Opción 3';
+$string['error_text_too_short'] = 'El texto debe tener al menos 3 caracteres.';

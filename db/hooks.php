@@ -26,8 +26,23 @@ defined('MOODLE_INTERNAL') || die();
 
 $callbacks = [
     [
-        'hook' => core\hook\after_config::class,
-        'callback' => 'local_datacurso\local\hooks\after_config::callback',
-        'priority' => -10,
+        'hook' => core_course\hook\after_form_definition::class,
+        'callback' => 'local_datacurso\hook\course_form_hook::after_form_definition',
+        'priority' => 100,
+    ],
+    [
+        'hook' => core_course\hook\before_form_validation::class,
+        'callback' => 'local_datacurso\hook\course_form_hook::before_form_validation',
+        'priority' => 100,
+    ],
+    [
+        'hook' => core_course\hook\after_course_created::class,
+        'callback' => 'local_datacurso\hook\course_form_hook::after_course_created',
+        'priority' => 100,
+    ],
+    [
+        'hook' => core_course\hook\after_course_updated::class,
+        'callback' => 'local_datacurso\hook\course_form_hook::after_course_updated',
+        'priority' => 100,
     ],
 ];
