@@ -427,4 +427,3 @@ define(['core/notification'], function (notification) {
         }
     };
 });
-
