@@ -30,7 +30,9 @@ use local_datacurso\httpclient\datacurso_api;
 class course_form_hook {
 
     /**
-     * Hook para agregar campos personalizados al formulario de curso
+     * Hook para agregar campos personalizados al formulario de curso.
+     *
+     * @param after_form_definition $hook Objeto del hook con el formulario.
      */
     public static function after_form_definition(after_form_definition $hook): void {
         $mform = $hook->mform;
@@ -153,7 +155,9 @@ class course_form_hook {
     }
 
     /**
-     * Hook para validar los campos personalizados
+     * Hook para validar los campos personalizados.
+     *
+     * @param before_form_validation $hook Objeto del hook con datos y errores.
      */
     public static function before_form_validation(before_form_validation $hook): void {
         $form = $hook->get_form();
@@ -178,7 +182,10 @@ class course_form_hook {
     }
 
     /**
-     * Cargar datos personalizados para un curso existente
+     * Cargar datos personalizados para un curso existente.
+     *
+     * @param \moodleform $form El formulario actual.
+     * @param \MoodleQuickForm $mform El quickform usado para agregar/definir campos.
      */
     private static function load_custom_data($form, $mform): void {
         global $DB;

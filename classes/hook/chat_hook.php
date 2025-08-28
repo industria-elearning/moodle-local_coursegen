@@ -29,7 +29,9 @@ use core\hook\output\before_standard_head_html_generation;
 class chat_hook {
 
     /**
-     * Hook para cargar el chat antes del footer
+     * Hook para cargar el chat antes del footer.
+     *
+     * @param before_footer_html_generation $hook El hook del evento.
      */
     public static function before_footer_html_generation(before_footer_html_generation $hook): void {
         global $PAGE, $COURSE, $USER;
@@ -54,7 +56,9 @@ class chat_hook {
     }
 
     /**
-     * Hook para agregar CSS y metadatos en el head
+     * Hook para agregar CSS y metadatos en el head.
+     *
+     * @param before_standard_head_html_generation $hook El hook del evento.
      */
     public static function before_standard_head_html_generation(before_standard_head_html_generation $hook): void {
         global $PAGE, $CFG;
