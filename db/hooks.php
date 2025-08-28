@@ -17,7 +17,7 @@
 /**
  * Hook callbacks for Tenant Navigator
  *
- * @package    local_tenantmgr
+ * @package    local_datacurso
  * @copyright  2025 Industria Elearning <info@industriaelearning.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
