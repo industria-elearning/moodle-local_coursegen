@@ -186,7 +186,17 @@ Para completar la integración con IA:
 
 ## Changelog
 
-### Versión 1.2 (Actual)
+### Versión 1.4 (Actual)
+- ✅ Convertido JavaScript a sintaxis AMD (RequireJS) de Moodle
+- ✅ Eliminados imports/exports ES6 incompatibles
+- ✅ Corregidos errores "Cannot use import statement outside a module"
+
+### Versión 1.3
+- ✅ Corregido timing de carga de CSS (movido al hook del head)
+- ✅ Separada carga de CSS (head) y JavaScript (footer)
+- ✅ Eliminado error "Cannot require CSS after head has been printed"
+
+### Versión 1.2
 - ✅ Corregida ruta del archivo CSS
 - ✅ Movido CSS a ubicación estándar `/styles/chat.css`
 - ✅ Eliminados errores de carga de recursos
@@ -207,7 +217,7 @@ Para soporte técnico o preguntas sobre la implementación, contactar al equipo 
 
 ---
 
-**Versión**: 1.2  
+**Versión**: 1.4  
 **Fecha**: Agosto 2025  
 **Compatibilidad**: Moodle 4.5+
 

@@ -23,11 +23,7 @@ class chat_hook {
         if (!self::is_course_context()) {
             return;
         }
-        
-        // Cargar CSS del chat
-        global $CFG;
-        //$PAGE->requires->css($CFG->wwwroot . '/local/datacurso/styles/chat.css');
-        
+
         // Cargar JavaScript del chat
         $PAGE->requires->js_call_amd('local_datacurso/chat', 'init');
         
@@ -43,13 +39,18 @@ class chat_hook {
     }
 
     /**
-     * Hook para agregar metadatos en el head
+     * Hook para agregar CSS y metadatos en el head
      */
     public static function before_standard_head_html_generation(before_standard_head_html_generation $hook): void {
+        global $PAGE, $CFG;
+        
         // Solo cargar en contextos de curso
         if (!self::is_course_context()) {
             return;
         }
+        
+        // Cargar CSS del chat
+        $PAGE->requires->css('/local/datacurso/styles/chat.css');
         
         // Agregar metadatos para el chat
         $hook->add_html('<meta name="datacurso-chat-enabled" content="true">');
