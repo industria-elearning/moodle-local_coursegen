@@ -1,4 +1,19 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 namespace local_datacurso\hook;
 
 use core\hook\output\before_footer_html_generation;
@@ -18,23 +33,23 @@ class chat_hook {
      */
     public static function before_footer_html_generation(before_footer_html_generation $hook): void {
         global $PAGE, $COURSE, $USER;
-        
-        // Solo cargar en contextos de curso
+
+        // Solo cargar en contextos de curso.
         if (!self::is_course_context()) {
             return;
         }
 
-        // Cargar JavaScript del chat
+        // Cargar JavaScript del chat.
         $PAGE->requires->js_call_amd('local_datacurso/chat', 'init');
-        
-        // Agregar datos del contexto para JavaScript
+
+        // Agregar datos del contexto para JavaScript.
         $chatdata = [
             'courseid' => $COURSE->id ?? 0,
             'userid' => $USER->id,
             'userrole' => self::get_user_role_in_course(),
-            'contextlevel' => $PAGE->context->contextlevel ?? 0
+            'contextlevel' => $PAGE->context->contextlevel ?? 0,
         ];
-        
+
         $PAGE->requires->data_for_js('datacurso_chat_config', $chatdata);
     }
 
@@ -43,16 +58,16 @@ class chat_hook {
      */
     public static function before_standard_head_html_generation(before_standard_head_html_generation $hook): void {
         global $PAGE, $CFG;
-        
-        // Solo cargar en contextos de curso
+
+        // Solo cargar en contextos de curso.
         if (!self::is_course_context()) {
             return;
         }
-        
-        // Cargar CSS del chat
+
+        // Cargar CSS del chat.
         $PAGE->requires->css('/local/datacurso/styles/chat.css');
-        
-        // Agregar metadatos para el chat
+
+        // Agregar metadatos para el chat.
         $hook->add_html('<meta name="datacurso-chat-enabled" content="true">');
     }
 
@@ -61,27 +76,27 @@ class chat_hook {
      */
     private static function is_course_context(): bool {
         global $PAGE, $COURSE;
-        
-        // Verificar si estamos en una página de curso
-        if ($PAGE->pagelayout === 'course' || 
+
+        // Verificar si estamos en una página de curso.
+        if ($PAGE->pagelayout === 'course' ||
             $PAGE->pagelayout === 'incourse' ||
             strpos($PAGE->pagetype, 'course-') === 0 ||
             strpos($PAGE->pagetype, 'mod-') === 0) {
             return true;
         }
-        
-        // Verificar si hay un curso válido
+
+        // Verificar si hay un curso válido.
         if (isset($COURSE) && $COURSE->id > 1) {
             return true;
         }
-        
-        // Verificar contexto
+
+        // Verificar contexto.
         $context = $PAGE->context;
-        if ($context->contextlevel == CONTEXT_COURSE || 
+        if ($context->contextlevel == CONTEXT_COURSE ||
             $context->contextlevel == CONTEXT_MODULE) {
             return true;
         }
-        
+
         return false;
     }
 
@@ -90,28 +105,27 @@ class chat_hook {
      */
     private static function get_user_role_in_course(): string {
         global $PAGE, $COURSE, $USER;
-        
+
         if (!isset($COURSE) || $COURSE->id <= 1) {
             return 'Estudiante';
         }
-        
+
         $context = \context_course::instance($COURSE->id);
-        
-        // Verificar si es profesor o tiene permisos de edición
+
+        // Verificar si es profesor o tiene permisos de edición.
         if (has_capability('moodle/course:update', $context) ||
             has_capability('moodle/course:manageactivities', $context)) {
             return 'Profesor';
         }
-        
-        // Verificar roles específicos
+
+        // Verificar roles específicos.
         $roles = get_user_roles($context, $USER->id);
         foreach ($roles as $role) {
             if (in_array($role->shortname, ['teacher', 'editingteacher', 'manager', 'coursecreator'])) {
                 return 'Profesor';
             }
         }
-        
+
         return 'Estudiante';
     }
 }
-
