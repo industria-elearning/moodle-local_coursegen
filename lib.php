@@ -325,64 +325,6 @@ function datacurso_sync_customfields(): void {
 
 
 /**
- * Hook para cargar el chat flotante en páginas de curso
- * Esta función se ejecuta automáticamente en cada página
- */
-function local_datacurso_before_footer() {
-    global $PAGE, $COURSE, $USER;
-    
-    // Solo cargar en contextos de curso
-    if (!local_datacurso_is_course_context()) {
-        return;
-    }
-    
-    // Cargar CSS del chat
-    $PAGE->requires->css('/local/datacurso/styles/chat.css');
-    
-    // Cargar JavaScript del chat
-    $PAGE->requires->js_call_amd('local_datacurso/chat', 'init');
-    
-    // Agregar datos del contexto para JavaScript
-    $chatdata = [
-        'courseid' => $COURSE->id ?? 0,
-        'userid' => $USER->id,
-        'userrole' => local_datacurso_get_user_role_in_course(),
-        'contextlevel' => $PAGE->context->contextlevel ?? 0
-    ];
-    
-    $PAGE->requires->data_for_js('datacurso_chat_config', $chatdata);
-}
-
-/**
- * Verifica si estamos en un contexto de curso
- */
-function local_datacurso_is_course_context() {
-    global $PAGE, $COURSE;
-    
-    // Verificar si estamos en una página de curso
-    if ($PAGE->pagelayout === 'course' || 
-        $PAGE->pagelayout === 'incourse' ||
-        strpos($PAGE->pagetype, 'course-') === 0 ||
-        strpos($PAGE->pagetype, 'mod-') === 0) {
-        return true;
-    }
-    
-    // Verificar si hay un curso válido
-    if (isset($COURSE) && $COURSE->id > 1) {
-        return true;
-    }
-    
-    // Verificar contexto
-    $context = $PAGE->context;
-    if ($context->contextlevel == CONTEXT_COURSE || 
-        $context->contextlevel == CONTEXT_MODULE) {
-        return true;
-    }
-    
-    return false;
-}
-
-/**
  * Obtiene el rol del usuario en el curso actual
  */
 function local_datacurso_get_user_role_in_course() {
@@ -412,17 +354,31 @@ function local_datacurso_get_user_role_in_course() {
 }
 
 /**
- * Hook para agregar el chat a las páginas
+ * Verifica si estamos en un contexto de curso
  */
-function local_datacurso_before_standard_html_head() {
-    global $PAGE;
+function local_datacurso_is_course_context() {
+    global $PAGE, $COURSE;
     
-    // Solo cargar en contextos de curso
-    if (!local_datacurso_is_course_context()) {
-        return '';
+    // Verificar si estamos en una página de curso
+    if ($PAGE->pagelayout === 'course' || 
+        $PAGE->pagelayout === 'incourse' ||
+        strpos($PAGE->pagetype, 'course-') === 0 ||
+        strpos($PAGE->pagetype, 'mod-') === 0) {
+        return true;
     }
     
-    // Agregar metadatos para el chat
-    return '<meta name="datacurso-chat-enabled" content="true">';
+    // Verificar si hay un curso válido
+    if (isset($COURSE) && $COURSE->id > 1) {
+        return true;
+    }
+    
+    // Verificar contexto
+    $context = $PAGE->context;
+    if ($context->contextlevel == CONTEXT_COURSE || 
+        $context->contextlevel == CONTEXT_MODULE) {
+        return true;
+    }
+    
+    return false;
 }
 

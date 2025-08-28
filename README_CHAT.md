@@ -14,7 +14,7 @@ Se ha agregado un chat flotante al plugin `local_datacurso` que permite a los us
 - **Interfaz moderna**: Diseño profesional con animaciones suaves
 - **Minimizable**: El usuario puede minimizar/maximizar el chat
 - **Responsive**: Se adapta a dispositivos móviles
-- **Integración con Moodle**: Utiliza el sistema AMD de JavaScript y hooks de Moodle
+- **Integración con Moodle**: Utiliza el sistema AMD de JavaScript y hooks modernos de Moodle 4.5
 
 ### 🎨 Componentes del Chat
 
@@ -43,15 +43,26 @@ Se ha agregado un chat flotante al plugin `local_datacurso` que permite a los us
 1. **`amd/src/chat.js`** - Lógica principal del chat en JavaScript
 2. **`amd/build/chat.min.js`** - Versión compilada del JavaScript
 3. **`styles/chat.css`** - Estilos CSS del chat flotante
-4. **`classes/hook/chat_hook.php`** - Hook para cargar el chat (no utilizado en versión final)
+4. **`classes/hook/chat_hook.php`** - Hook moderno para cargar el chat
 
 ### Archivos Modificados
 
-1. **`lib.php`** - Agregadas funciones para:
-   - `local_datacurso_before_footer()` - Carga el chat en páginas de curso
+1. **`lib.php`** - Agregadas funciones de utilidad:
    - `local_datacurso_is_course_context()` - Verifica contexto de curso
    - `local_datacurso_get_user_role_in_course()` - Detecta rol del usuario
-   - `local_datacurso_before_standard_html_head()` - Agrega metadatos
+
+2. **`db/hooks.php`** - Agregados hooks modernos para:
+   - `before_footer_html_generation` - Carga el chat
+   - `before_standard_head_html_generation` - Agrega metadatos
+
+## ⚠️ Correcciones Importantes
+
+**Versión 1.1 - Corrección de Hooks Legacy**
+
+Se han corregido los errores de deprecación de Moodle 4.5:
+- ✅ Eliminadas funciones callback legacy (`before_footer`, `before_standard_html_head`)
+- ✅ Migrado a hooks modernos (`before_footer_html_generation`, `before_standard_head_html_generation`)
+- ✅ Compatible con el sistema de hooks de Moodle 4.5
 
 ## Instalación
 
@@ -70,12 +81,12 @@ Si prefieres mantener tu versión actual y solo agregar el chat:
    amd/src/chat.js
    amd/build/chat.min.js
    styles/chat.css
+   classes/hook/chat_hook.php
    ```
 
-2. **Actualizar `lib.php`**: Agregar las funciones al final del archivo:
-   ```php
-   // Copiar las funciones desde la línea 327 en adelante
-   ```
+2. **Actualizar `lib.php`**: Agregar las funciones de utilidad (líneas 327-383)
+
+3. **Actualizar `db/hooks.php`**: Agregar los nuevos hooks (líneas 48-57)
 
 ## Configuración
 
@@ -143,6 +154,7 @@ constructor() {
 1. Verificar que estás en una página de curso
 2. Comprobar la consola del navegador por errores JavaScript
 3. Verificar que los archivos CSS y JS se cargan correctamente
+4. Purgar cachés de Moodle (`Administración > Desarrollo > Purgar cachés`)
 
 ### Rol incorrecto en el header
 
@@ -155,6 +167,13 @@ constructor() {
 2. Comprobar conflictos con otros CSS del tema
 3. Usar herramientas de desarrollador para debuggear
 
+### Errores de hooks legacy (CORREGIDO)
+
+Si aparecen errores sobre callbacks legacy:
+- ✅ **Ya corregido en esta versión**
+- Los hooks ahora usan el sistema moderno de Moodle 4.5
+- No más warnings de deprecación
+
 ## Próximos Pasos
 
 Para completar la integración con IA:
@@ -165,13 +184,25 @@ Para completar la integración con IA:
 4. **Implementar historial**: Guardar conversaciones en la base de datos
 5. **Agregar configuraciones**: Panel de administración para configurar la IA
 
+## Changelog
+
+### Versión 1.1 (Actual)
+- ✅ Corregidos errores de hooks legacy
+- ✅ Migrado a hooks modernos de Moodle 4.5
+- ✅ Eliminados warnings de deprecación
+
+### Versión 1.0
+- ✅ Implementación inicial del chat flotante
+- ✅ Detección de contexto de curso
+- ✅ Detección de rol de usuario
+
 ## Soporte
 
 Para soporte técnico o preguntas sobre la implementación, contactar al equipo de desarrollo de Datacurso.
 
 ---
 
-**Versión**: 1.0  
+**Versión**: 1.1  
 **Fecha**: Agosto 2025  
 **Compatibilidad**: Moodle 4.5+
 

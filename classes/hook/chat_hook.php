@@ -1,6 +1,9 @@
 <?php
 namespace local_datacurso\hook;
 
+use core\hook\output\before_footer_html_generation;
+use core\hook\output\before_standard_head_html_generation;
+
 /**
  * Hook para cargar el chat flotante
  *
@@ -11,9 +14,9 @@ namespace local_datacurso\hook;
 class chat_hook {
 
     /**
-     * Inicializa el chat en páginas de curso
+     * Hook para cargar el chat antes del footer
      */
-    public static function init_chat(): void {
+    public static function before_footer_html_generation(before_footer_html_generation $hook): void {
         global $PAGE, $COURSE, $USER;
         
         // Solo cargar en contextos de curso
@@ -36,6 +39,19 @@ class chat_hook {
         ];
         
         $PAGE->requires->data_for_js('datacurso_chat_config', $chatdata);
+    }
+
+    /**
+     * Hook para agregar metadatos en el head
+     */
+    public static function before_standard_head_html_generation(before_standard_head_html_generation $hook): void {
+        // Solo cargar en contextos de curso
+        if (!self::is_course_context()) {
+            return;
+        }
+        
+        // Agregar metadatos para el chat
+        $hook->add_html('<meta name="datacurso-chat-enabled" content="true">');
     }
 
     /**
@@ -77,7 +93,7 @@ class chat_hook {
             return 'Estudiante';
         }
         
-        $context = context_course::instance($COURSE->id);
+        $context = \context_course::instance($COURSE->id);
         
         // Verificar si es profesor o tiene permisos de edición
         if (has_capability('moodle/course:update', $context) ||
