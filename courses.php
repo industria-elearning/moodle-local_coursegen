@@ -32,7 +32,7 @@ $PAGE->set_context(context_system::instance());
 
 $PAGE->set_heading($SITE->fullname);
 
-$PAGE->requires->css('/local/datacurso/styles.css');
+$PAGE->requires->css('/local/datacurso/styles/models.css');
 
 echo $OUTPUT->header();
 
