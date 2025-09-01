@@ -14,7 +14,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Chat flotante para asistente IA en contextos de curso
+ * Floating chat for AI assistant in course contexts
  *
  * @module     local_datacurso/chat
  * @copyright  2025 Datacurso <josue@datacurso.com>
