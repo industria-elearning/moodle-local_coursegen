@@ -44,4 +44,11 @@ $functions = [
         'ajax'        => true,
         'capabilities' => '',
     ],
+    'local_datacurso_get_response_ia' => [
+        'classname'   => 'local_datacurso\external\get_response_ia',
+        'methodname'  => 'execute',
+        'description' => 'Request IA response and return assembled HTML',
+        'type'        => 'write',
+        'ajax'        => true,
+    ],
 ];
