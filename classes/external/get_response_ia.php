@@ -29,7 +29,7 @@ use core_external\external_function_parameters;
 use core_external\external_single_structure;
 use core_external\external_value;
 use external_multiple_structure;
-use local_datacurso\httpclient\datacurso_api;
+use local_datacurso\httpclient\datacurso_ai_api;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -50,11 +50,11 @@ class get_response_ia extends external_api {
      */
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
-            'courseid'      => new external_value(PARAM_INT, 'Course id', VALUE_DEFAULT, 1),
-            'modulenumber'  => new external_value(PARAM_INT, 'Module number', VALUE_DEFAULT, 0),
-            'lang'          => new external_value(PARAM_TEXT, 'Language code', VALUE_DEFAULT, 'es'),
-            'question'      => new external_value(PARAM_RAW, 'Question or field id', VALUE_DEFAULT, 't63'),
-            'formtab'       => new external_value(PARAM_TEXT, 'Form tab', VALUE_DEFAULT, 'modules'),
+            'courseid' => new external_value(PARAM_INT, 'Course id', VALUE_DEFAULT, 1),
+            'modulenumber' => new external_value(PARAM_INT, 'Module number', VALUE_DEFAULT, 0),
+            'lang' => new external_value(PARAM_TEXT, 'Language code', VALUE_DEFAULT, 'es'),
+            'question' => new external_value(PARAM_RAW, 'Question or field id', VALUE_DEFAULT, 't63'),
+            'formtab' => new external_value(PARAM_TEXT, 'Form tab', VALUE_DEFAULT, 'modules'),
             'formaccordeon' => new external_value(PARAM_TEXT, 'Form accordion', VALUE_DEFAULT, 'module_info'),
         ]);
     }
@@ -66,35 +66,29 @@ class get_response_ia extends external_api {
     public static function execute($courseid, $modulenumber, $lang, $question, $formtab = '', $formaccordeon = ''): array {
         // Validate all of the parameters.
         $params = self::validate_parameters(self::execute_parameters(), [
-            'courseid'      => $courseid,
-            'modulenumber'  => $modulenumber,
-            'lang'          => $lang,
-            'question'      => $question,
-            'formtab'       => $formtab,
+            'courseid' => $courseid,
+            'modulenumber' => $modulenumber,
+            'lang' => $lang,
+            'question' => $question,
+            'formtab' => $formtab,
             'formaccordeon' => $formaccordeon,
         ]);
 
-        $datacursoapi = new datacurso_api();
+        $datacursoaiapi = new datacurso_ai_api();
 
         $payload = [
-            'course_id'     => $params['courseid'],
-            'moduleNumber'  => $params['modulenumber'],
-            'lang'          => $params['lang'],
-            'question'      => $params['question'],
-            'formTab'       => $params['formtab'],
+            'course_id' => $params['courseid'],
+            'moduleNumber' => $params['modulenumber'],
+            'lang' => $params['lang'],
+            'question' => $params['question'],
+            'formTab' => $params['formtab'],
             'formAccordeon' => $params['formaccordeon'],
         ];
 
-        $response =  $datacursoapi->post('/v2/ai-assistance', $payload);
+        $response = $datacursoaiapi->post('/v2/ai-assistance', $payload);
 
-        $html = '';
-        if (is_array($response)) {
-            foreach ($response as $chunk) {
-                if (isset($chunk['data']) && $chunk['data'] !== '[DONE]') {
-                    $html .= $chunk['data'];
-                }
-            }
-        }
+        // Ahora el cliente HTTP ya devuelve el HTML limpio.
+        $html = $response['data'] ?? '';
 
         return [
             'html' => $html,
