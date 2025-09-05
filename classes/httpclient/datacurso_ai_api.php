@@ -126,7 +126,10 @@ class datacurso_ai_api {
     }
 
     /**
-     * Process the response to handle stream format
+     * Process the response to handle stream format.
+     *
+     * @param array $response The decoded API response, possibly containing stream-formatted data.
+     * @return array Processed response with parsed stream data if applicable.
      */
     private function process_response(array $response): array {
         // Si la respuesta contiene 'data' con formato stream, lo procesamos.
@@ -154,7 +157,14 @@ class datacurso_ai_api {
     }
 
     /**
-     * Parse the stream response format: "id: 0\ndata: \"\"\nid: 1\ndata: \"<div\"\n..."
+     * Parse the stream response format into HTML.
+     *
+     * Expected format example:
+     *   id: 0
+     *   data: "<div>"
+     *
+     * @param string $streamresponse Raw stream response as a string.
+     * @return string Concatenated HTML extracted from the stream response.
      */
     private function parse_stream_response(string $streamresponse): string {
         $html = '';
@@ -192,7 +202,10 @@ class datacurso_ai_api {
     }
 
     /**
-     * Alternative method using regex for stream parsing
+     * Alternative parser for stream response using regex.
+     *
+     * @param string $streamresponse Raw stream response as a string.
+     * @return string Concatenated HTML extracted from the stream response.
      */
     private function parse_stream_response_regex(string $streamresponse): string {
         $html = '';
