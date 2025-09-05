@@ -58,10 +58,17 @@ class get_response_ia extends external_api {
             'formaccordeon' => new external_value(PARAM_TEXT, 'Form accordion', VALUE_DEFAULT, 'module_info'),
         ]);
     }
+
     /**
-     * Make request to datacurso backend to get auth token to this user
+     * Make request to DataCurso backend to get AI response for the given course/module/question.
      *
-     * @return array
+     * @param int $courseid Course ID.
+     * @param int $modulenumber Module number within the course.
+     * @param string $lang Language code (e.g. 'es', 'en').
+     * @param string $question Question text or field identifier.
+     * @param string $formtab Form tab identifier.
+     * @param string $formaccordeon Form accordion identifier.
+     * @return array Associative array containing the AI response HTML.
      */
     public static function execute($courseid, $modulenumber, $lang, $question, $formtab = '', $formaccordeon = ''): array {
         // Validate all of the parameters.
