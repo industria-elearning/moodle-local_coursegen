@@ -50,7 +50,7 @@ class get_response_ia extends external_api {
      */
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
-            'courseid'      => new external_value(PARAM_INT, 'Course id', VALUE_DEFAULT, 49),
+            'courseid'      => new external_value(PARAM_INT, 'Course id', VALUE_DEFAULT, 1),
             'modulenumber'  => new external_value(PARAM_INT, 'Module number', VALUE_DEFAULT, 0),
             'lang'          => new external_value(PARAM_TEXT, 'Language code', VALUE_DEFAULT, 'es'),
             'question'      => new external_value(PARAM_RAW, 'Question or field id', VALUE_DEFAULT, 't63'),
