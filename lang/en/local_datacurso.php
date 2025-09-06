@@ -25,8 +25,10 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['baseurl'] = 'API Base URL';
-$string['baseurl_desc'] = 'Enter the base URL of the DataCurso API with version. e.g. https://api.datacurso.com/api/v3';
+$string['aiurl'] = 'API Langchain URL';
+$string['aiurl_desc'] = 'Enter the DataCurso langchain URL. e.g. https://ai.datacurso.com/api/';
+$string['baseurl'] = 'API Backend URL';
+$string['baseurl_desc'] = 'Enter the base URL of the DataCurso API with version. e.g. https://api.datacurso.com/api/';
 $string['cachedef_apitoken'] = 'Cache for API token obtained from DataCurso';
 $string['course_content_field'] = 'Define el CONTENIDO de la asignatura.';
 $string['course_description_field'] = 'Define una DESCRIPCIÓN DE LA ASIGNATURA para la asignatura.';
