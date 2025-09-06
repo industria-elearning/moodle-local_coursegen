@@ -105,7 +105,7 @@ class get_response_ia extends external_api {
     /**
      * Returns description of method result value.
      *
-     * @return external_multiple_structure
+     * @return external_single_structure
      */
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
