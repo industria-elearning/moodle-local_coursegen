@@ -21,6 +21,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+import Ajax from "../../../../lib/amd/src/ajax";
+
 define(['core/notification'], function (notification) {
     'use strict';
 
@@ -308,9 +310,28 @@ define(['core/notification'], function (notification) {
             // Scroll al final
             this.scrollToBottom();
 
-            // Aquí es donde se integraría la lógica de IA
-            // Por ahora, simular una respuesta
-            this.simulateAIResponse();
+            this.showTypingIndicator();
+
+            const courseId = window.courseid || 1;
+
+            // Send ajax call and get the sessionId, streamurl and the expiresat
+            const request = Ajax.call([
+                {
+                    methodname: "local_datacurso_get_response_ia",
+                    args: {
+                        courseid: courseId,
+                        lang: "es",
+                        message: messageText,
+                    },
+                },
+            ]);
+
+            const sessionId = request.sessionId;
+            const streamurl = request.streamurl;
+            const expiresat = request.expiresat;
+
+            // TODO Create here the SSE process to show the response from the IA
+
 
             // Rehabilitar botón de envío
             setTimeout(() => {
@@ -329,28 +350,6 @@ define(['core/notification'], function (notification) {
             messageElement.textContent = text;
             messages.appendChild(messageElement);
             this.scrollToBottom();
-        }
-
-        /**
-         * Simula una respuesta de IA (placeholder para la lógica real)
-         */
-        simulateAIResponse() {
-            // Mostrar indicador de escritura
-            this.showTypingIndicator();
-
-            setTimeout(() => {
-                this.hideTypingIndicator();
-
-                const responses = [
-                    'Gracias por tu mensaje. Aquí es donde se integraría la lógica de IA.',
-                    'Entiendo tu consulta. ¿Podrías proporcionar más detalles?',
-                    'Estoy aquí para ayudarte con tus dudas sobre el curso.',
-                    `Como ${this.userRole.toLowerCase()}, tienes acceso a funciones específicas. ¿En qué puedo asistirte?`
-                ];
-
-                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-                this.addMessage(randomResponse, 'ai');
-            }, 1500);
         }
 
         /**
