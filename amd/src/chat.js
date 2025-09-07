@@ -14,16 +14,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Floating chat for AI assistant in course contexts
+ * Floating chat for AI assistant in course contexts (con SSE)
  *
  * @module     local_datacurso/chat
- * @copyright  2025 Datacurso <josue@datacurso.com>
+ * @copyright  2025 Datacurso
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import Ajax from "../../../../lib/amd/src/ajax";
-
-define(['core/notification'], function (notification) {
+define(['core/ajax', 'core/notification'], function (Ajax, notification) {
     'use strict';
 
     /**
@@ -37,6 +35,11 @@ define(['core/notification'], function (notification) {
             this.courseId = null;
             this.isInCourseContext = false;
 
+            // Estado SSE
+            this.currentEventSource = null;
+            this.currentAIMessageEl = null;
+            this.streaming = false;
+
             this.init();
         }
 
@@ -44,18 +47,11 @@ define(['core/notification'], function (notification) {
          * Inicializa el chat
          */
         init() {
-            // Verificar si estamos en contexto de curso
             if (!this.checkCourseContext()) {
                 return;
             }
-
-            // Detectar rol del usuario
             this.detectUserRole();
-
-            // Crear el widget del chat
             this.createChatWidget();
-
-            // Agregar event listeners
             this.addEventListeners();
         }
 
@@ -63,14 +59,12 @@ define(['core/notification'], function (notification) {
          * Verifica si estamos en contexto de curso
          */
         checkCourseContext() {
-            // Primero verificar si PHP ya confirmó que estamos en contexto de curso
             if (window.datacurso_chat_config && window.datacurso_chat_config.courseid > 0) {
                 this.courseId = window.datacurso_chat_config.courseid;
                 this.isInCourseContext = true;
                 return true;
             }
 
-            // Verificar URL para contexto de curso
             const url = window.location.href;
             const courseMatch = url.match(/course\/view\.php\?id=(\d+)/);
             const modMatch = url.match(/mod\/\w+\/view\.php.*course=(\d+)/);
@@ -90,7 +84,6 @@ define(['core/notification'], function (notification) {
                 return true;
             }
 
-            // Verificar si hay elementos específicos de curso en la página
             const courseContent = document.querySelector('#page-course-view') ||
                 document.querySelector('.course-content') ||
                 document.querySelector('[data-region="course-content"]') ||
@@ -98,7 +91,6 @@ define(['core/notification'], function (notification) {
                 document.querySelector('body.path-mod');
 
             if (courseContent) {
-                // Intentar obtener course ID del DOM
                 const courseIdElement = document.querySelector('[data-courseid]');
                 if (courseIdElement) {
                     this.courseId = courseIdElement.getAttribute('data-courseid');
@@ -114,13 +106,11 @@ define(['core/notification'], function (notification) {
          * Detecta el rol del usuario en el contexto del curso
          */
         detectUserRole() {
-            // Primero intentar usar los datos pasados desde PHP
             if (window.datacurso_chat_config && window.datacurso_chat_config.userrole) {
                 this.userRole = window.datacurso_chat_config.userrole;
                 return;
             }
 
-            // Verificar si hay elementos que indiquen que es profesor
             const teacherElements = [
                 '.editing',
                 '[data-role="teacher"]',
@@ -136,14 +126,12 @@ define(['core/notification'], function (notification) {
                 }
             }
 
-            // Verificar en el menú de usuario o navegación
             const userMenu = document.querySelector('.usermenu') || document.querySelector('.user-menu');
             if (userMenu && userMenu.textContent.toLowerCase().includes('profesor')) {
                 this.userRole = 'Profesor';
                 return;
             }
 
-            // Verificar permisos de edición
             if (document.querySelector('a[href*="edit=on"]') ||
                 document.querySelector('.turn-editing-on') ||
                 document.querySelector('.editing-on')) {
@@ -151,7 +139,6 @@ define(['core/notification'], function (notification) {
                 return;
             }
 
-            // Por defecto, asumir que es estudiante
             this.userRole = 'Estudiante';
         }
 
@@ -159,7 +146,6 @@ define(['core/notification'], function (notification) {
          * Crea el widget del chat
          */
         createChatWidget() {
-            // Crear el HTML del chat
             const chatHTML = `
                 <div class="datacurso-chat-widget" id="datacursoChat">
                     <div class="datacurso-chat-header" id="chatHeader">
@@ -201,12 +187,10 @@ define(['core/notification'], function (notification) {
                 </div>
             `;
 
-            // Crear elemento y agregarlo al DOM
             const chatContainer = document.createElement('div');
             chatContainer.innerHTML = chatHTML;
             this.chatWidget = chatContainer.firstElementChild;
 
-            // APLICAR ESTADO INICIAL SEGÚN this.isMinimized
             const body = this.chatWidget.querySelector('#chatBody');
             const toggleBtn = this.chatWidget.querySelector('#toggleBtn');
 
@@ -223,7 +207,6 @@ define(['core/notification'], function (notification) {
 
             document.body.appendChild(this.chatWidget);
 
-            // Agregar animación de entrada
             setTimeout(() => {
                 this.chatWidget.classList.add('show');
             }, 100);
@@ -237,13 +220,9 @@ define(['core/notification'], function (notification) {
             const sendBtn = this.chatWidget.querySelector('#sendBtn');
             const input = this.chatWidget.querySelector('#chatInput');
 
-            // Toggle chat
             header.addEventListener('click', () => this.toggleChat());
-
-            // Send message
             sendBtn.addEventListener('click', () => this.sendMessage());
 
-            // Enter key to send
             input.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -251,13 +230,11 @@ define(['core/notification'], function (notification) {
                 }
             });
 
-            // Auto-resize textarea
             input.addEventListener('input', () => {
                 input.style.height = 'auto';
                 input.style.height = Math.min(input.scrollHeight, 100) + 'px';
             });
 
-            // Prevent chat from interfering with page interactions
             this.chatWidget.addEventListener('click', (e) => {
                 e.stopPropagation();
             });
@@ -286,63 +263,152 @@ define(['core/notification'], function (notification) {
         }
 
         /**
-         * Envía un mensaje
+         * Envía un mensaje y abre SSE
          */
         sendMessage() {
             const input = this.chatWidget.querySelector('#chatInput');
             const sendBtn = this.chatWidget.querySelector('#sendBtn');
 
             const messageText = input.value.trim();
-            if (!messageText) {
+            if (!messageText || this.streaming) {
                 return;
             }
 
-            // Deshabilitar botón de envío
+            // Cierra stream previo si existiera
+            this._closeCurrentStream();
+
+            // Deshabilitar botón de envío hasta finalizar el stream
             sendBtn.disabled = true;
 
-            // Agregar mensaje del usuario
+            // Mensaje del usuario
             this.addMessage(messageText, 'user');
 
             // Limpiar input
             input.value = '';
             input.style.height = 'auto';
-
-            // Scroll al final
             this.scrollToBottom();
-
             this.showTypingIndicator();
 
-            const courseId = window.courseid || 1;
+            const courseId = window.courseid || this.courseId || 1;
 
-            // Send ajax call and get the sessionId, streamurl and the expiresat
-            const request = Ajax.call([
-                {
-                    methodname: "local_datacurso_get_response_ia",
-                    args: {
-                        courseid: courseId,
-                        lang: "es",
-                        message: messageText,
-                    },
+            // Llamada WS Moodle -> devuelve { session_id, stream_url, expires_at }
+            const requests = Ajax.call([{
+                methodname: "local_datacurso_create_chat_message",
+                args: {
+                    courseid: Number(courseId),
+                    lang: "es",
+                    message: messageText,
                 },
-            ]);
+            }]);
 
-            const sessionId = request.sessionId;
-            const streamurl = request.streamurl;
-            const expiresat = request.expiresat;
-
-            // TODO Create here the SSE process to show the response from the IA
-
-
-            // Rehabilitar botón de envío
-            setTimeout(() => {
+            requests[0].then((data) => {
+                const streamUrl = data.stream_url || data.streamurl;
+                const sessionId = data.session_id || data.sessionId;
+                if (!streamUrl) {
+                    throw new Error('stream_url ausente');
+                }
+                this._startSSE(streamUrl, sessionId, sendBtn);
+            }).catch((err) => {
+                this.hideTypingIndicator();
+                this.addMessage('[Error] No se pudo iniciar el stream.', 'ai');
                 sendBtn.disabled = false;
-            }, 1000);
+                notification.exception(err);
+            });
+        }
+
+        /**
+         * Abre EventSource, consume tokens y renderiza un mensaje AI en vivo
+         * @param {string} streamUrl
+         * @param {string} sessionId
+         * @param {HTMLElement} sendBtn
+         */
+        _startSSE(streamUrl, sessionId, sendBtn) {
+            const messages = this.chatWidget.querySelector('#chatMessages');
+
+            // Contenedor del mensaje de la IA que se irá completando
+            const aiEl = document.createElement('div');
+            aiEl.className = 'datacurso-chat-message ai';
+            aiEl.textContent = ''; // comenzamos vacío
+            messages.appendChild(aiEl);
+            this.currentAIMessageEl = aiEl;
+
+            // Abrir SSE
+            const es = new EventSource(streamUrl);
+            this.currentEventSource = es;
+            this.streaming = true;
+            let firstToken = true;
+
+            es.addEventListener('meta', () => {
+                // opcional: manejar metadatos
+            });
+
+            es.addEventListener('token', (ev) => {
+                try {
+                    const payload = JSON.parse(ev.data);
+                    const t = payload.t || '';
+                    if (firstToken) {
+                        firstToken = false;
+                        this.hideTypingIndicator();
+                    }
+                    this._appendToAIMessage(t);
+                } catch (e) {
+                    // ignora token malformado
+                }
+            });
+
+            es.addEventListener('message_completed', () => {
+                this._finalizeStream(sendBtn);
+            });
+
+            es.onerror = () => {
+                this._appendToAIMessage('\n[Stream interrumpido]');
+                this._finalizeStream(sendBtn);
+            };
+
+            this.scrollToBottom();
+        }
+
+        /**
+         * Añade texto al mensaje AI actual
+         * @param {string} text
+         */
+        _appendToAIMessage(text) {
+            if (!this.currentAIMessageEl) {
+                return;
+            }
+            this.currentAIMessageEl.textContent += text;
+            this.scrollToBottom();
+        }
+
+        /**
+         * Cierra y limpia el stream actual
+         */
+        _closeCurrentStream() {
+            if (this.currentEventSource) {
+                try { this.currentEventSource.close(); } catch (e) { /* no-op */ }
+            }
+            this.currentEventSource = null;
+            this.streaming = false;
+            this.currentAIMessageEl = null;
+            this.hideTypingIndicator();
+        }
+
+        /**
+         * Finaliza flujo SSE: cierra ES y habilita UI
+         * @param {HTMLElement} sendBtn
+         */
+        _finalizeStream(sendBtn) {
+            this._closeCurrentStream();
+            if (sendBtn) {
+                sendBtn.disabled = false;
+            }
         }
 
         /**
          * Agrega un mensaje al chat
+         * @param {string} text
+         * @param {string} type 'user' o 'ai'
          */
-
         addMessage(text, type) {
             const messages = this.chatWidget.querySelector('#chatMessages');
             const messageElement = document.createElement('div');
@@ -387,6 +453,7 @@ define(['core/notification'], function (notification) {
          * Destruye el chat widget
          */
         destroy() {
+            this._closeCurrentStream();
             if (this.chatWidget) {
                 this.chatWidget.remove();
                 this.chatWidget = null;
@@ -402,11 +469,9 @@ define(['core/notification'], function (notification) {
          * Inicializa el chat flotante
          */
         init: function () {
-            // Asegurar que solo hay una instancia
             if (datacursoChatInstance) {
                 datacursoChatInstance.destroy();
             }
-
             try {
                 datacursoChatInstance = new DatacursoChat();
             } catch (error) {

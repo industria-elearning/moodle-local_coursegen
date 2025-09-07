@@ -25,6 +25,7 @@
 namespace local_datacurso\httpclient;
 
 use cache;
+use core\exception\coding_exception;
 use moodle_exception;
 
 /**
@@ -65,6 +66,7 @@ class datacurso_api {
      * @param array $headers Optional additional headers.
      * @param bool $authrequired Whether to include the Authorization header.
      * @return array The API response.
+     * @throws moodle_exception
      */
     public function get(string $endpoint, array $queryparams =[] , array $headers = [], bool $authrequired = true): array {
         return $this->request_with_token_refresh('GET', $endpoint, $queryparams, $headers, $authrequired);
@@ -78,6 +80,7 @@ class datacurso_api {
      * @param array $headers Optional additional headers.
      * @param bool $authrequired Whether to include the Authorization header.
      * @return array The API response.
+     * @throws moodle_exception
      */
     public function post(string $endpoint, array $data = [], array $headers = [], bool $authrequired = true): array {
         return $this->request_with_token_refresh('POST', $endpoint, $data, $headers, $authrequired);
@@ -119,6 +122,7 @@ class datacurso_api {
      * @param array $headers Optional headers.
      * @param bool $authrequired Whether to attach the JWT token.
      * @return array The API response.
+     * @throws moodle_exception
      */
     private function make_request(string $method, string $endpoint, ?array $data, array $headers, bool $authrequired): array {
         $url = $this->baseurl . '/' . ltrim($endpoint, '/');
@@ -223,6 +227,7 @@ class datacurso_api {
      * Return a valid cached token, or null if expired or missing.
      *
      * @return string|null Cached token if valid.
+     * @throws coding_exception
      */
     private function get_valid_token(): ?string {
         $token = $this->cache->get('jwt');
@@ -249,6 +254,7 @@ class datacurso_api {
      * Check if the current token is valid based on its expiration.
      *
      * @return bool True if still valid for at least 60 seconds.
+     * @throws coding_exception
      */
     private function is_token_valid(): bool {
         $expiration = $this->cache->get('expiration');

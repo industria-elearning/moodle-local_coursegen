@@ -83,12 +83,12 @@ class datacurso_ai_api {
      * @param array $data Payload to send.
      * @return array Response array.
      */
-    public function post(string $endpoint, array $data = []): array {
-        $url = $this->baseurl . '/' . ltrim($endpoint, '/');
+    public function post(string $endpoint, array $data = [], $baseurl = null): array {
+        $url = ($baseurl ?? $this->baseurl) . '/' . ltrim($endpoint, '/');
 
         $headers = [
             'Content-Type: application/json',
-            'Authorization: Bearer ' . $this->token,
+            'Authorization: Bearer 4503be408993306ba3a45833247d3e916e4e8af0e6eddc6599ff6d08cba72c1164a506998d77fb66d5a31963538c192a6f5427bf63680d38545ce03e978de97369724de64bbdbe974633a8a1e7709724f30239d3411196bbf02e7eff4f2e3bb2469a40f4862c266faa7d5a2567ed70470b44d3b8c91c58b20f3945cbff73c2ae',
         ];
 
         $ch = curl_init();
