@@ -399,15 +399,11 @@ define(['core/ajax', 'core/notification'], function (Ajax, notification) {
          */
         _finalizeStream(sendBtn) {
             this._closeCurrentStream();
-            if (sendBtn) {
-                sendBtn.disabled = false;
-            }
+            if (sendBtn) sendBtn.disabled = false;
         }
 
         /**
          * Agrega un mensaje al chat
-         * @param {string} text
-         * @param {string} type 'user' o 'ai'
          */
         addMessage(text, type) {
             const messages = this.chatWidget.querySelector('#chatMessages');
