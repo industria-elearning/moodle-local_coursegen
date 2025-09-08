@@ -17,7 +17,7 @@
 /**
  * Event observers for Course dynamic rules
  *
- * @package    local_coursedynamicrules
+ * @package    local_datacurso
  * @category   event
  * @copyright  2025 Industria Elearning <info@industriaelearning.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
