@@ -24,13 +24,11 @@
 
 namespace local_datacurso\external;
 
-use context_course;
 use core_date;
 use external_api;
 use core_external\external_function_parameters;
 use core_external\external_single_structure;
 use core_external\external_value;
-use external_multiple_structure;
 use local_datacurso\httpclient\datacurso_ai_api;
 
 defined('MOODLE_INTERNAL') || die();
@@ -98,7 +96,7 @@ class create_chat_message extends external_api
             'user' => $user,
             'context' => [
                 'tenant' => $tenantId,
-                'course_id' => $COURSE->id ?? null,
+                'course_id' => $params['courseid'],
                 'role' => $role,
                 'activity' => [
                     'cmid' => 0,
