@@ -25,13 +25,13 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$observers = [
-     [
-        'eventname'   => '\core\event\course_created',
-        'callback'    => 'local_datacurso\observer\observer::course_created',
-    ],
-    [
-        'eventname'   => '\core\event\course_updated',
-        'callback'    => 'local_datacurso\observer\observer::course_updated',
-    ],
-];
+// $observers = [
+//      [
+//         'eventname'   => '\core\event\course_created',
+//         'callback'    => 'local_datacurso\observer\observer::course_created',
+//     ],
+//     [
+//         'eventname'   => '\core\event\course_updated',
+//         'callback'    => 'local_datacurso\observer\observer::course_updated',
+//     ],
+// ];
