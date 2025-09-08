@@ -139,7 +139,7 @@ class create_chat_message extends external_api
      * @param int $courseid
      * @return string 'teacher', 'student' o 'guest'
      */
-    function get_user_role_in_course($userid, $courseid): string {
+    private function get_user_role_in_course($userid, $courseid): string {
         $context = \context_course::instance($courseid);
         $roles = get_user_roles($context, $userid);
 
