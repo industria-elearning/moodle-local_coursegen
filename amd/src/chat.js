@@ -21,7 +21,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['core/notification'], function (notification) {
+define(['core/notification', 'local_datacurso/repository/chatbot'], function (notification, chatbotRepository) {
     'use strict';
 
     /**
@@ -34,6 +34,7 @@ define(['core/notification'], function (notification) {
             this.userRole = 'Estudiante';
             this.courseId = null;
             this.isInCourseContext = false;
+            this.isLoading = false;
 
             this.init();
         }
@@ -196,6 +197,9 @@ define(['core/notification'], function (notification) {
                     <div class="datacurso-chat-footer">
                         Powered by Datacurso IA
                     </div>
+                    <div class="datacurso-chat-overlay" id="chatOverlay" style="display: none;">
+                        <div class="spinner"></div>
+                    </div>
                 </div>
             `;
 
@@ -207,7 +211,6 @@ define(['core/notification'], function (notification) {
             // APLICAR ESTADO INICIAL SEGÚN this.isMinimized
             const body = this.chatWidget.querySelector('#chatBody');
             const toggleBtn = this.chatWidget.querySelector('#toggleBtn');
-
             if (this.isMinimized) {
                 this.chatWidget.classList.add('minimized');
                 body.style.display = 'none';
@@ -264,9 +267,12 @@ define(['core/notification'], function (notification) {
         /**
          * Alterna entre minimizado y maximizado
          */
-        toggleChat() {
+        async toggleChat() {
             const body = this.chatWidget.querySelector('#chatBody');
             const toggleBtn = this.chatWidget.querySelector('#toggleBtn');
+            const chatInput = this.chatWidget.querySelector('#chatInput');
+            const sendBtn = this.chatWidget.querySelector('#sendBtn');
+            const overlay = this.chatWidget.querySelector('#chatOverlay');
 
             if (this.isMinimized) {
                 this.chatWidget.classList.remove('minimized');
@@ -274,6 +280,19 @@ define(['core/notification'], function (notification) {
                 toggleBtn.textContent = '-';
                 toggleBtn.setAttribute('aria-label', 'Minimizar chat');
                 this.isMinimized = false;
+
+                // Estado de carga
+                this.isLoading = true;
+                chatInput.disabled = true;
+                sendBtn.disabled = true;
+                overlay.style.display = 'flex';
+                await chatbotRepository.createCourseContext(this.courseId);
+
+                // Quitar estado de carga
+                this.isLoading = false;
+                chatInput.disabled = false;
+                sendBtn.disabled = false;
+                overlay.style.display = 'none';
             } else {
                 this.chatWidget.classList.add('minimized');
                 body.style.display = 'none';
@@ -286,7 +305,7 @@ define(['core/notification'], function (notification) {
         /**
          * Envía un mensaje
          */
-        sendMessage() {
+        async sendMessage() {
             const input = this.chatWidget.querySelector('#chatInput');
             const sendBtn = this.chatWidget.querySelector('#sendBtn');
 
@@ -308,14 +327,16 @@ define(['core/notification'], function (notification) {
             // Scroll al final
             this.scrollToBottom();
 
-            // Aquí es donde se integraría la lógica de IA
-            // Por ahora, simular una respuesta
-            this.simulateAIResponse();
+            // // Aquí es donde se integraría la lógica de IA
+            // // Por ahora, simular una respuesta
+            this.sendMessageToAI(messageText);
+
+            sendBtn.disabled = false;
 
             // Rehabilitar botón de envío
-            setTimeout(() => {
-                sendBtn.disabled = false;
-            }, 1000);
+            // setTimeout(() => {
+            //     sendBtn.disabled = false;
+            // }, 1000);
         }
 
         /**
@@ -333,24 +354,18 @@ define(['core/notification'], function (notification) {
 
         /**
          * Simula una respuesta de IA (placeholder para la lógica real)
+         *
+         * @param {string} messageText - El mensaje del usuario
          */
-        simulateAIResponse() {
+        async sendMessageToAI(messageText) {
             // Mostrar indicador de escritura
             this.showTypingIndicator();
-
-            setTimeout(() => {
-                this.hideTypingIndicator();
-
-                const responses = [
-                    'Gracias por tu mensaje. Aquí es donde se integraría la lógica de IA.',
-                    'Entiendo tu consulta. ¿Podrías proporcionar más detalles?',
-                    'Estoy aquí para ayudarte con tus dudas sobre el curso.',
-                    `Como ${this.userRole.toLowerCase()}, tienes acceso a funciones específicas. ¿En qué puedo asistirte?`
-                ];
-
-                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-                this.addMessage(randomResponse, 'ai');
-            }, 1500);
+            const response = await chatbotRepository.createMod(this.courseId, messageText, 1);
+            this.hideTypingIndicator();
+            this.addMessage(response.message, 'ai');
+            if (response.courseurl) {
+                window.location.href = response.courseurl;
+            }
         }
 
         /**
