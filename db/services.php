@@ -28,6 +28,14 @@
 defined('MOODLE_INTERNAL') || die();
 
 $functions = [
+    'local_datacurso_create_course' => [
+        'classname' => 'local_datacurso\external\create_course',
+        'methodname' => 'execute',
+        'description' => 'Create a new course',
+        'type' => 'write',
+        'ajax' => true,
+        'capabilities' => 'moodle/course:create',
+    ],
     'local_datacurso_get_models_by_tenant' => [
         'classname' => 'local_datacurso\external\get_models_by_tenant',
         'methodname' => 'execute',
@@ -44,12 +52,27 @@ $functions = [
         'ajax'        => true,
         'capabilities' => '',
     ],
+    'local_datacurso_create_course_context' => [
+        'classname' => 'local_datacurso\external\create_course_context',
+        'methodname' => 'execute',
+        'description' => 'Create course context for ask question to chatbot based in that information',
+        'type' => 'write',
+        'ajax' => true,
+    ],
+    'local_datacurso_create_mod' => [
+        'classname' => 'local_datacurso\external\create_mod',
+        'methodname' => 'execute',
+        'description' => 'Create module for ask question to chatbot based in that information',
+        'type' => 'write',
+        'ajax' => true,
+
     'local_datacurso_get_response_ia' => [
         'classname'   => 'local_datacurso\external\get_response_ia',
         'methodname'  => 'execute',
         'description' => 'Request IA response and return assembled HTML',
         'type'        => 'write',
         'ajax'        => true,
+
     ],
 
     // Add function create_chat_message
