@@ -74,4 +74,13 @@ $functions = [
         'ajax'        => true,
 
     ],
+
+    // Add function create_chat_message
+    'local_datacurso_create_chat_message' => [
+        'classname'   => 'local_datacurso\external\create_chat_message',
+        'methodname'  => 'execute',
+        'description' => 'Create a chat message in a specified chat room',
+        'type'        => 'write',
+        'ajax'        => true,
+    ],
 ];

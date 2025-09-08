@@ -83,8 +83,8 @@ class datacurso_ai_api {
      * @param array $data Payload to send.
      * @return array Response array.
      */
-    public function post(string $endpoint, array $data = []): array {
-        $url = $this->baseurl . '/' . ltrim($endpoint, '/');
+    public function post(string $endpoint, array $data = [], $baseurl = null): array {
+        $url = ($baseurl ?? $this->baseurl) . '/' . ltrim($endpoint, '/');
 
         $headers = [
             'Content-Type: application/json',

@@ -96,6 +96,9 @@ class chat_hook {
 
         // Verificar contexto.
         $context = $PAGE->context;
+        if(!$context) {
+            return false;
+        }
         if ($context->contextlevel == CONTEXT_COURSE ||
             $context->contextlevel == CONTEXT_MODULE) {
             return true;

@@ -14,19 +14,16 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Floating chat for AI assistant in course contexts
+ * Floating chat for AI assistant in course contexts (con SSE)
  *
  * @module     local_datacurso/chat
- * @copyright  2025 Datacurso <josue@datacurso.com>
+ * @copyright  2025 Datacurso
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['core/notification', 'local_datacurso/repository/chatbot'], function (notification, chatbotRepository) {
+define(['core/ajax', 'core/notification'], function (Ajax, notification) {
     'use strict';
 
-    /**
-     * Clase principal del chat flotante
-     */
     class DatacursoChat {
         constructor() {
             this.chatWidget = null;
@@ -34,131 +31,124 @@ define(['core/notification', 'local_datacurso/repository/chatbot'], function (no
             this.userRole = 'Estudiante';
             this.courseId = null;
             this.isInCourseContext = false;
-            this.isLoading = false;
+
+            // Estado SSE
+            this.currentEventSource = null;
+            this.currentAIMessageEl = null;
+            this.streaming = false;
 
             this.init();
         }
 
-        /**
-         * Inicializa el chat
-         */
         init() {
-            // Verificar si estamos en contexto de curso
-            if (!this.checkCourseContext()) {
-                return;
+            try {
+                if (!this.checkCourseContext()) return;
+                this.detectUserRole();
+                this.createChatWidget();
+                this.addEventListeners();
+            } catch (error) {
+                if (window.console) console.error('Error initializing chat:', error);
             }
-
-            // Detectar rol del usuario
-            this.detectUserRole();
-
-            // Crear el widget del chat
-            this.createChatWidget();
-
-            // Agregar event listeners
-            this.addEventListeners();
         }
 
-        /**
-         * Verifica si estamos en contexto de curso
-         */
         checkCourseContext() {
-            // Primero verificar si PHP ya confirmó que estamos en contexto de curso
-            if (window.datacurso_chat_config && window.datacurso_chat_config.courseid > 0) {
-                this.courseId = window.datacurso_chat_config.courseid;
-                this.isInCourseContext = true;
-                return true;
-            }
-
-            // Verificar URL para contexto de curso
-            const url = window.location.href;
-            const courseMatch = url.match(/course\/view\.php\?id=(\d+)/);
-            const modMatch = url.match(/mod\/\w+\/view\.php.*course=(\d+)/);
-            const activityMatch = url.match(/course\/modedit\.php.*course=(\d+)/);
-
-            if (courseMatch) {
-                this.courseId = courseMatch[1];
-                this.isInCourseContext = true;
-                return true;
-            } else if (modMatch) {
-                this.courseId = modMatch[1];
-                this.isInCourseContext = true;
-                return true;
-            } else if (activityMatch) {
-                this.courseId = activityMatch[1];
-                this.isInCourseContext = true;
-                return true;
-            }
-
-            // Verificar si hay elementos específicos de curso en la página
-            const courseContent = document.querySelector('#page-course-view') ||
-                document.querySelector('.course-content') ||
-                document.querySelector('[data-region="course-content"]') ||
-                document.querySelector('body.path-course') ||
-                document.querySelector('body.path-mod');
-
-            if (courseContent) {
-                // Intentar obtener course ID del DOM
-                const courseIdElement = document.querySelector('[data-courseid]');
-                if (courseIdElement) {
-                    this.courseId = courseIdElement.getAttribute('data-courseid');
+            try {
+                if (window.datacurso_chat_config && window.datacurso_chat_config.courseid > 0) {
+                    this.courseId = parseInt(window.datacurso_chat_config.courseid, 10);
+                    this.isInCourseContext = true;
+                    return true;
                 }
-                this.isInCourseContext = true;
-                return true;
-            }
 
-            return false;
+                const url = window.location.href;
+                const courseMatch = url.match(/course\/view\.php\?id=(\d+)/);
+                const modMatch = url.match(/mod\/\w+\/view\.php.*course=(\d+)/);
+                const activityMatch = url.match(/course\/modedit\.php.*course=(\d+)/);
+
+                if (courseMatch) {
+                    this.courseId = parseInt(courseMatch[1], 10);
+                    this.isInCourseContext = true;
+                    return true;
+                } else if (modMatch) {
+                    this.courseId = parseInt(modMatch[1], 10);
+                    this.isInCourseContext = true;
+                    return true;
+                } else if (activityMatch) {
+                    this.courseId = parseInt(activityMatch[1], 10);
+                    this.isInCourseContext = true;
+                    return true;
+                }
+
+                const courseContent = document.querySelector('#page-course-view') ||
+                    document.querySelector('.course-content') ||
+                    document.querySelector('[data-region="course-content"]') ||
+                    document.querySelector('body.path-course') ||
+                    document.querySelector('body.path-mod');
+
+                if (courseContent) {
+                    const courseIdElement = document.querySelector('[data-courseid]');
+                    if (courseIdElement) {
+                        const courseIdValue = courseIdElement.getAttribute('data-courseid');
+                        if (courseIdValue && !isNaN(courseIdValue)) this.courseId = parseInt(courseIdValue, 10);
+                    }
+                    this.isInCourseContext = true;
+                    return true;
+                }
+
+                return false;
+            } catch (error) {
+                if (window.console) console.warn('Error checking course context:', error);
+                return false;
+            }
         }
 
-        /**
-         * Detecta el rol del usuario en el contexto del curso
-         */
         detectUserRole() {
-            // Primero intentar usar los datos pasados desde PHP
-            if (window.datacurso_chat_config && window.datacurso_chat_config.userrole) {
-                this.userRole = window.datacurso_chat_config.userrole;
-                return;
-            }
+            try {
+                if (window.datacurso_chat_config && window.datacurso_chat_config.userrole) {
+                    const role = window.datacurso_chat_config.userrole;
+                    if (typeof role === 'string' && role.trim()) {
+                        this.userRole = role.trim();
+                        return;
+                    }
+                }
 
-            // Verificar si hay elementos que indiquen que es profesor
-            const teacherElements = [
-                '.editing',
-                '[data-role="teacher"]',
-                '.teacher-view',
-                '.course-editing',
-                'body.editing'
-            ];
+                const teacherElements = [
+                    '.editing',
+                    '[data-role="teacher"]',
+                    '.teacher-view',
+                    '.course-editing',
+                    'body.editing'
+                ];
 
-            for (const selector of teacherElements) {
-                if (document.querySelector(selector)) {
+                for (const selector of teacherElements) {
+                    try {
+                        if (document.querySelector(selector)) {
+                            this.userRole = 'Profesor';
+                            return;
+                        }
+                    } catch (_) {}
+                }
+
+                const userMenu = document.querySelector('.usermenu') || document.querySelector('.user-menu');
+                if (userMenu && userMenu.textContent && userMenu.textContent.toLowerCase().includes('profesor')) {
                     this.userRole = 'Profesor';
                     return;
                 }
-            }
 
-            // Verificar en el menú de usuario o navegación
-            const userMenu = document.querySelector('.usermenu') || document.querySelector('.user-menu');
-            if (userMenu && userMenu.textContent.toLowerCase().includes('profesor')) {
-                this.userRole = 'Profesor';
-                return;
-            }
+                if (document.querySelector('a[href*="edit=on"]') ||
+                    document.querySelector('.turn-editing-on') ||
+                    document.querySelector('.editing-on')) {
+                    this.userRole = 'Profesor';
+                    return;
+                }
 
-            // Verificar permisos de edición
-            if (document.querySelector('a[href*="edit=on"]') ||
-                document.querySelector('.turn-editing-on') ||
-                document.querySelector('.editing-on')) {
-                this.userRole = 'Profesor';
-                return;
+                this.userRole = 'Estudiante';
+            } catch (error) {
+                if (window.console) console.warn('Error detecting user role:', error);
+                this.userRole = 'Estudiante';
             }
-
-            // Por defecto, asumir que es estudiante
-            this.userRole = 'Estudiante';
         }
 
-        /**
-         * Crea el widget del chat
-         */
         createChatWidget() {
-            // Crear el HTML del chat
             const chatHTML = `
                 <div class="datacurso-chat-widget" id="datacursoChat">
                     <div class="datacurso-chat-header" id="chatHeader">
@@ -197,20 +187,16 @@ define(['core/notification', 'local_datacurso/repository/chatbot'], function (no
                     <div class="datacurso-chat-footer">
                         Powered by Datacurso IA
                     </div>
-                    <div class="datacurso-chat-overlay" id="chatOverlay" style="display: none;">
-                        <div class="spinner"></div>
-                    </div>
                 </div>
             `;
 
-            // Crear elemento y agregarlo al DOM
             const chatContainer = document.createElement('div');
             chatContainer.innerHTML = chatHTML;
             this.chatWidget = chatContainer.firstElementChild;
 
-            // APLICAR ESTADO INICIAL SEGÚN this.isMinimized
             const body = this.chatWidget.querySelector('#chatBody');
             const toggleBtn = this.chatWidget.querySelector('#toggleBtn');
+
             if (this.isMinimized) {
                 this.chatWidget.classList.add('minimized');
                 body.style.display = 'none';
@@ -224,55 +210,39 @@ define(['core/notification', 'local_datacurso/repository/chatbot'], function (no
 
             document.body.appendChild(this.chatWidget);
 
-            // Agregar animación de entrada
-            setTimeout(() => {
-                this.chatWidget.classList.add('show');
-            }, 100);
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    if (this.chatWidget) this.chatWidget.classList.add('show');
+                }, 100);
+            });
         }
 
-        /**
-         * Agrega event listeners
-         */
         addEventListeners() {
             const header = this.chatWidget.querySelector('#chatHeader');
             const sendBtn = this.chatWidget.querySelector('#sendBtn');
             const input = this.chatWidget.querySelector('#chatInput');
 
-            // Toggle chat
             header.addEventListener('click', () => this.toggleChat());
-
-            // Send message
             sendBtn.addEventListener('click', () => this.sendMessage());
 
-            // Enter key to send
-            input.addEventListener('keypress', (e) => {
+            input.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     this.sendMessage();
                 }
             });
 
-            // Auto-resize textarea
             input.addEventListener('input', () => {
                 input.style.height = 'auto';
                 input.style.height = Math.min(input.scrollHeight, 100) + 'px';
             });
 
-            // Prevent chat from interfering with page interactions
-            this.chatWidget.addEventListener('click', (e) => {
-                e.stopPropagation();
-            });
+            this.chatWidget.addEventListener('click', (e) => e.stopPropagation());
         }
 
-        /**
-         * Alterna entre minimizado y maximizado
-         */
-        async toggleChat() {
+        toggleChat() {
             const body = this.chatWidget.querySelector('#chatBody');
             const toggleBtn = this.chatWidget.querySelector('#toggleBtn');
-            const chatInput = this.chatWidget.querySelector('#chatInput');
-            const sendBtn = this.chatWidget.querySelector('#sendBtn');
-            const overlay = this.chatWidget.querySelector('#chatOverlay');
 
             if (this.isMinimized) {
                 this.chatWidget.classList.remove('minimized');
@@ -280,19 +250,6 @@ define(['core/notification', 'local_datacurso/repository/chatbot'], function (no
                 toggleBtn.textContent = '-';
                 toggleBtn.setAttribute('aria-label', 'Minimizar chat');
                 this.isMinimized = false;
-
-                // Estado de carga
-                this.isLoading = true;
-                chatInput.disabled = true;
-                sendBtn.disabled = true;
-                overlay.style.display = 'flex';
-                await chatbotRepository.createCourseContext(this.courseId);
-
-                // Quitar estado de carga
-                this.isLoading = false;
-                chatInput.disabled = false;
-                sendBtn.disabled = false;
-                overlay.style.display = 'none';
             } else {
                 this.chatWidget.classList.add('minimized');
                 body.style.display = 'none';
@@ -302,107 +259,268 @@ define(['core/notification', 'local_datacurso/repository/chatbot'], function (no
             }
         }
 
-        /**
-         * Envía un mensaje
-         */
-        async sendMessage() {
+        sendMessage() {
             const input = this.chatWidget.querySelector('#chatInput');
             const sendBtn = this.chatWidget.querySelector('#sendBtn');
+            if (!input || !sendBtn) return;
 
             const messageText = input.value.trim();
-            if (!messageText) {
+            if (!messageText || this.streaming) return;
+
+            if (messageText.length > 4000) {
+                this.addMessage('[Error] El mensaje es demasiado largo. Máximo 4000 caracteres.', 'ai');
                 return;
             }
 
-            // Deshabilitar botón de envío
-            sendBtn.disabled = true;
+            try {
+                this._closeCurrentStream();
+                sendBtn.disabled = true;
 
-            // Agregar mensaje del usuario
-            this.addMessage(messageText, 'user');
+                this.addMessage(messageText, 'user');
+                input.value = '';
+                input.style.height = 'auto';
+                this.scrollToBottom();
+                this.showTypingIndicator();
 
-            // Limpiar input
-            input.value = '';
-            input.style.height = 'auto';
+                const courseId = window.courseid || this.courseId || 1;
+                if (!courseId || isNaN(courseId)) throw new Error('Course ID inválido');
 
-            // Scroll al final
-            this.scrollToBottom();
+                const requests = Ajax.call([{
+                    methodname: "local_datacurso_create_chat_message",
+                    args: {
+                        courseid: parseInt(courseId, 10),
+                        lang: this._sanitizeString("es"),
+                        message: this._sanitizeString(messageText.substring(0, 4000)),
+                    },
+                }]);
 
-            // // Aquí es donde se integraría la lógica de IA
-            // // Por ahora, simular una respuesta
-            this.sendMessageToAI(messageText);
+                requests[0].then((data) => {
+                    if (!data) throw new Error('Respuesta vacía del servidor');
+                    const streamUrl = data.stream_url || data.streamurl;
+                    const sessionId = data.session_id || data.sessionId;
+                    if (!streamUrl) throw new Error('URL de stream ausente en la respuesta');
+                    this._startSSE(streamUrl, sessionId, sendBtn);
+                }).catch((err) => {
+                    this.hideTypingIndicator();
+                    this.addMessage('[Error] No se pudo iniciar el stream: ' + (err.message || 'Error desconocido'), 'ai');
+                    sendBtn.disabled = false;
+                    if (window.console) console.error('Chat error:', err);
+                    if (notification && notification.exception) notification.exception(err);
+                });
+            } catch (error) {
+                this.hideTypingIndicator();
+                this.addMessage('[Error] Error interno: ' + error.message, 'ai');
+                sendBtn.disabled = false;
+                if (window.console) console.error('Chat send error:', error);
+            }
+        }
 
-            sendBtn.disabled = false;
-
-            // Rehabilitar botón de envío
-            // setTimeout(() => {
-            //     sendBtn.disabled = false;
-            // }, 1000);
+        _sanitizeString(str) {
+            if (typeof str !== 'string') return '';
+            return str.replace(/[<>]/g, '');
         }
 
         /**
-         * Agrega un mensaje al chat
+         * Crea o reutiliza el globo AI a partir del typing indicator.
+         * Evita doble globo antes del primer token.
          */
+        _ensureAIMessageEl() {
+            if (this.currentAIMessageEl) return this.currentAIMessageEl;
+
+            const messages = this.chatWidget.querySelector('#chatMessages');
+            let el = messages.querySelector('#typingIndicator');
+            if (el) {
+                // Convertir el typing en globo AI definitivo
+                el.id = ''; // ya no es indicador
+                el.classList.remove('typing-indicator');
+                el.className = 'datacurso-chat-message ai';
+                el.innerHTML = '';
+            } else {
+                el = document.createElement('div');
+                el.className = 'datacurso-chat-message ai';
+                el.textContent = '';
+                messages.appendChild(el);
+            }
+            this.currentAIMessageEl = el;
+            return el;
+        }
+
+        /**
+         * Abre EventSource y pinta tokens.
+         * No crea globo AI hasta recibir el primer token.
+         */
+        _startSSE(streamUrl, sessionId, sendBtn) {
+            if (!streamUrl) {
+                this._finalizeStream(sendBtn);
+                this.addMessage('[Error] URL de stream inválida', 'ai');
+                return;
+            }
+
+            const messages = this.chatWidget.querySelector('#chatMessages');
+            if (!messages) {
+                this._finalizeStream(sendBtn);
+                return;
+            }
+
+            try {
+                const es = new EventSource(streamUrl);
+                this.currentEventSource = es;
+                this.streaming = true;
+                let firstToken = true;
+                let connectionTimeout = setTimeout(() => {
+                    if (this.streaming && firstToken) {
+                        this._appendToAIMessage('[Timeout: El servidor tardó demasiado en responder]');
+                        this._finalizeStream(sendBtn);
+                    }
+                }, 30000);
+
+                es.addEventListener('open', () => {
+                    if (window.console) console.log('SSE connection opened');
+                });
+
+                es.addEventListener('meta', () => {});
+
+                es.addEventListener('token', (ev) => {
+                    try {
+                        if (connectionTimeout) { clearTimeout(connectionTimeout); connectionTimeout = null; }
+                        const payload = JSON.parse(ev.data);
+                        const t = payload.t || '';
+                        if (firstToken) {
+                            firstToken = false;
+                            // Convertir typing -> globo AI único
+                            this._ensureAIMessageEl();
+                            // hideTypingIndicator ya no quita nada porque el id cambió
+                            this.hideTypingIndicator();
+                        }
+                        this._appendToAIMessage(t);
+                    } catch (e) {
+                        if (window.console) console.warn('Invalid token data:', ev.data);
+                    }
+                });
+
+                es.addEventListener('message_completed', () => {
+                    if (connectionTimeout) clearTimeout(connectionTimeout);
+                    this._finalizeStream(sendBtn);
+                });
+
+                es.addEventListener('error', (event) => {
+                    if (connectionTimeout) clearTimeout(connectionTimeout);
+                    if (window.console) console.error('SSE error:', event);
+                    if (!this.currentAIMessageEl || this.currentAIMessageEl.textContent.trim() === '') {
+                        this._appendToAIMessage('[Error de conexión con el servidor]');
+                    } else {
+                        this._appendToAIMessage('\n[Conexión interrumpida]');
+                    }
+                    this._finalizeStream(sendBtn);
+                });
+
+                this.scrollToBottom();
+            } catch (error) {
+                if (window.console) console.error('Error starting SSE:', error);
+                this.addMessage('[Error] No se pudo establecer conexión SSE', 'ai');
+                this._finalizeStream(sendBtn);
+            }
+        }
+
+        _appendToAIMessage(text) {
+            // Asegura que existe un único globo AI
+            if (!this.currentAIMessageEl) this._ensureAIMessageEl();
+            if (!this.currentAIMessageEl || typeof text !== 'string') return;
+
+            const currentText = this.currentAIMessageEl.textContent || '';
+            const maxLength = 10000;
+
+            if (currentText.length + text.length > maxLength) {
+                const remaining = maxLength - currentText.length;
+                if (remaining > 0) this.currentAIMessageEl.textContent += text.substring(0, remaining) + '...';
+                return;
+            }
+
+            this.currentAIMessageEl.textContent += text;
+            this.scrollToBottom();
+        }
+
+        _closeCurrentStream() {
+            if (this.currentEventSource) {
+                try { this.currentEventSource.close(); } catch (e) {
+                    if (window.console) console.warn('Error closing EventSource:', e);
+                }
+            }
+            this.currentEventSource = null;
+            this.streaming = false;
+            this.currentAIMessageEl = null;
+            this.hideTypingIndicator();
+        }
+
+        _finalizeStream(sendBtn) {
+            this._closeCurrentStream();
+            if (sendBtn) sendBtn.disabled = false;
+        }
 
         addMessage(text, type) {
+            if (!text || typeof text !== 'string') return;
+
             const messages = this.chatWidget.querySelector('#chatMessages');
+            if (!messages) return;
+
             const messageElement = document.createElement('div');
             messageElement.className = `datacurso-chat-message ${type}`;
-            messageElement.textContent = text;
+
+            const sanitizedText = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            messageElement.textContent = sanitizedText.substring(0, 10000);
+
             messages.appendChild(messageElement);
+
+            const maxMessages = 100;
+            const nodes = messages.querySelectorAll('.datacurso-chat-message:not(.typing-indicator)');
+            if (nodes.length > maxMessages) {
+                for (let i = 0; i < nodes.length - maxMessages; i++) nodes[i].remove();
+            }
+
             this.scrollToBottom();
         }
 
-        /**
-         * Simula una respuesta de IA (placeholder para la lógica real)
-         *
-         * @param {string} messageText - El mensaje del usuario
-         */
-        async sendMessageToAI(messageText) {
-            // Mostrar indicador de escritura
-            this.showTypingIndicator();
-            const response = await chatbotRepository.createMod(this.courseId, messageText, 1);
-            this.hideTypingIndicator();
-            this.addMessage(response.message, 'ai');
-            if (response.courseurl) {
-                window.location.href = response.courseurl;
-            }
-        }
-
-        /**
-         * Muestra indicador de escritura
-         */
         showTypingIndicator() {
-            const messages = this.chatWidget.querySelector('#chatMessages');
-            const typingElement = document.createElement('div');
-            typingElement.className = 'datacurso-chat-message ai typing-indicator';
-            typingElement.id = 'typingIndicator';
-            typingElement.innerHTML = '<span></span><span></span><span></span>';
-            messages.appendChild(typingElement);
-            this.scrollToBottom();
-        }
+            try {
+                const messages = this.chatWidget && this.chatWidget.querySelector('#chatMessages');
+                if (!messages) return;
 
-        /**
-         * Oculta indicador de escritura
-         */
-        hideTypingIndicator() {
-            const typingIndicator = this.chatWidget.querySelector('#typingIndicator');
-            if (typingIndicator) {
-                typingIndicator.remove();
+                // No dupliques el indicador
+                if (messages.querySelector('#typingIndicator')) return;
+
+                const typingElement = document.createElement('div');
+                typingElement.className = 'datacurso-chat-message ai typing-indicator';
+                typingElement.id = 'typingIndicator';
+                typingElement.innerHTML = '<span></span><span></span><span></span>';
+                messages.appendChild(typingElement);
+                this.scrollToBottom();
+            } catch (error) {
+                if (window.console) console.warn('Error showing typing indicator:', error);
             }
         }
 
-        /**
-         * Hace scroll al final de los mensajes
-         */
-        scrollToBottom() {
-            const messages = this.chatWidget.querySelector('#chatMessages');
-            messages.scrollTop = messages.scrollHeight;
+        hideTypingIndicator() {
+            try {
+                const typingIndicator = this.chatWidget && this.chatWidget.querySelector('#typingIndicator');
+                if (typingIndicator) typingIndicator.remove();
+            } catch (error) {
+                if (window.console) console.warn('Error hiding typing indicator:', error);
+            }
         }
 
-        /**
-         * Destruye el chat widget
-         */
+        scrollToBottom() {
+            try {
+                const messages = this.chatWidget && this.chatWidget.querySelector('#chatMessages');
+                if (messages) {
+                    requestAnimationFrame(() => { messages.scrollTop = messages.scrollHeight; });
+                }
+            } catch (error) {
+                if (window.console) console.warn('Error scrolling to bottom:', error);
+            }
+        }
+
         destroy() {
+            this._closeCurrentStream();
             if (this.chatWidget) {
                 this.chatWidget.remove();
                 this.chatWidget = null;
@@ -410,29 +528,14 @@ define(['core/notification', 'local_datacurso/repository/chatbot'], function (no
         }
     }
 
-    // Variable global para la instancia del chat
     let datacursoChatInstance = null;
 
     return {
-        /**
-         * Inicializa el chat flotante
-         */
         init: function () {
-            // Asegurar que solo hay una instancia
-            if (datacursoChatInstance) {
-                datacursoChatInstance.destroy();
-            }
-
-            try {
-                datacursoChatInstance = new DatacursoChat();
-            } catch (error) {
-                notification.exception(error);
-            }
+            if (datacursoChatInstance) datacursoChatInstance.destroy();
+            try { datacursoChatInstance = new DatacursoChat(); }
+            catch (error) { notification.exception(error); }
         },
-
-        /**
-         * Destruye el chat flotante
-         */
         destroy: function () {
             if (datacursoChatInstance) {
                 datacursoChatInstance.destroy();
