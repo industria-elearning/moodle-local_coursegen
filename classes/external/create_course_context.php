@@ -48,11 +48,11 @@ class create_course_context extends external_api {
     /**
      * Create course context for ask question to chatbot based in that information.
      *
-     * @param string $courseid
+     * @param int $courseid
      *
      * @return array
      */
-    public static function execute(string $courseid) {
+    public static function execute(int $courseid) {
         global $CFG;
         $params = self::validate_parameters(self::execute_parameters(), [
             'courseid' => $courseid,
