@@ -211,8 +211,6 @@ define(['core/notification', 'local_datacurso/repository/chatbot'], function (no
             // APLICAR ESTADO INICIAL SEGÚN this.isMinimized
             const body = this.chatWidget.querySelector('#chatBody');
             const toggleBtn = this.chatWidget.querySelector('#toggleBtn');
-
-
             if (this.isMinimized) {
                 this.chatWidget.classList.add('minimized');
                 body.style.display = 'none';
