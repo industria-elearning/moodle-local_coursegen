@@ -95,7 +95,7 @@ class create_course_context extends external_api {
 
 
     /**
-     * Get coruse content based in course id.
+     * Get course content based in course id.
      *
      * @param string $courseid
      *
