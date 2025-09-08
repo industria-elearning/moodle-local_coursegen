@@ -120,10 +120,13 @@ class create_mod extends external_api {
             'section' => $section,
         ]));
         $result = curl_exec($ch);
-        curl_close($ch);
-        if (!$result) {
-            throw new \moodle_exception('error_curl');
+        if ($result === false) {
+            $curlerror = curl_error($ch);
+            $curlerrno = curl_errno($ch);
+            curl_close($ch);
+            throw new \moodle_exception('error_curl', 'local_datacurso', '', null, "cURL error ($curlerrno): $curlerror");
         }
+        curl_close($ch);
         $result = json_decode($result, true);
 
         add_moduleinfo((object)$result['response'], $course, $mform);
