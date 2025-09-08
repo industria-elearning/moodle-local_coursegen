@@ -58,7 +58,7 @@ class create_mod extends external_api {
      *
      * @return array
      */
-    public static function execute(string $courseid, string $message, int $section) {
+    public static function execute(int $courseid, string $message, int $section) {
         global $CFG, $DB;
         $params = self::validate_parameters(self::execute_parameters(), [
             'courseid' => $courseid,
