@@ -55,7 +55,19 @@ class local_datacurso_observer {
     private static function send_json($data) {
         $json = json_encode($data);
 
-        // Ejemplo: log a archivo
-        file_put_contents(__DIR__ . '/../../logs/course_events.log', $json . PHP_EOL, FILE_APPEND);
+        // Ensure the logs directory exists before writing.
+        $logdir = __DIR__ . '/../../logs';
+        if (!is_dir($logdir)) {
+            if (!mkdir($logdir, 0777, true) && !is_dir($logdir)) {
+                // Could not create directory, handle error (optionally log via Moodle).
+                error_log("Failed to create log directory: $logdir");
+                return;
+            }
+        }
+        $logfile = $logdir . '/course_events.log';
+        if (file_put_contents($logfile, $json . PHP_EOL, FILE_APPEND) === false) {
+            // Handle file write error (optionally log via Moodle).
+            error_log("Failed to write to log file: $logfile");
+        }
     }
 }
