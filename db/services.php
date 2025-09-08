@@ -65,5 +65,13 @@ $functions = [
         'description' => 'Create module for ask question to chatbot based in that information',
         'type' => 'write',
         'ajax' => true,
+
+    'local_datacurso_get_response_ia' => [
+        'classname'   => 'local_datacurso\external\get_response_ia',
+        'methodname'  => 'execute',
+        'description' => 'Request IA response and return assembled HTML',
+        'type'        => 'write',
+        'ajax'        => true,
+
     ],
 ];

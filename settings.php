@@ -62,5 +62,14 @@ if ($hassiteconfig) {
         )
     );
 
+    $settings->add(
+        new admin_setting_configtext(
+            'local_datacurso/aiurl',
+            new lang_string('aiurl', 'local_datacurso'),
+            new lang_string('aiurl_desc', 'local_datacurso'),
+            '',
+        )
+    );
+
     $ADMIN->add($pluginname, $settings);
 }
