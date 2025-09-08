@@ -47,99 +47,123 @@ define(['core/ajax', 'core/notification'], function (Ajax, notification) {
          * Inicializa el chat
          */
         init() {
-            if (!this.checkCourseContext()) {
-                return;
+            try {
+                if (!this.checkCourseContext()) {
+                    return;
+                }
+                this.detectUserRole();
+                this.createChatWidget();
+                this.addEventListeners();
+            } catch (error) {
+                window.console && window.console.error('Error initializing chat:', error);
             }
-            this.detectUserRole();
-            this.createChatWidget();
-            this.addEventListeners();
         }
 
         /**
          * Verifica si estamos en contexto de curso
          */
         checkCourseContext() {
-            if (window.datacurso_chat_config && window.datacurso_chat_config.courseid > 0) {
-                this.courseId = window.datacurso_chat_config.courseid;
-                this.isInCourseContext = true;
-                return true;
-            }
-
-            const url = window.location.href;
-            const courseMatch = url.match(/course\/view\.php\?id=(\d+)/);
-            const modMatch = url.match(/mod\/\w+\/view\.php.*course=(\d+)/);
-            const activityMatch = url.match(/course\/modedit\.php.*course=(\d+)/);
-
-            if (courseMatch) {
-                this.courseId = courseMatch[1];
-                this.isInCourseContext = true;
-                return true;
-            } else if (modMatch) {
-                this.courseId = modMatch[1];
-                this.isInCourseContext = true;
-                return true;
-            } else if (activityMatch) {
-                this.courseId = activityMatch[1];
-                this.isInCourseContext = true;
-                return true;
-            }
-
-            const courseContent = document.querySelector('#page-course-view') ||
-                document.querySelector('.course-content') ||
-                document.querySelector('[data-region="course-content"]') ||
-                document.querySelector('body.path-course') ||
-                document.querySelector('body.path-mod');
-
-            if (courseContent) {
-                const courseIdElement = document.querySelector('[data-courseid]');
-                if (courseIdElement) {
-                    this.courseId = courseIdElement.getAttribute('data-courseid');
+            try {
+                if (window.datacurso_chat_config && window.datacurso_chat_config.courseid > 0) {
+                    this.courseId = parseInt(window.datacurso_chat_config.courseid, 10);
+                    this.isInCourseContext = true;
+                    return true;
                 }
-                this.isInCourseContext = true;
-                return true;
-            }
 
-            return false;
+                const url = window.location.href;
+                const courseMatch = url.match(/course\/view\.php\?id=(\d+)/);
+                const modMatch = url.match(/mod\/\w+\/view\.php.*course=(\d+)/);
+                const activityMatch = url.match(/course\/modedit\.php.*course=(\d+)/);
+
+                if (courseMatch) {
+                    this.courseId = parseInt(courseMatch[1], 10);
+                    this.isInCourseContext = true;
+                    return true;
+                } else if (modMatch) {
+                    this.courseId = parseInt(modMatch[1], 10);
+                    this.isInCourseContext = true;
+                    return true;
+                } else if (activityMatch) {
+                    this.courseId = parseInt(activityMatch[1], 10);
+                    this.isInCourseContext = true;
+                    return true;
+                }
+
+                const courseContent = document.querySelector('#page-course-view') ||
+                    document.querySelector('.course-content') ||
+                    document.querySelector('[data-region="course-content"]') ||
+                    document.querySelector('body.path-course') ||
+                    document.querySelector('body.path-mod');
+
+                if (courseContent) {
+                    const courseIdElement = document.querySelector('[data-courseid]');
+                    if (courseIdElement) {
+                        const courseIdValue = courseIdElement.getAttribute('data-courseid');
+                        if (courseIdValue && !isNaN(courseIdValue)) {
+                            this.courseId = parseInt(courseIdValue, 10);
+                        }
+                    }
+                    this.isInCourseContext = true;
+                    return true;
+                }
+
+                return false;
+            } catch (error) {
+                window.console && window.console.warn('Error checking course context:', error);
+                return false;
+            }
         }
 
         /**
          * Detecta el rol del usuario en el contexto del curso
          */
         detectUserRole() {
-            if (window.datacurso_chat_config && window.datacurso_chat_config.userrole) {
-                this.userRole = window.datacurso_chat_config.userrole;
-                return;
-            }
+            try {
+                if (window.datacurso_chat_config && window.datacurso_chat_config.userrole) {
+                    const role = window.datacurso_chat_config.userrole;
+                    if (typeof role === 'string' && role.trim()) {
+                        this.userRole = role.trim();
+                        return;
+                    }
+                }
 
-            const teacherElements = [
-                '.editing',
-                '[data-role="teacher"]',
-                '.teacher-view',
-                '.course-editing',
-                'body.editing'
-            ];
+                const teacherElements = [
+                    '.editing',
+                    '[data-role="teacher"]',
+                    '.teacher-view',
+                    '.course-editing',
+                    'body.editing'
+                ];
 
-            for (const selector of teacherElements) {
-                if (document.querySelector(selector)) {
+                for (const selector of teacherElements) {
+                    try {
+                        if (document.querySelector(selector)) {
+                            this.userRole = 'Profesor';
+                            return;
+                        }
+                    } catch (e) {
+                        
+                    }
+                }
+
+                const userMenu = document.querySelector('.usermenu') || document.querySelector('.user-menu');
+                if (userMenu && userMenu.textContent && userMenu.textContent.toLowerCase().includes('profesor')) {
                     this.userRole = 'Profesor';
                     return;
                 }
-            }
 
-            const userMenu = document.querySelector('.usermenu') || document.querySelector('.user-menu');
-            if (userMenu && userMenu.textContent.toLowerCase().includes('profesor')) {
-                this.userRole = 'Profesor';
-                return;
-            }
+                if (document.querySelector('a[href*="edit=on"]') ||
+                    document.querySelector('.turn-editing-on') ||
+                    document.querySelector('.editing-on')) {
+                    this.userRole = 'Profesor';
+                    return;
+                }
 
-            if (document.querySelector('a[href*="edit=on"]') ||
-                document.querySelector('.turn-editing-on') ||
-                document.querySelector('.editing-on')) {
-                this.userRole = 'Profesor';
-                return;
+                this.userRole = 'Estudiante';
+            } catch (error) {
+                window.console && window.console.warn('Error detecting user role:', error);
+                this.userRole = 'Estudiante';
             }
-
-            this.userRole = 'Estudiante';
         }
 
         /**
@@ -207,9 +231,13 @@ define(['core/ajax', 'core/notification'], function (Ajax, notification) {
 
             document.body.appendChild(this.chatWidget);
 
-            setTimeout(() => {
-                this.chatWidget.classList.add('show');
-            }, 100);
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    if (this.chatWidget) {
+                        this.chatWidget.classList.add('show');
+                    }
+                }, 100);
+            });
         }
 
         /**
@@ -223,7 +251,7 @@ define(['core/ajax', 'core/notification'], function (Ajax, notification) {
             header.addEventListener('click', () => this.toggleChat());
             sendBtn.addEventListener('click', () => this.sendMessage());
 
-            input.addEventListener('keypress', (e) => {
+            input.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     this.sendMessage();
@@ -269,51 +297,77 @@ define(['core/ajax', 'core/notification'], function (Ajax, notification) {
             const input = this.chatWidget.querySelector('#chatInput');
             const sendBtn = this.chatWidget.querySelector('#sendBtn');
 
+            if (!input || !sendBtn) {
+                window.console && window.console.error('Chat input or send button not found');
+                return;
+            }
+
             const messageText = input.value.trim();
             if (!messageText || this.streaming) {
                 return;
             }
 
-            // Cierra stream previo si existiera
-            this._closeCurrentStream();
+            if (messageText.length > 4000) {
+                this.addMessage('[Error] El mensaje es demasiado largo. Máximo 4000 caracteres.', 'ai');
+                return;
+            }
 
-            // Deshabilitar botón de envío hasta finalizar el stream
-            sendBtn.disabled = true;
+            try {
+                this._closeCurrentStream();
+                sendBtn.disabled = true;
+                this.addMessage(messageText, 'user');
+                input.value = '';
+                input.style.height = 'auto';
+                this.scrollToBottom();
+                this.showTypingIndicator();
 
-            // Mensaje del usuario
-            this.addMessage(messageText, 'user');
+                const courseId = window.courseid || this.courseId || 1;
 
-            // Limpiar input
-            input.value = '';
-            input.style.height = 'auto';
-            this.scrollToBottom();
-            this.showTypingIndicator();
-
-            const courseId = window.courseid || this.courseId || 1;
-
-            // Llamada WS Moodle -> devuelve { session_id, stream_url, expires_at }
-            const requests = Ajax.call([{
-                methodname: "local_datacurso_create_chat_message",
-                args: {
-                    courseid: Number(courseId),
-                    lang: "es",
-                    message: messageText,
-                },
-            }]);
-
-            requests[0].then((data) => {
-                const streamUrl = data.stream_url || data.streamurl;
-                const sessionId = data.session_id || data.sessionId;
-                if (!streamUrl) {
-                    throw new Error('stream_url ausente');
+                if (!courseId || isNaN(courseId)) {
+                    throw new Error('Course ID inválido');
                 }
-                this._startSSE(streamUrl, sessionId, sendBtn);
-            }).catch((err) => {
+
+                const requests = Ajax.call([{
+                    methodname: "local_datacurso_create_chat_message",
+                    args: {
+                        courseid: parseInt(courseId, 10),
+                        lang: this._sanitizeString("es"),
+                        message: this._sanitizeString(messageText.substring(0, 4000)),
+                    },
+                }]);
+
+                requests[0].then((data) => {
+                    if (!data) {
+                        throw new Error('Respuesta vacía del servidor');
+                    }
+                    const streamUrl = data.stream_url || data.streamurl;
+                    const sessionId = data.session_id || data.sessionId;
+                    if (!streamUrl) {
+                        throw new Error('URL de stream ausente en la respuesta');
+                    }
+                    this._startSSE(streamUrl, sessionId, sendBtn);
+                }).catch((err) => {
+                    this.hideTypingIndicator();
+                    this.addMessage('[Error] No se pudo iniciar el stream: ' + (err.message || 'Error desconocido'), 'ai');
+                    sendBtn.disabled = false;
+                    window.console && window.console.error('Chat error:', err);
+                    if (notification && notification.exception) {
+                        notification.exception(err);
+                    }
+                });
+            } catch (error) {
                 this.hideTypingIndicator();
-                this.addMessage('[Error] No se pudo iniciar el stream.', 'ai');
+                this.addMessage('[Error] Error interno: ' + error.message, 'ai');
                 sendBtn.disabled = false;
-                notification.exception(err);
-            });
+                window.console && window.console.error('Chat send error:', error);
+            }
+        }
+
+        _sanitizeString(str) {
+            if (typeof str !== 'string') {
+                return '';
+            }
+            return str.replace(/[<>]/g, '');
         }
 
         /**
@@ -323,49 +377,89 @@ define(['core/ajax', 'core/notification'], function (Ajax, notification) {
          * @param {HTMLElement} sendBtn
          */
         _startSSE(streamUrl, sessionId, sendBtn) {
+            if (!streamUrl) {
+                this._finalizeStream(sendBtn);
+                this.addMessage('[Error] URL de stream inválida', 'ai');
+                return;
+            }
+
             const messages = this.chatWidget.querySelector('#chatMessages');
+            if (!messages) {
+                this._finalizeStream(sendBtn);
+                return;
+            }
 
-            // Contenedor del mensaje de la IA que se irá completando
-            const aiEl = document.createElement('div');
-            aiEl.className = 'datacurso-chat-message ai';
-            aiEl.textContent = ''; // comenzamos vacío
-            messages.appendChild(aiEl);
-            this.currentAIMessageEl = aiEl;
+            try {
+                const aiEl = document.createElement('div');
+                aiEl.className = 'datacurso-chat-message ai';
+                aiEl.textContent = '';
+                messages.appendChild(aiEl);
+                this.currentAIMessageEl = aiEl;
 
-            // Abrir SSE
-            const es = new EventSource(streamUrl);
-            this.currentEventSource = es;
-            this.streaming = true;
-            let firstToken = true;
+                const es = new EventSource(streamUrl);
+                this.currentEventSource = es;
+                this.streaming = true;
+                let firstToken = true;
+                let connectionTimeout = null;
 
-            es.addEventListener('meta', () => {
-                // opcional: manejar metadatos
-            });
-
-            es.addEventListener('token', (ev) => {
-                try {
-                    const payload = JSON.parse(ev.data);
-                    const t = payload.t || '';
-                    if (firstToken) {
-                        firstToken = false;
-                        this.hideTypingIndicator();
+                connectionTimeout = setTimeout(() => {
+                    if (this.streaming && firstToken) {
+                        this._appendToAIMessage('[Timeout: El servidor tardó demasiado en responder]');
+                        this._finalizeStream(sendBtn);
                     }
-                    this._appendToAIMessage(t);
-                } catch (e) {
-                    // ignora token malformado
-                }
-            });
+                }, 30000);
 
-            es.addEventListener('message_completed', () => {
+                es.addEventListener('open', () => {
+                    window.console && window.console.log('SSE connection opened');
+                });
+
+                es.addEventListener('meta', () => {
+                });
+
+                es.addEventListener('token', (ev) => {
+                    try {
+                        if (connectionTimeout) {
+                            clearTimeout(connectionTimeout);
+                            connectionTimeout = null;
+                        }
+                        const payload = JSON.parse(ev.data);
+                        const t = payload.t || '';
+                        if (firstToken) {
+                            firstToken = false;
+                            this.hideTypingIndicator();
+                        }
+                        this._appendToAIMessage(t);
+                    } catch (e) {
+                        window.console && window.console.warn('Invalid token data:', ev.data);
+                    }
+                });
+
+                es.addEventListener('message_completed', () => {
+                    if (connectionTimeout) {
+                        clearTimeout(connectionTimeout);
+                    }
+                    this._finalizeStream(sendBtn);
+                });
+
+                es.addEventListener('error', (event) => {
+                    if (connectionTimeout) {
+                        clearTimeout(connectionTimeout);
+                    }
+                    window.console && window.console.error('SSE error:', event);
+                    if (this.currentAIMessageEl && this.currentAIMessageEl.textContent.trim() === '') {
+                        this._appendToAIMessage('[Error de conexión con el servidor]');
+                    } else {
+                        this._appendToAIMessage('\n[Conexión interrumpida]');
+                    }
+                    this._finalizeStream(sendBtn);
+                });
+
+                this.scrollToBottom();
+            } catch (error) {
+                window.console && window.console.error('Error starting SSE:', error);
+                this.addMessage('[Error] No se pudo establecer conexión SSE', 'ai');
                 this._finalizeStream(sendBtn);
-            });
-
-            es.onerror = () => {
-                this._appendToAIMessage('\n[Stream interrumpido]');
-                this._finalizeStream(sendBtn);
-            };
-
-            this.scrollToBottom();
+            }
         }
 
         /**
@@ -373,9 +467,21 @@ define(['core/ajax', 'core/notification'], function (Ajax, notification) {
          * @param {string} text
          */
         _appendToAIMessage(text) {
-            if (!this.currentAIMessageEl) {
+            if (!this.currentAIMessageEl || typeof text !== 'string') {
                 return;
             }
+            
+            const currentText = this.currentAIMessageEl.textContent || '';
+            const maxLength = 10000;
+            
+            if (currentText.length + text.length > maxLength) {
+                const remainingSpace = maxLength - currentText.length;
+                if (remainingSpace > 0) {
+                    this.currentAIMessageEl.textContent += text.substring(0, remainingSpace) + '...';
+                }
+                return;
+            }
+            
             this.currentAIMessageEl.textContent += text;
             this.scrollToBottom();
         }
@@ -385,7 +491,11 @@ define(['core/ajax', 'core/notification'], function (Ajax, notification) {
          */
         _closeCurrentStream() {
             if (this.currentEventSource) {
-                try { this.currentEventSource.close(); } catch (e) { /* no-op */ }
+                try {
+                    this.currentEventSource.close();
+                } catch (e) {
+                    window.console && window.console.warn('Error closing EventSource:', e);
+                }
             }
             this.currentEventSource = null;
             this.streaming = false;
@@ -406,11 +516,31 @@ define(['core/ajax', 'core/notification'], function (Ajax, notification) {
          * Agrega un mensaje al chat
          */
         addMessage(text, type) {
+            if (!text || typeof text !== 'string') {
+                return;
+            }
+
             const messages = this.chatWidget.querySelector('#chatMessages');
+            if (!messages) {
+                return;
+            }
+
             const messageElement = document.createElement('div');
             messageElement.className = `datacurso-chat-message ${type}`;
-            messageElement.textContent = text;
+            
+            const sanitizedText = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            messageElement.textContent = sanitizedText.substring(0, 10000);
+            
             messages.appendChild(messageElement);
+
+            const maxMessages = 100;
+            const messageElements = messages.querySelectorAll('.datacurso-chat-message:not(.typing-indicator)');
+            if (messageElements.length > maxMessages) {
+                for (let i = 0; i < messageElements.length - maxMessages; i++) {
+                    messageElements[i].remove();
+                }
+            }
+
             this.scrollToBottom();
         }
 
@@ -418,22 +548,39 @@ define(['core/ajax', 'core/notification'], function (Ajax, notification) {
          * Muestra indicador de escritura
          */
         showTypingIndicator() {
-            const messages = this.chatWidget.querySelector('#chatMessages');
-            const typingElement = document.createElement('div');
-            typingElement.className = 'datacurso-chat-message ai typing-indicator';
-            typingElement.id = 'typingIndicator';
-            typingElement.innerHTML = '<span></span><span></span><span></span>';
-            messages.appendChild(typingElement);
-            this.scrollToBottom();
+            try {
+                const messages = this.chatWidget && this.chatWidget.querySelector('#chatMessages');
+                if (!messages) {
+                    return;
+                }
+                
+                const existingIndicator = messages.querySelector('#typingIndicator');
+                if (existingIndicator) {
+                    return;
+                }
+                
+                const typingElement = document.createElement('div');
+                typingElement.className = 'datacurso-chat-message ai typing-indicator';
+                typingElement.id = 'typingIndicator';
+                typingElement.innerHTML = '<span></span><span></span><span></span>';
+                messages.appendChild(typingElement);
+                this.scrollToBottom();
+            } catch (error) {
+                window.console && window.console.warn('Error showing typing indicator:', error);
+            }
         }
 
         /**
          * Oculta indicador de escritura
          */
         hideTypingIndicator() {
-            const typingIndicator = this.chatWidget.querySelector('#typingIndicator');
-            if (typingIndicator) {
-                typingIndicator.remove();
+            try {
+                const typingIndicator = this.chatWidget && this.chatWidget.querySelector('#typingIndicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+            } catch (error) {
+                window.console && window.console.warn('Error hiding typing indicator:', error);
             }
         }
 
@@ -441,8 +588,16 @@ define(['core/ajax', 'core/notification'], function (Ajax, notification) {
          * Hace scroll al final de los mensajes
          */
         scrollToBottom() {
-            const messages = this.chatWidget.querySelector('#chatMessages');
-            messages.scrollTop = messages.scrollHeight;
+            try {
+                const messages = this.chatWidget && this.chatWidget.querySelector('#chatMessages');
+                if (messages) {
+                    requestAnimationFrame(() => {
+                        messages.scrollTop = messages.scrollHeight;
+                    });
+                }
+            } catch (error) {
+                window.console && window.console.warn('Error scrolling to bottom:', error);
+            }
         }
 
         /**
