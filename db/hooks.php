@@ -31,18 +31,13 @@ $callbacks = [
         'priority' => 100,
     ],
     [
-        'hook' => core_course\hook\before_form_validation::class,
-        'callback' => 'local_datacurso\hook\course_form_hook::before_form_validation',
+        'hook' => core_course\hook\after_form_definition_after_data::class,
+        'callback' => 'local_datacurso\hook\course_form_hook::after_form_definition_after_data',
         'priority' => 100,
     ],
     [
-        'hook' => core_course\hook\after_course_created::class,
-        'callback' => 'local_datacurso\hook\course_form_hook::after_course_created',
-        'priority' => 100,
-    ],
-    [
-        'hook' => core_course\hook\after_course_updated::class,
-        'callback' => 'local_datacurso\hook\course_form_hook::after_course_updated',
+        'hook' => core_course\hook\after_form_submission::class,
+        'callback' => 'local_datacurso\hook\course_form_hook::after_form_submission',
         'priority' => 100,
     ],
     [
