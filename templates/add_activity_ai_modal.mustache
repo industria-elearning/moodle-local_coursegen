@@ -1,0 +1,42 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_datacurso/add_activity_ai_modal
+
+    TODO describe template add_activity_ai_modal
+
+    Example context (json):
+    {
+    }
+}}
+<div class="bdai-chat" aria-label="{{#str}} addactivityai_arialabel, local_datacurso {{/str}}">
+  <div class="bdai-messages" role="log" aria-live="polite" aria-relevant="additions"></div>
+
+  <form class="bdai-input mt-3" novalidate>
+    <label class="sr-only" for="bdaiPrompt">{{#str}} addactivityai_label, local_datacurso {{/str}}</label>
+    <div class="input-group">
+      <textarea id="bdaiPrompt" class="form-control" rows="3" placeholder="{{#str}} addactivityai_placeholder, local_datacurso {{/str}}"
+                required></textarea>
+      <div class="input-group-append">
+        <button class="btn btn-primary bdai-send" type="submit" title="{{#str}} send, local_datacurso {{/str}}">
+          <span class="sr-only">{{#str}} send, local_datacurso {{/str}}</span>
+          <span aria-hidden="true">➤</span>
+        </button>
+      </div>
+    </div>
+  </form>
+</div>

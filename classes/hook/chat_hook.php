@@ -36,23 +36,23 @@ class chat_hook {
     public static function before_footer_html_generation(before_footer_html_generation $hook): void {
         global $PAGE, $COURSE, $USER;
 
-        // Solo cargar en contextos de curso.
-        if (!self::is_course_context()) {
-            return;
-        }
+        // // Solo cargar en contextos de curso.
+        // if (!self::is_course_context()) {
+        //     return;
+        // }
 
-        // Cargar JavaScript del chat.
-        $PAGE->requires->js_call_amd('local_datacurso/chat', 'init');
+        // // Cargar JavaScript del chat.
+        // $PAGE->requires->js_call_amd('local_datacurso/chat', 'init');
 
-        // Agregar datos del contexto para JavaScript.
-        $chatdata = [
-            'courseid' => $COURSE->id ?? 0,
-            'userid' => $USER->id,
-            'userrole' => self::get_user_role_in_course(),
-            'contextlevel' => $PAGE->context->contextlevel ?? 0,
-        ];
+        // // Agregar datos del contexto para JavaScript.
+        // $chatdata = [
+        //     'courseid' => $COURSE->id ?? 0,
+        //     'userid' => $USER->id,
+        //     'userrole' => self::get_user_role_in_course(),
+        //     'contextlevel' => $PAGE->context->contextlevel ?? 0,
+        // ];
 
-        $PAGE->requires->data_for_js('datacurso_chat_config', $chatdata);
+        // $PAGE->requires->data_for_js('datacurso_chat_config', $chatdata);
     }
 
     /**

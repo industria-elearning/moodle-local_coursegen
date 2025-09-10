@@ -44,80 +44,73 @@ class create_mod extends external_api {
     public static function execute_parameters() {
         return new external_function_parameters([
             'courseid' => new external_value(PARAM_INT, 'Course id'),
-            'message' => new external_value(PARAM_TEXT, 'Message to create module'),
-            'section' => new external_value(PARAM_INT, 'Section number'),
+            'sectionid' => new external_value(PARAM_INT, 'Section id'),
+            'sectionnum' => new external_value(PARAM_INT, 'Section number'),
+            'prompt' => new external_value(PARAM_TEXT, 'Prompt to create module'),
+            'beforemod' => new external_value(PARAM_INT, 'Before module id', VALUE_OPTIONAL),
         ]);
     }
 
     /**
      * Create course context for ask question to chatbot based in that information.
      *
-     * @param string $courseid
-     * @param string $message
-     * @param int $section
+     * @param string $courseid Course id where the module will be created
+     * @param string $sectionid Section id where the module will be created
+     * @param int $sectionnum Section number where the module will be created
+     * @param string $prompt Prompt to create module
+     * @param int $beforemod Before module id where the module will be created
      *
      * @return array
      */
-    public static function execute(string $courseid, string $message, int $section) {
+    public static function execute(string $courseid, string $sectionid, int $sectionnum, string $prompt, ?int $beforemod) {
         global $CFG, $DB;
         $params = self::validate_parameters(self::execute_parameters(), [
             'courseid' => $courseid,
-            'message' => $message,
-            'section' => $section,
+            'sectionid' => $sectionid,
+            'sectionnum' => $sectionnum,
+            'prompt' => $prompt,
+            'beforemod' => $beforemod,
         ]);
 
         $courseid = $params['courseid'];
-        $message = $params['message'];
-        $section = $params['section'];
+        $sectionid = $params['sectionid'];
+        $sectionnum = $params['sectionnum'];
+        $prompt = $params['prompt'];
+        $beforemod = $params['beforemod'];
 
         $course = $DB->get_record('course', ['id' => $courseid], '*', MUST_EXIST);
 
         $context = context_course::instance($course->id);
         self::validate_context($context);
 
-        // $modmoodleform = "$CFG->dirroot/mod/$modname/mod_form.php";
-        // if (file_exists($modmoodleform)) {
-        // require_once($modmoodleform);
-        // } else {
-        // throw new \moodle_exception('noformdesc');
+        // $modsdirectory = $CFG->dirroot . '/mod';
+
+        // $modfolders = scandir($modsdirectory);
+
+        // $modname = '';
+        // foreach ($modfolders as $folder) {
+        //     if ($folder === '.' || $folder === '..') {
+        //         continue;
+        //     }
+
+        //     $modmoodleform = $modsdirectory . '/' . $folder . '/mod_form.php';
+
+        //     if (strpos($lowermsg, strtolower($folder)) !== false && file_exists($modmoodleform)) {
+        //         require_once($modmoodleform);
+        //         $modname = $folder;
+        //         break;
+        //     }
         // }
 
-        $lowermsg = strtolower($message);
-
-        $modsdirectory = $CFG->dirroot . '/mod';
-
-        $modfolders = scandir($modsdirectory);
-
-        $modname = '';
-        foreach ($modfolders as $folder) {
-            if ($folder === '.' || $folder === '..') {
-                continue;
-            }
-
-            $modmoodleform = $modsdirectory . '/' . $folder . '/mod_form.php';
-
-            if (strpos($lowermsg, strtolower($folder)) !== false && file_exists($modmoodleform)) {
-                require_once($modmoodleform);
-                $modname = $folder;
-                break;
-            }
-        }
-
-        list($module, $context, $cw, $cm, $data) = prepare_new_moduleinfo_data($course, $modname, $section);
-
-        $mformclassname = 'mod_'.$modname.'_mod_form';
-        $mform = new $mformclassname($data, $cw->section, $cm, $course);
-
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, 'http://server:3000/api/v1/moodle/generate/mod');
+        curl_setopt($ch, CURLOPT_URL, 'http://server:8000/create-mod');
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json']);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_FAILONERROR, true);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-            'courseId' => $courseid,
-            'message' => $message,
-            'section' => $section,
+            'course_id' => $courseid,
+            'message' => $prompt,
         ]));
         $result = curl_exec($ch);
         curl_close($ch);
@@ -126,7 +119,25 @@ class create_mod extends external_api {
         }
         $result = json_decode($result, true);
 
-        add_moduleinfo((object)$result['response'], $course, $mform);
+        $modname = $result['result']['resource_type'];
+
+        $modmoodleform = "$CFG->dirroot/mod/$modname/mod_form.php";
+        if (file_exists($modmoodleform)) {
+            require_once($modmoodleform);
+        } else {
+            throw new \moodle_exception('noformdesc');
+        }
+
+        list($module, $context, $cw, $cm, $data) = prepare_new_moduleinfo_data($course, $modname, $sectionnum);
+
+        $mformclassname = 'mod_'.$modname.'_mod_form';
+        $mform = new $mformclassname($data, $cw->section, $cm, $course);
+
+        $parameters = (object)$result['result']['parameters'];
+        $parameters->section = $sectionnum;
+        $parameters->beforemod = $beforemod;
+
+        $newcm = add_moduleinfo($parameters, $course, $mform);
 
         $url = course_get_url($course, $cw->section);
 

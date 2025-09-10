@@ -40,16 +40,25 @@ export async function createCourseContext(courseId) {
 /**
  * Create module for ask question to chatbot based in that information.
  *
- * @param {number} courseId - The ID of the course to create context for
- * @param {string} message - The message to create
- * @param {number} section - The section number where the module will be created
+ * @param {{
+ *     courseid: number,
+ *     sectionid: number,
+ *     sectionnum: number,
+ *     beforemod: number,
+ *     prompt: string,
+ * }} payload - The payload to create module
+ * - courseid: The ID of the course to create module for
+ * - sectionid: The ID of the section to create module for
+ * - sectionnum: The number of the section to create module for
+ * - beforemod: The ID of the module before which the new module will be created
+ * - prompt: The message to create
  * @return {Promise<Object>} response
  */
-export async function createMod(courseId, message, section) {
+export async function createMod({courseid, sectionid, sectionnum, beforemod, prompt}) {
     return ajax.call([
         {
             methodname: "local_datacurso_create_mod",
-            args: { courseid: parseInt(courseId), section: parseInt(section), message: message },
+            args: { courseid, sectionid, sectionnum, beforemod, prompt },
         },
     ])[0];
 }

@@ -55,4 +55,8 @@ $callbacks = [
         'callback' => 'local_datacurso\hook\chat_hook::before_standard_head_html_generation',
         'priority' => 100,
     ],
+    [
+        'hook' => core_course\hook\before_activitychooserbutton_exported::class,
+        'callback' => 'local_datacurso\hook\hook_callbacks::extend_activitychooser_button',
+    ],
 ];

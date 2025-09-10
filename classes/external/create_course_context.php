@@ -62,22 +62,34 @@ class create_course_context extends external_api {
 
         $coursecontent = self::get_course_content($courseid);
 
-        $postdata = [
-            'course_id' => $courseid,
-            'site_id' => md5($CFG->wwwroot),
-            'course_content' => $coursecontent,
-        ];
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, 'http://server:8000/api/v1/chatbot/context');
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json']);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FAILONERROR, true);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postdata));
-        $result = curl_exec($ch);
-        curl_close($ch);
+        // Save in file.
+        $dir = "$CFG->tempdir/moddata/";
+        if (!file_exists($dir)) {
+            mkdir($dir, 0777, true); // crea el directorio con permisos
+        }
+    
+        $filepath = "$CFG->tempdir/moddata/course-$courseid.json";
+        $content = json_encode($coursecontent, JSON_PRETTY_PRINT);
+        $handle = fopen($filepath, 'w');
+        fwrite($handle, $content);
+        fclose($handle);
 
-        $result = json_decode($result);
+        // $postdata = [
+        //     'course_id' => $courseid,
+        //     'site_id' => md5($CFG->wwwroot),
+        //     'course_content' => $coursecontent,
+        // ];
+        // $ch = curl_init();
+        // curl_setopt($ch, CURLOPT_URL, 'http://server:8000/api/v1/chatbot/context');
+        // curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json']);
+        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        // curl_setopt($ch, CURLOPT_FAILONERROR, true);
+        // curl_setopt($ch, CURLOPT_POST, 1);
+        // curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postdata));
+        // $result = curl_exec($ch);
+        // curl_close($ch);
+
+        // $result = json_decode($result);
 
         return ['ok' => true];
     }
