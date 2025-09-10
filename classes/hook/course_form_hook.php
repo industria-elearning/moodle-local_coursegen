@@ -17,8 +17,9 @@
 namespace local_datacurso\hook;
 
 use core_course\hook\after_form_definition;
-use core_course\hook\before_form_validation;
-use local_datacurso\httpclient\datacurso_api;
+use core_course\hook\after_form_definition_after_data;
+use core_course\hook\after_form_validation;
+use core_course\hook\after_form_submission;
 
 /**
  * Hook para extender el formulario de curso con campos personalizados.
@@ -41,38 +42,12 @@ class course_form_hook {
         $mform->addElement('header', 'local_datacurso_header',
             get_string('custom_fields_header', 'local_datacurso'));
 
-        $modeloptions = ['' => get_string('choose', 'core')];
-
-        try {
-            $client = new datacurso_api();
-
-            $models = $client->get('/v3/pedagogic-model');
-
-            if (is_array($models)) {
-                foreach ($models as $model) {
-                    $id = $model['id'] ?? null;
-                    if (!$id) {
-                        continue;
-                    }
-                    // Elegimos el mejor label disponible.
-                    $label = $model['title'];
-                    // Limpieza básica por si viniera con HTML.
-                    $label = format_string($label);
-                    $modeloptions[$id] = $label;
-                }
-
-            }
-        } catch (\Throwable $e) {
-            // En caso de error, deja opciones de respaldo.
-            debugging('Error cargando modelos desde DataCurso API: ' . $e->getMessage(), DEBUG_DEVELOPER);
-            $modeloptions += [
-                'option1' => get_string('option1', 'local_datacurso'),
-                'option2' => get_string('option2', 'local_datacurso'),
-                'option3' => get_string('option3', 'local_datacurso'),
-            ];
-        }
-
-        // Select de modelos.
+        $modeloptions = [
+            get_string('choosemodel', 'local_datacurso'),
+            'option1' => 'Libre',
+            'option2' => 'Robert Gagne',
+            'option3' => 'ADDIE',
+        ];
         $mform->addElement(
             'select',
             'local_datacurso_custom_select_model',
@@ -80,172 +55,154 @@ class course_form_hook {
             $modeloptions
         );
 
-        // Program definition text.
-        $mform->addElement('text', 'local_datacurso_custom_text_program',
-            get_string('custom_program_text_field', 'local_datacurso'));
-        $mform->setType('local_datacurso_custom_text_program', PARAM_TEXT);
-
-        // Semester selection.
-        $options = [
-            '' => get_string('choose', 'core'),
-            'semester_option1' => get_string('semester_option1', 'local_datacurso'),
-            'semester_option2' => get_string('semester_option2', 'local_datacurso'),
-            'semester_option3' => get_string('semester_option3', 'local_datacurso'),
-            'semester_option4' => get_string('semester_option4', 'local_datacurso'),
-            'semester_option5' => get_string('semester_option5', 'local_datacurso'),
-            'semester_option6' => get_string('semester_option6', 'local_datacurso'),
-            'semester_option7' => get_string('semester_option7', 'local_datacurso'),
-            'semester_option8' => get_string('semester_option8', 'local_datacurso'),
-            'semester_option9' => get_string('semester_option9', 'local_datacurso'),
-            'semester_option10' => get_string('semester_option10', 'local_datacurso'),
-        ];
-        $mform->addElement('select', 'local_datacurso_custom_select_semester',
-            get_string('custom_semester_select_field', 'local_datacurso'), $options);
-
-        // Training level selection.
-        $options = [
-            '' => get_string('choose', 'core'),
-            'formation_option1' => get_string('formation_option1', 'local_datacurso'),
-            'formation_option2' => get_string('formation_option2', 'local_datacurso'),
-            'formation_option3' => get_string('formation_option3', 'local_datacurso'),
-        ];
-        $mform->addElement('select', 'local_datacurso_custom_select_formation',
-            get_string('custom_formation_select_field', 'local_datacurso'), $options);
-
-        // Training objective textarea.
-        $mform->addElement('editor', 'local_datacurso_training_objective',
-            get_string('training_objective_field', 'local_datacurso'),
-            null, ['rows' => 10, 'cols' => 60]);
-        $mform->setType('local_datacurso_training_objective', PARAM_RAW);
-
-        // Course description textarea.
-        $mform->addElement('editor', 'local_datacurso_course_description',
-            get_string('course_description_field', 'local_datacurso'),
-            null, ['rows' => 10, 'cols' => 60]);
-        $mform->setType('local_datacurso_course_description', PARAM_RAW);
-
-        // Course content textarea.
-        $mform->addElement('editor', 'local_datacurso_course_content',
-            get_string('course_content_field', 'local_datacurso'),
-            null, ['rows' => 10, 'cols' => 60]);
-        $mform->setType('local_datacurso_course_content', PARAM_RAW);
-
-        // Learning outcomes textarea.
-        $mform->addElement('editor', 'local_datacurso_learning_outcomes',
-            get_string('learning_outcomes_field', 'local_datacurso'),
-            null, ['rows' => 10, 'cols' => 60]);
-        $mform->setType('local_datacurso_learning_outcomes', PARAM_RAW);
-
-        // Course summary textarea.
-        $mform->addElement('editor', 'local_datacurso_course_summary',
-            get_string('course_summary_field', 'local_datacurso'),
-            null, ['rows' => 10, 'cols' => 60]);
-        $mform->setType('local_datacurso_course_summary', PARAM_RAW);
-
-        // Course structure textarea.
-        $mform->addElement('editor', 'local_datacurso_course_structure',
-            get_string('course_structure_field', 'local_datacurso'),
-            null, ['rows' => 10, 'cols' => 60]);
-        $mform->setType('local_datacurso_course_structure', PARAM_RAW);
-
-        // Number of modules text field.
-        $mform->addElement('text', 'local_datacurso_number_of_modules',
-            get_string('number_of_modules_field', 'local_datacurso'));
-        $mform->setType('local_datacurso_number_of_modules', PARAM_INT);
+        // Agregar campo para subir PDF del sílabo.
+        $mform->addElement(
+            'filepicker',
+            'local_datacurso_syllabus_pdf',
+            get_string('syllabus_pdf_field', 'local_datacurso'),
+            null,
+            [
+                'accepted_types' => ['.pdf'],
+                'maxfiles' => 1,
+                'subdirs' => 0,
+            ]
+        );
+        $mform->addHelpButton('local_datacurso_syllabus_pdf', 'syllabus_pdf_field', 'local_datacurso');
     }
 
     /**
-     * Hook para validar los campos personalizados.
+     * Hooks to set default data to the form fields
      *
-     * @param before_form_validation $hook Objeto del hook con datos y errores.
+     * @param after_form_definition_after_data $hook Hook object with the form.
      */
-    public static function before_form_validation(before_form_validation $hook): void {
-        $form = $hook->get_form();
-        $data = $hook->get_data();
-        $errors = $hook->get_errors();
+    public static function after_form_definition_after_data(after_form_definition_after_data $hook): void {
+        $courseid = optional_param('id', 0, PARAM_INT);
+        if (!empty($courseid)) {
+            $context = \context_course::instance($courseid);
 
-        // Validación personalizada para el campo de texto del programa.
-        if (!empty($data['local_datacurso_custom_text_program'])) {
-            if (strlen($data['local_datacurso_custom_text_program']) < 3) {
-                $errors['local_datacurso_custom_text_program'] = get_string('error_text_too_short', 'local_datacurso');
-            }
+            // Create a draft area for the filepicker.
+            $draftitemid = file_get_submitted_draft_itemid('local_datacurso_syllabus_pdf');
+
+            // Copy existing file to draft area.
+            file_prepare_draft_area(
+                $draftitemid,
+                $context->id,
+                'local_datacurso',
+                'syllabus',
+                0,
+                ['subdirs' => 0, 'maxfiles' => 1, 'accepted_types' => ['.pdf']]
+            );
+
+            $editform = $hook->formwrapper;
+
+            $editform->set_data([
+                'local_datacurso_syllabus_pdf' => $draftitemid,
+            ]);
         }
-
-        // Validación para la cantidad de módulos.
-        if (!empty($data['local_datacurso_number_of_modules'])) {
-            if (!is_numeric($data['local_datacurso_number_of_modules']) || $data['local_datacurso_number_of_modules'] < 1) {
-                $errors['local_datacurso_number_of_modules'] = get_string('error_invalid_number', 'local_datacurso');
-            }
-        }
-
-        $hook->set_errors($errors);
     }
 
     /**
-     * Cargar datos personalizados para un curso existente.
+     * Hook to process the form submission.
      *
-     * @param \moodleform $form El formulario actual.
-     * @param \MoodleQuickForm $mform El quickform usado para agregar/definir campos.
+     * @param after_form_submission $hook Hook object with the form data.
      */
-    private static function load_custom_data($form, $mform): void {
+    public static function after_form_submission(after_form_submission $hook): void {
         global $DB;
 
-        $courseid = $form->get_course()->id;
+        $data = $hook->get_data();
 
-        // Buscar datos personalizados en tu tabla personalizada.
-        $customdata = $DB->get_record('local_datacurso_course_data',
-            ['courseid' => $courseid]);
+        $courseid = $data->id;
 
-        if ($customdata) {
-            // Establecer valores por defecto para cada campo.
-            $mform->setDefault('local_datacurso_custom_select_model', $customdata->custom_select_model);
-            $mform->setDefault('local_datacurso_custom_text_program', $customdata->custom_text_program);
-            $mform->setDefault('local_datacurso_custom_select_semester', $customdata->custom_select_semester);
-            $mform->setDefault('local_datacurso_custom_select_formation', $customdata->custom_select_formation);
-            $mform->setDefault('local_datacurso_number_of_modules', $customdata->number_of_modules);
+        $draftitemid = $data->local_datacurso_syllabus_pdf;
 
-            // Para campos editor.
-            if (isset($customdata->training_objective)) {
-                $mform->setDefault('local_datacurso_training_objective', [
-                    'text' => $customdata->training_objective,
-                    'format' => FORMAT_HTML,
-                ]);
+        if ($draftitemid) {
+            file_save_draft_area_files(
+                $draftitemid,
+                \context_course::instance($courseid)->id,
+                'local_datacurso',
+                'syllabus',
+                0,
+                [
+                    'subdirs' => 0,
+                    'maxfiles' => 1,
+                    'accepted_types' => ['.pdf'],
+                ]
+            );
+            self::upload_syllabus_to_ai($courseid);
+        }
+    }
+
+    /**
+     * Sube el archivo de sílabo al endpoint de IA.
+     *
+     * @param int $courseid ID del curso.
+     */
+    private static function upload_syllabus_to_ai(int $courseid): void {
+        global $CFG;
+
+        try {
+            $fs = get_file_storage();
+            $context = \context_course::instance($courseid);
+
+            $files = $fs->get_area_files($context->id, 'local_datacurso', 'syllabus', 0, 'itemid', false);
+
+            if (empty($files)) {
+                return;
             }
 
-            if (isset($customdata->course_description)) {
-                $mform->setDefault('local_datacurso_course_description', [
-                    'text' => $customdata->course_description,
-                    'format' => FORMAT_HTML,
-                ]);
+            $file = reset($files);
+            if (!$file) {
+                return;
             }
 
-            if (isset($customdata->course_content)) {
-                $mform->setDefault('local_datacurso_course_content', [
-                    'text' => $customdata->course_content,
-                    'format' => FORMAT_HTML,
-                ]);
+            $siteid = md5($CFG->wwwroot);
+
+            // Guardar el archivo temporalmente.
+            $tempfile = $file->copy_content_to_temp();
+
+            // Preparar el archivo como recurso CURL.
+            $cfile = new \CURLFile($tempfile, $file->get_mimetype(), $file->get_filename());
+
+            // Preparar los datos del POST.
+            $postdata = [
+                'title' => $file->get_filename(),
+                'file' => $cfile,
+                'body' => '',
+                'site_id' => $siteid,
+                'course_id' => $courseid,
+            ];
+
+            // Realizar la petición HTTP con cURL.
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, 'http://server:8000/context/upload');
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+            $response = curl_exec($ch);
+            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $error = curl_error($ch);
+            curl_close($ch);
+
+            // Verificar la respuesta.
+            if ($error) {
+                throw new \moodle_exception('error_upload_failed', 'local_datacurso', '', $error);
             }
 
-            if (isset($customdata->learning_outcomes)) {
-                $mform->setDefault('local_datacurso_learning_outcomes', [
-                    'text' => $customdata->learning_outcomes,
-                    'format' => FORMAT_HTML,
-                ]);
+            if ($httpcode !== 200) {
+                throw new \moodle_exception('error_upload_failed', 'local_datacurso', '',
+                    get_string('error_http_code', 'local_datacurso', $httpcode));
             }
 
-            if (isset($customdata->course_summary)) {
-                $mform->setDefault('local_datacurso_course_summary', [
-                    'text' => $customdata->course_summary,
-                    'format' => FORMAT_HTML,
-                ]);
-            }
+            // Log del éxito.
+            debugging("DataCurso: Syllabus uploaded successfully for course {$courseid}", DEBUG_NORMAL);
 
-            if (isset($customdata->course_structure)) {
-                $mform->setDefault('local_datacurso_course_structure', [
-                    'text' => $customdata->course_structure,
-                    'format' => FORMAT_HTML,
-                ]);
-            }
+        } catch (\Exception $e) {
+            // Log del error.
+            debugging("DataCurso: Error uploading syllabus for course {$courseid}: " . $e->getMessage(), DEBUG_NORMAL);
+
+            // Mostrar notificación de error al usuario.
+            \core\notification::error(get_string('error_upload_failed', 'local_datacurso', $e->getMessage()));
         }
     }
 }
