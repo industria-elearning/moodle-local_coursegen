@@ -155,7 +155,6 @@ define([
         Str.get_string('addactivityai_error', 'local_datacurso').then((s) => {
           pushAI(messagesEl, `❌ ${s}`);
         });
-        Notification.exception(err);
       } finally {
         setLoading(sendBtn, false);
         scrollToBottom(messagesEl);
