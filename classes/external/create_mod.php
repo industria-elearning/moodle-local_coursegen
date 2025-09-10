@@ -64,89 +64,108 @@ class create_mod extends external_api {
      */
     public static function execute(string $courseid, string $sectionid, int $sectionnum, string $prompt, ?int $beforemod) {
         global $CFG, $DB;
-        $params = self::validate_parameters(self::execute_parameters(), [
-            'courseid' => $courseid,
-            'sectionid' => $sectionid,
-            'sectionnum' => $sectionnum,
-            'prompt' => $prompt,
-            'beforemod' => $beforemod,
-        ]);
 
-        $courseid = $params['courseid'];
-        $sectionid = $params['sectionid'];
-        $sectionnum = $params['sectionnum'];
-        $prompt = $params['prompt'];
-        $beforemod = $params['beforemod'];
+        try {
+            $params = self::validate_parameters(self::execute_parameters(), [
+                'courseid' => $courseid,
+                'sectionid' => $sectionid,
+                'sectionnum' => $sectionnum,
+                'prompt' => $prompt,
+                'beforemod' => $beforemod,
+            ]);
 
-        $course = $DB->get_record('course', ['id' => $courseid], '*', MUST_EXIST);
+            $courseid = $params['courseid'];
+            $sectionid = $params['sectionid'];
+            $sectionnum = $params['sectionnum'];
+            $prompt = $params['prompt'];
+            $beforemod = $params['beforemod'];
 
-        $context = context_course::instance($course->id);
-        self::validate_context($context);
+            $course = $DB->get_record('course', ['id' => $courseid], '*', MUST_EXIST);
+            $context = context_course::instance($course->id);
+            self::validate_context($context);
 
-        // $modsdirectory = $CFG->dirroot . '/mod';
+            // External service call
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, 'http://server:8000/create-mod');
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json']);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_FAILONERROR, true);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+                'site_id' => md5($CFG->wwwroot),
+                'course_id' => $courseid,
+                'message' => $prompt,
+            ]));
+            $result = curl_exec($ch);
 
-        // $modfolders = scandir($modsdirectory);
+            if (!$result) {
+                $curlerror = curl_error($ch);
+                debugging("CURL request failed while creating resource. Error: {$curlerror}");
+                curl_close($ch);
+                return [
+                    'ok' => false,
+                    'message' => get_string('error_generating_resource', 'local_datacurso'),
+                ];
+            }
+            curl_close($ch);
 
-        // $modname = '';
-        // foreach ($modfolders as $folder) {
-        //     if ($folder === '.' || $folder === '..') {
-        //         continue;
-        //     }
+            $result = json_decode($result, true);
+            if (!isset($result['result']['resource_type'])) {
+                debugging("Invalid response from external service. Response: " . json_encode($result));
+                return [
+                    'ok' => false,
+                    'message' => get_string('error_generating_resource', 'local_datacurso'),
+                ];
+            }
 
-        //     $modmoodleform = $modsdirectory . '/' . $folder . '/mod_form.php';
+            $modname = $result['result']['resource_type'];
 
-        //     if (strpos($lowermsg, strtolower($folder)) !== false && file_exists($modmoodleform)) {
-        //         require_once($modmoodleform);
-        //         $modname = $folder;
-        //         break;
-        //     }
-        // }
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, 'http://server:8000/create-mod');
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json']);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FAILONERROR, true);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-            'course_id' => $courseid,
-            'message' => $prompt,
-        ]));
-        $result = curl_exec($ch);
-        curl_close($ch);
-        if (!$result) {
-            throw new \moodle_exception('error_curl');
-        }
-        $result = json_decode($result, true);
-
-        $modname = $result['result']['resource_type'];
-
-        $modmoodleform = "$CFG->dirroot/mod/$modname/mod_form.php";
-        if (file_exists($modmoodleform)) {
+            $modmoodleform = "$CFG->dirroot/mod/$modname/mod_form.php";
+            if (!file_exists($modmoodleform)) {
+                debugging("Form file not found for module: {$modname}");
+                return [
+                    'ok' => false,
+                    'message' => get_string('error_generating_resource', 'local_datacurso'),
+                ];
+            }
             require_once($modmoodleform);
-        } else {
-            throw new \moodle_exception('noformdesc');
+
+            list($module, $context, $cw, $cm, $data) = prepare_new_moduleinfo_data($course, $modname, $sectionnum);
+
+            $mformclassname = 'mod_'.$modname.'_mod_form';
+            $mform = new $mformclassname($data, $cw->section, $cm, $course);
+
+            if (!isset($result['result']['parameters'])) {
+                debugging("Missing parameters in service response: " . json_encode($result));
+                return [
+                    'ok' => false,
+                    'message' => get_string('error_generating_resource', 'local_datacurso'),
+                ];
+            }
+
+            $parameters = (object)$result['result']['parameters'];
+            $parameters->section = $sectionnum;
+            $parameters->beforemod = $beforemod;
+
+            $newcm = add_moduleinfo($parameters, $course, $mform);
+
+            $url = course_get_url($course, $cw->section);
+
+            return [
+                'ok' => true,
+                'message' => get_string('resource_created', 'local_datacurso', $modname),
+                'courseurl' => $url->out(false),
+            ];
+
+        } catch (\Exception $e) {
+            debugging("Unexpected error while creating resource: " . $e->getMessage());
+            return [
+                'ok' => false,
+                'message' => get_string('error_generating_resource', 'local_datacurso'),
+            ];
         }
-
-        list($module, $context, $cw, $cm, $data) = prepare_new_moduleinfo_data($course, $modname, $sectionnum);
-
-        $mformclassname = 'mod_'.$modname.'_mod_form';
-        $mform = new $mformclassname($data, $cw->section, $cm, $course);
-
-        $parameters = (object)$result['result']['parameters'];
-        $parameters->section = $sectionnum;
-        $parameters->beforemod = $beforemod;
-
-        $newcm = add_moduleinfo($parameters, $course, $mform);
-
-        $url = course_get_url($course, $cw->section);
-
-        return [
-            'ok' => true,
-            'message' => 'Modulo '. $modname . ' creado correctamente',
-            'courseurl' => $url->out(false),
-        ];
     }
+
 
     /**
      * Returns description of method result values.
