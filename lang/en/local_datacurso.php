@@ -91,3 +91,5 @@ $string['error_upload_failed'] = 'Failed to upload syllabus to AI service: {$a}'
 $string['syllabus_pdf_field'] = 'Upload Syllabus PDF';
 $string['syllabus_pdf_field_help'] = 'Upload a PDF file containing the course syllabus. This will be sent to the AI for context analysis. Maximum file size: 10MB.';
 $string['datacurso:view_syllabus'] = 'View syllabus';
+$string['apitoken'] = 'API Token';
+$string['apitoken_desc'] = 'Enter your API token here.';
