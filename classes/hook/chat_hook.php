@@ -36,6 +36,23 @@ class chat_hook {
     public static function before_footer_html_generation(before_footer_html_generation $hook): void {
         global $PAGE, $COURSE, $USER;
 
+        if (!self::is_course_context()) {
+            return;
+        }
+
+        $context = \context_course::instance($COURSE->id);
+
+        // Verificar si es profesor o tiene permisos de edición.
+        if (!has_capability('moodle/course:update', $context) ||
+            !has_capability('moodle/course:manageactivities', $context)) {
+            return;
+        }
+
+        $PAGE->requires->js_call_amd('local_datacurso/add_activity_ai_button', 'init', ['courseid' => $COURSE->id]);
+        // $PAGE->requires->js_call_amd('local_datacurso/add_activity_ai_button', 'init');
+
+        // $PAGE->requires->js_call_amd('local_datacurso/add_activity_ai', 'init');
+
         // // Solo cargar en contextos de curso.
         // if (!self::is_course_context()) {
         //     return;
@@ -53,26 +70,6 @@ class chat_hook {
         // ];
 
         // $PAGE->requires->data_for_js('datacurso_chat_config', $chatdata);
-    }
-
-    /**
-     * Hook para agregar CSS y metadatos en el head.
-     *
-     * @param before_standard_head_html_generation $hook El hook del evento.
-     */
-    public static function before_standard_head_html_generation(before_standard_head_html_generation $hook): void {
-        global $PAGE, $CFG;
-
-        // Solo cargar en contextos de curso.
-        if (!self::is_course_context()) {
-            return;
-        }
-
-        // Cargar CSS del chat.
-        $PAGE->requires->css('/local/datacurso/styles/chat.css');
-
-        // Agregar metadatos para el chat.
-        $hook->add_html('<meta name="datacurso-chat-enabled" content="true">');
     }
 
     /**
