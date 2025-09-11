@@ -42,23 +42,21 @@ export async function createCourseContext(courseId) {
  *
  * @param {{
  *     courseid: number,
- *     sectionid: number,
  *     sectionnum: number,
  *     beforemod: number,
  *     prompt: string,
  * }} payload - The payload to create module
  * - courseid: The ID of the course to create module for
- * - sectionid: The ID of the section to create module for
  * - sectionnum: The number of the section to create module for
  * - beforemod: The ID of the module before which the new module will be created
  * - prompt: The message to create
  * @return {Promise<Object>} response
  */
-export async function createMod({courseid, sectionid, sectionnum, beforemod, prompt}) {
+export async function createMod({courseid, sectionnum, beforemod, prompt}) {
     return ajax.call([
         {
             methodname: "local_datacurso_create_mod",
-            args: { courseid, sectionid, sectionnum, beforemod, prompt },
+            args: { courseid, sectionnum, beforemod, prompt },
         },
     ])[0];
 }
