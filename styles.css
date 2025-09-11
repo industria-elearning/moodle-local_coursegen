@@ -146,9 +146,9 @@ span.local_datacurso-sparkles-icon.white {
     flex: 1 1 auto;
     overflow: auto;
     padding: 0.5rem;
-    background: var(--bdai-bg, #f8f9fa);
+    background: var(--light);
     border-radius: .5rem;
-    border: 1px solid rgba(0, 0, 0, .05);
+    border: 1px solid var(--secondary);
 }
 
 /* Burbujas */
@@ -161,7 +161,7 @@ span.local_datacurso-sparkles-icon.white {
     padding: .5rem .75rem;
     border-radius: 1rem;
     max-width: 85%;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, .06);
+    box-shadow: 0 1px 2px var(--secondary);
     word-break: break-word;
 }
 
@@ -170,14 +170,14 @@ span.local_datacurso-sparkles-icon.white {
 }
 
 .bdai-msg.user .bubble {
-    background: #0d6efd;
-    color: #fff;
+    background: var(--primary);
+    color: var(--white);
     border-bottom-right-radius: .25rem;
 }
 
 .bdai-msg.ai .bubble {
-    background: #fff;
-    border: 1px solid rgba(0, 0, 0, .08);
+    background: var(--white);
+    border: 1px solid var(--secondary);
     border-bottom-left-radius: .25rem;
 }
 
@@ -188,7 +188,7 @@ span.local_datacurso-sparkles-icon.white {
     height: .35rem;
     margin: 0 .12rem;
     border-radius: 50%;
-    background: rgba(0, 0, 0, .45);
+    background: var(--gray);
     animation: bdaiBlink 1.2s infinite ease-in-out;
 }
 
@@ -224,6 +224,52 @@ span.local_datacurso-sparkles-icon.white {
     display: flex;
     column-gap: 1rem;
 }
+
 .btn.add-content.section-modchooser {
     min-width: 34px;
+}
+
+/* Nuevos estilos */
+
+/* Grupo de entrada */
+.bdai-input-group {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+/* Textarea ocupa todo el espacio */
+.bdai-textarea {
+    flex: 1;
+    resize: none;
+    border-radius: .5rem;
+    padding: .6rem .75rem;
+    font-size: 0.95rem;
+    border: 1px solid var(--secondary);
+    background: var(--white);
+    color: var(--dark);
+}
+
+/* Botón de enviar con ancho fijo */
+.bdai-send {
+    flex: 0 0 42px;
+    height: 42px;
+    border: none;
+    border-radius: .5rem;
+    background-color: var(--primary);
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.bdai-send:hover {
+    background-color: var(--blue);
+}
+
+/* Ícono */
+.bdai-send svg {
+    pointer-events: none;
 }
