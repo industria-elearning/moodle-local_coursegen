@@ -93,3 +93,17 @@ $string['syllabus_pdf_field_help'] = 'Upload a PDF file containing the course sy
 $string['datacurso:view_syllabus'] = 'View syllabus';
 $string['apitoken'] = 'API Token';
 $string['apitoken_desc'] = 'Enter your API token here.';
+$string['error_file_too_large'] = 'El tamaño del archivo excede el máximo permitido (10 MB).';
+$string['error_http_code'] = 'Código de error HTTP: {$a}';
+$string['error_no_file_found'] = 'No se encontró ningún archivo para subir.';
+$string['error_not_pdf'] = 'El archivo cargado debe ser un PDF.';
+$string['error_upload_failed'] = 'Error al subir el plan de estudios al servicio de IA: {$a}';
+
+$string['syllabus_pdf_field'] = 'Subir plan de estudios (PDF)';
+$string['syllabus_pdf_field_help'] = 'Sube un archivo PDF que contenga el plan de estudios del curso. Este será enviado a la IA para análisis de contexto. Tamaño máximo del archivo: 10 MB.';
+
+$string['datacurso:view_syllabus'] = 'Ver plan de estudios';
+
+$string['apitoken'] = 'Token de la API';
+$string['apitoken_desc'] = 'Introduce aquí tu token de API.';
+
