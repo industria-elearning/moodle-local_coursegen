@@ -167,14 +167,18 @@ class course_form_hook {
             $postdata = [
                 'title' => $file->get_filename(),
                 'file' => $cfile,
-                'body' => '',
+                'body' => $siteid,
                 'site_id' => $siteid,
                 'course_id' => $courseid,
             ];
 
+            $apitoken = get_config('local_datacurso', 'apitoken');
+            $baseurl = get_config('local_datacurso', 'baseurl');
+
             // Realizar la petición HTTP con cURL.
             $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, 'http://server:8000/context/upload');
+            curl_setopt($ch, CURLOPT_URL, rtrim($baseurl, '/') . '/context/upload');
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $apitoken]);
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
