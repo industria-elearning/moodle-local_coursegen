@@ -62,5 +62,15 @@ if ($hassiteconfig) {
         )
     );
 
+    // Add apitoken setting.
+    $settings->add(
+        new admin_setting_configpasswordunmask(
+            'local_datacurso/apitoken',
+            new lang_string('apitoken', 'local_datacurso'),
+            new lang_string('apitoken_desc', 'local_datacurso'),
+            '',
+        )
+    );
+
     $ADMIN->add($pluginname, $settings);
 }
