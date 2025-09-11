@@ -80,10 +80,12 @@ class create_mod extends external_api {
             $context = context_course::instance($course->id);
             self::validate_context($context);
 
-            // External service call
+            $apitoken = get_config('local_datacurso', 'apitoken');
+            $baseurl = get_config('local_datacurso', 'baseurl');
+
             $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, 'http://server:8000/create-mod');
-            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json']);
+            curl_setopt($ch, CURLOPT_URL, rtrim($baseurl, '/') . '/resources/create-mod');
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Authorization: Bearer ' . $apitoken]);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_FAILONERROR, true);
             curl_setopt($ch, CURLOPT_POST, 1);
