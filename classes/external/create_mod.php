@@ -44,7 +44,6 @@ class create_mod extends external_api {
     public static function execute_parameters() {
         return new external_function_parameters([
             'courseid' => new external_value(PARAM_INT, 'Course id'),
-            'sectionid' => new external_value(PARAM_INT, 'Section id'),
             'sectionnum' => new external_value(PARAM_INT, 'Section number'),
             'prompt' => new external_value(PARAM_TEXT, 'Prompt to create module'),
             'beforemod' => new external_value(PARAM_INT, 'Before module id', VALUE_OPTIONAL),
@@ -55,27 +54,24 @@ class create_mod extends external_api {
      * Create course context for ask question to chatbot based in that information.
      *
      * @param string $courseid Course id where the module will be created
-     * @param string $sectionid Section id where the module will be created
      * @param int $sectionnum Section number where the module will be created
      * @param string $prompt Prompt to create module
      * @param int $beforemod Before module id where the module will be created
      *
      * @return array
      */
-    public static function execute(string $courseid, string $sectionid, int $sectionnum, string $prompt, ?int $beforemod) {
-        global $CFG, $DB;
+    public static function execute(int $courseid, int $sectionnum, string $prompt, ?int $beforemod) {
+        global $CFG, $DB, $COURSE;
 
         try {
             $params = self::validate_parameters(self::execute_parameters(), [
                 'courseid' => $courseid,
-                'sectionid' => $sectionid,
                 'sectionnum' => $sectionnum,
                 'prompt' => $prompt,
                 'beforemod' => $beforemod,
             ]);
 
             $courseid = $params['courseid'];
-            $sectionid = $params['sectionid'];
             $sectionnum = $params['sectionnum'];
             $prompt = $params['prompt'];
             $beforemod = $params['beforemod'];
