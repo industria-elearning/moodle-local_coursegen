@@ -53,10 +53,16 @@ export async function createCourseContext(courseId) {
  * @return {Promise<Object>} response
  */
 export async function createMod({courseid, sectionnum, beforemod, prompt}) {
+    const args = {
+        courseid: Number(courseid),
+        sectionnum: Number(sectionnum),
+        beforemod: beforemod ? Number(beforemod) : null,
+        prompt,
+    };
     return ajax.call([
         {
             methodname: "local_datacurso_create_mod",
-            args: { courseid, sectionnum, beforemod, prompt },
+            args,
         },
     ])[0];
 }
