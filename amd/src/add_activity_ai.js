@@ -64,10 +64,8 @@ define([
   };
 
   const readDataset = (el) => {
-    const { courseid, sectionid, sectionnum, beforemod } = el.dataset;
+    const { sectionnum, beforemod } = el.dataset;
     return {
-      courseid: Number(courseid),
-      sectionid: Number(sectionid),
       sectionnum: Number(sectionnum),
       beforemod: beforemod ? Number(beforemod) : null,
     };
@@ -255,5 +253,5 @@ define([
     }
   };
 
-  return { init };
+  return { init, openChatModal };
 });
