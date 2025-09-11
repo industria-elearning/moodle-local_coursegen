@@ -53,7 +53,6 @@ export function injectButton(container, courseid) {
             openChatModal({
                 sectionnum,
                 beforemod,
-                arialabel,
                 courseid,
             });
         });
