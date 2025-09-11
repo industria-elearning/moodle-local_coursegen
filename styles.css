@@ -148,7 +148,7 @@ span.local_datacurso-sparkles-icon.white {
     padding: 0.5rem;
     background: var(--light);
     border-radius: .5rem;
-    border: 1px solid var(--secondary);
+    border: 1px solid rgba(0, 0, 0, .05);
 }
 
 /* Burbujas */
@@ -161,7 +161,7 @@ span.local_datacurso-sparkles-icon.white {
     padding: .5rem .75rem;
     border-radius: 1rem;
     max-width: 85%;
-    box-shadow: 0 1px 2px var(--secondary);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .06);
     word-break: break-word;
 }
 
@@ -177,7 +177,7 @@ span.local_datacurso-sparkles-icon.white {
 
 .bdai-msg.ai .bubble {
     background: var(--white);
-    border: 1px solid var(--secondary);
+    border: 1px solid rgba(0, 0, 0, .08);
     border-bottom-left-radius: .25rem;
 }
 
@@ -188,7 +188,7 @@ span.local_datacurso-sparkles-icon.white {
     height: .35rem;
     margin: 0 .12rem;
     border-radius: 50%;
-    background: var(--gray);
+    background: rgba(0, 0, 0, .45);
     animation: bdaiBlink 1.2s infinite ease-in-out;
 }
 
@@ -245,7 +245,6 @@ span.local_datacurso-sparkles-icon.white {
     border-radius: .5rem;
     padding: .6rem .75rem;
     font-size: 0.95rem;
-    border: 1px solid var(--secondary);
     background: var(--white);
     color: var(--dark);
 }
