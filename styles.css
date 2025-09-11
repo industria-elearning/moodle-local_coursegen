@@ -1,3 +1,4 @@
+/* eslint-disable */
 .local_datacurso_card {
     border: 1px solid #ddd;
     padding: 10px;
@@ -120,15 +121,15 @@ span.local_datacurso-sparkles-icon.white {
     display: none;
 }
 
-.local_datacurso-add-activity-ai-link:not([disabled]):hover {
+.local_datacurso-add-activity-ai-button:not([disabled]):hover {
     color: #fff;
 }
 
-.local_datacurso-add-activity-ai-link:not([disabled]):hover span.local_datacurso-sparkles-icon {
+.local_datacurso-add-activity-ai-button:not([disabled]):hover span.local_datacurso-sparkles-icon {
     display: none;
 }
 
-.local_datacurso-add-activity-ai-link:not([disabled]):hover span.local_datacurso-sparkles-icon.white {
+.local_datacurso-add-activity-ai-button:not([disabled]):hover span.local_datacurso-sparkles-icon.white {
     display: inline-block;
 }
 
@@ -138,61 +139,91 @@ span.local_datacurso-sparkles-icon.white {
     flex-direction: column;
     min-height: 40vh;
     max-height: 70vh;
-  }
-  
-  /* Área de mensajes */
-  .bdai-messages {
+}
+
+/* Área de mensajes */
+.bdai-messages {
     flex: 1 1 auto;
     overflow: auto;
     padding: 0.5rem;
     background: var(--bdai-bg, #f8f9fa);
     border-radius: .5rem;
-    border: 1px solid rgba(0,0,0,.05);
-  }
-  
-  /* Burbujas */
-  .bdai-msg {
+    border: 1px solid rgba(0, 0, 0, .05);
+}
+
+/* Burbujas */
+.bdai-msg {
     display: flex;
     margin: .5rem 0;
-  }
-  .bdai-msg .bubble {
+}
+
+.bdai-msg .bubble {
     padding: .5rem .75rem;
     border-radius: 1rem;
     max-width: 85%;
-    box-shadow: 0 1px 2px rgba(0,0,0,.06);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .06);
     word-break: break-word;
-  }
-  .bdai-msg.user {
+}
+
+.bdai-msg.user {
     justify-content: flex-end;
-  }
-  .bdai-msg.user .bubble {
+}
+
+.bdai-msg.user .bubble {
     background: #0d6efd;
     color: #fff;
     border-bottom-right-radius: .25rem;
-  }
-  .bdai-msg.ai .bubble {
-    background: #ffffff;
-    border: 1px solid rgba(0,0,0,.08);
+}
+
+.bdai-msg.ai .bubble {
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, .08);
     border-bottom-left-radius: .25rem;
-  }
-  
-  /* “Escribiendo…” */
-  .bdai-typing .dot {
+}
+
+/* “Escribiendo…” */
+.bdai-typing .dot {
     display: inline-block;
     width: .35rem;
     height: .35rem;
     margin: 0 .12rem;
     border-radius: 50%;
-    background: rgba(0,0,0,.45);
+    background: rgba(0, 0, 0, .45);
     animation: bdaiBlink 1.2s infinite ease-in-out;
-  }
-  .bdai-typing .dot:nth-child(2){ animation-delay: .15s; }
-  .bdai-typing .dot:nth-child(3){ animation-delay: .3s; }
-  @keyframes bdaiBlink {
-    0%, 80%, 100% { opacity: .2; transform: translateY(0); }
-    40% { opacity: 1; transform: translateY(-2px); }
-  }
-  
-  /* Form */
-  .bdai-input .form-text { opacity: .8; }
-  
+}
+
+.bdai-typing .dot:nth-child(2) {
+    animation-delay: .15s;
+}
+
+.bdai-typing .dot:nth-child(3) {
+    animation-delay: .3s;
+}
+
+@keyframes bdaiBlink {
+
+    0%,
+    80%,
+    100% {
+        opacity: .2;
+        transform: translateY(0);
+    }
+
+    40% {
+        opacity: 1;
+        transform: translateY(-2px);
+    }
+}
+
+/* Form */
+.bdai-input .form-text {
+    opacity: .8;
+}
+
+.divider .divider-content {
+    display: flex;
+    column-gap: 1rem;
+}
+.btn.add-content.section-modchooser {
+    min-width: 34px;
+}
