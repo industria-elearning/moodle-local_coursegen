@@ -93,6 +93,7 @@ class create_mod extends external_api {
                 'site_id' => md5($CFG->wwwroot),
                 'course_id' => $courseid,
                 'message' => $prompt,
+                'timezone' => \core_date::get_user_timezone(),
             ]));
             $result = curl_exec($ch);
 
