@@ -139,10 +139,6 @@ define([
         removeTyping(typing);
         renderWSResult(messagesEl, response);
         
-        // Cerrar modal antes de redirigir
-        if (modal) {
-          await modal.hide();
-        }
         
         setTimeout(() => {
           window.location.href = response.courseurl;
@@ -217,30 +213,6 @@ define([
     }
 
     if (res?.message) lines.push(res.message);
-    if (res?.name && res?.type) {
-      Str.get_string('addactivityai_created_named', 'local_datacurso', {type: res.type, name: res.name})
-        .then((s) => lines.push(`✅ ${s}`));
-    } else if (res?.cmid) {
-      Str.get_string('addactivityai_created_cmid', 'local_datacurso', res.cmid)
-        .then((s) => lines.push(`✅ ${s}`));
-    }
-    if (res?.warnings?.length) {
-      Str.get_string('addactivityai_warnings_prefix', 'local_datacurso', res.warnings.join(' '))
-        .then((s) => lines.push(`⚠️ ${s}`));
-    }
-
-    if (res?.preview || res?.log) {
-      const extras = document.createElement('div');
-      extras.className = 'bdai-msg ai';
-      const b = document.createElement('div');
-      b.className = 'bubble';
-      const pre = document.createElement('pre');
-      pre.style.whiteSpace = 'pre-wrap';
-      pre.textContent = (res.preview || res.log);
-      b.appendChild(pre);
-      extras.appendChild(b);
-      wrap.appendChild(extras);
-    }
 
     if (lines.length) {
       pushAI(wrap, lines.join('\n'));
