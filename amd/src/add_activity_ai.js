@@ -146,7 +146,7 @@ define([
         
         setTimeout(() => {
           window.location.href = response.courseurl;
-        }, 500); // Pequeño delay para que se vea el mensaje de éxito
+        }, 800); // Pequeño delay para que se vea el mensaje de éxito
         
       } catch (err) {
         removeTyping(typing);
