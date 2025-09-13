@@ -22,6 +22,7 @@ use external_api;
 use external_function_parameters;
 use external_single_structure;
 use external_value;
+use local_datacurso\mod_settings\base_settings;
 
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/externallib.php');
@@ -147,6 +148,20 @@ class create_mod extends external_api {
             $parameters->beforemod = $beforemod;
 
             $newcm = add_moduleinfo($parameters, $course, $mform);
+
+            $modsettings = $result['result']['mod_settings'];
+
+            $classpath = '\\local_datacurso\\mod_settings\\' . $modname . '_settings';
+            if (!empty($modsettings) && class_exists($classpath)) {
+                if (is_subclass_of($classpath, base_settings::class)) {
+
+                    /** @var base_settings $modsettingsinstance */
+                    $modsettingsinstance = new $classpath($newcm, $modsettings);
+                    $modsettingsinstance->add_settings();
+                } else {
+                    debugging("{$classpath} is not a subclass of \local_datacurso\mod_settings\base_settings");
+                }
+            }
 
             $url = course_get_url($course, $cw->section);
 
