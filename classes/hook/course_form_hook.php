@@ -47,7 +47,7 @@ class course_form_hook {
         try {
             $client = new datacurso_api();
 
-            $models = $client->get('/v3/pedagogic-model');
+            $models = $client->get('/v1/pedagogic-model');
 
             if (is_array($models)) {
                 foreach ($models as $model) {

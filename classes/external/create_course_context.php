@@ -21,6 +21,7 @@ use external_api;
 use external_function_parameters;
 use external_single_structure;
 use external_value;
+use local_datacurso\httpclient\datacurso_api;
 
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/externallib.php');
@@ -51,33 +52,29 @@ class create_course_context extends external_api {
      * @param int $courseid
      *
      * @return array
+     * @throws \invalid_parameter_exception
      */
     public static function execute(int $courseid) {
         global $CFG;
         $params = self::validate_parameters(self::execute_parameters(), [
             'courseid' => $courseid,
         ]);
-
+        $datacursoapi = new datacurso_api();
         $courseid = $params['courseid'];
-
         $coursecontent = self::get_course_content($courseid);
 
-        $postdata = [
+        $payload = [
             'course_id' => $courseid,
-            'site_id' => md5($CFG->wwwroot),
+            'site' => md5($CFG->wwwroot),
             'course_content' => $coursecontent,
+            'tenant_id' => get_config('local_datacurso', 'tenantid'),
         ];
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, 'http://server:8000/api/v1/chatbot/context');
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json']);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FAILONERROR, true);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postdata));
-        $result = curl_exec($ch);
-        curl_close($ch);
 
-        $result = json_decode($result);
+        $response = $datacursoapi->post('/v1/course', ['data' => $payload]);
+
+        if(empty($response['data'])) {
+            throw new \invalid_parameter_exception('Error creating course context in DataCurso backend');
+        }
 
         return ['ok' => true];
     }
@@ -100,6 +97,7 @@ class create_course_context extends external_api {
      * @param string $courseid
      *
      * @return array
+     * @throws \moodle_exception
      */
     public static function get_course_content($courseid) {
         $coursecontent = core_course_external::get_course_contents($courseid);

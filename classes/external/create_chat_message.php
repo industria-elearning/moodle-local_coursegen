@@ -29,7 +29,7 @@ use external_api;
 use core_external\external_function_parameters;
 use core_external\external_single_structure;
 use core_external\external_value;
-use local_datacurso\httpclient\datacurso_ai_api;
+use local_datacurso\httpclient\datacurso_api;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -69,7 +69,7 @@ class create_chat_message extends external_api
      * @throws \invalid_parameter_exception
      */
     public static function execute($courseid, $lang, $message): array {
-        GLOBAL $USER, $COURSE;
+        GLOBAL $USER;
         // Validate parameters.
         $params = self::validate_parameters(self::execute_parameters(), [
             'courseid' => $courseid,
@@ -77,7 +77,7 @@ class create_chat_message extends external_api
             'message' => $message,
         ]);
 
-        $datacursoaiapi = new datacurso_ai_api();
+        $datacursoapi = new datacurso_api();
 
         $user = [
             'email' => $USER->email,
@@ -88,14 +88,16 @@ class create_chat_message extends external_api
         ];
 
         $tenantId = get_config('local_datacurso', 'tenantid');
-        $token = get_config('local_datacurso', 'token');
-        $role = (new create_chat_message)->get_user_role_in_course($USER->id, $COURSE->id ?? 0);
+        $token = get_config('local_datacurso', 'tenanttoken');
+        $role = (new create_chat_message)->get_user_role_in_course($USER->id, $params['courseid']);
+
+        create_course_context::execute($params['courseid']);
 
         $payload = [
             'message' => $params['message'],
             'user' => $user,
             'context' => [
-                'tenant' => $tenantId,
+                'tenant_id' => $tenantId,
                 'course_id' => $params['courseid'],
                 'role' => $role,
                 'activity' => [
@@ -109,7 +111,7 @@ class create_chat_message extends external_api
             'trace_id' => \core\uuid::generate()
         ];
 
-        $response = $datacursoaiapi->post('/v1/chats', $payload, 'http://docker.for.mac.host.internal:1337/api');
+        $response = $datacursoapi->post('/v1/chats', $payload);
 
         return [
             'sessionid' => $response['session_id'] ?? '',

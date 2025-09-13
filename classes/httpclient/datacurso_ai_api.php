@@ -82,9 +82,10 @@ class datacurso_ai_api {
      * @param string $endpoint API endpoint.
      * @param array $data Payload to send.
      * @return array Response array.
+     * @throws moodle_exception
      */
-    public function post(string $endpoint, array $data = [], $baseurl = null): array {
-        $url = ($baseurl ?? $this->baseurl) . '/' . ltrim($endpoint, '/');
+    public function post(string $endpoint, array $data = []): array {
+        $url = $this->baseurl . '/' . ltrim($endpoint, '/');
 
         $headers = [
             'Content-Type: application/json',

@@ -92,7 +92,7 @@ class get_response_ia extends external_api {
             'formAccordeon' => $params['formaccordeon'],
         ];
 
-        $response = $datacursoaiapi->post('/v2/ai-assistance', $payload);
+        $response = $datacursoaiapi->post('/v1/ai-assistance', $payload);
 
         // Ahora el cliente HTTP ya devuelve el HTML limpio.
         $html = $response['data'] ?? '';

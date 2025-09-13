@@ -59,7 +59,7 @@ class get_courses_by_model extends external_api {
 
         $datacursoapi = new datacurso_api();
 
-        $res = $datacursoapi->get('/v3/course-administrator', [
+        $res = $datacursoapi->get('/v1/course-administrator', [
             'pedagogic_model' => $pedagogicmodel,
         ]);
 

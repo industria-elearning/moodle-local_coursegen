@@ -53,7 +53,7 @@ class datacurso_api {
      */
     public function __construct() {
         $this->baseurl = rtrim(get_config('local_datacurso', 'baseurl'), '/');
-        $this->tokenendpoint = '/v3/auth/moodle-login';
+        $this->tokenendpoint = '/v1/external-login';
         $this->cache = cache::make('local_datacurso', 'apitoken');
         $this->token = $this->get_valid_token();
     }
