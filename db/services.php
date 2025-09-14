@@ -57,5 +57,6 @@ $functions = [
         'description' => 'Create module for ask question to chatbot based in that information',
         'type' => 'write',
         'ajax' => true,
+        'capabilities' => 'moodle/course:manageactivities,moodle/course:update',
     ],
 ];
