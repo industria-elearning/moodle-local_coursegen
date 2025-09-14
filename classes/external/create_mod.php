@@ -149,7 +149,7 @@ class create_mod extends external_api {
 
             $newcm = add_moduleinfo($parameters, $course, $mform);
 
-            $modsettings = $result['result']['mod_settings'];
+            $modsettings = $parameters->mod_settings;
 
             $classpath = '\\local_datacurso\\mod_settings\\' . $modname . '_settings';
             if (!empty($modsettings) && class_exists($classpath)) {
