@@ -136,7 +136,7 @@ define([
       const typing = pushTyping(messagesEl);
       try {
         const response = await chatbotRepository.createMod({ ...payload, prompt });
-        if (!response.success) {
+        if (!response.ok) {
           throw new Error(response.message);
         }
 
