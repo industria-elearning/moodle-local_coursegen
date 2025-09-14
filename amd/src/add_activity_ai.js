@@ -136,6 +136,10 @@ define([
       const typing = pushTyping(messagesEl);
       try {
         const response = await chatbotRepository.createMod({ ...payload, prompt });
+        if (!response.success) {
+          throw new Error(response.message);
+        }
+
         removeTyping(typing);
         renderWSResult(messagesEl, response);
         
