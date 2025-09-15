@@ -30,10 +30,19 @@ class wiki_settings extends base_settings {
      * Add settings to wiki module.
      */
     public function add_settings() {
+        $wiki = wiki_get_wiki($this->cm->instance);
 
-        $firstpage = $this->get_first_page();
+        // Remove duplicate pages by title, excluding the first page title on wiki.
+        $pages = $this->unique_pages_by_title($this->modsettings['pages'], $wiki->firstpagetitle);
+
+        // Build first page data for the wiki.
+        $firstpage = $this->get_first_page($pages, $wiki);
+
+        // Add first page to wiki.
         $this->add_page($firstpage);
-        foreach ($this->modsettings['pages'] as $page) {
+
+        // Add pages to wiki.
+        foreach ($pages as $page) {
             $this->add_page($page);
         }
     }
@@ -44,13 +53,15 @@ class wiki_settings extends base_settings {
      * Creates the first page content with links to each additional page using Moodle
      * Wiki syntax `[[Title]]`. Clicking a link to a non-existent page lets users create it.
      *
+     * @param array $pages The pages to add to the wiki to generate the links.
+     * @param object $wiki The wiki object.
+     *
      * @return array {title, newcontent_editor{text (HTML), format=FORMAT_HTML}} ready for self::add_page().
      */
-    protected function get_first_page() {
-        $wiki = wiki_get_wiki($this->cm->instance);
+    protected function get_first_page($pages, $wiki) {
         $firstpagetitle = $wiki->firstpagetitle;
         $firstpagecontent = '';
-        foreach ($this->modsettings['pages'] as $page) {
+        foreach ($pages as $page) {
             $title = $page['title'];
             $firstpagecontent .= "<p>[[{$title}]]</p>\n";
         }
@@ -71,5 +82,24 @@ class wiki_settings extends base_settings {
     protected function add_page($page) {
         $content = $page['newcontent_editor']['text'];
         mod_wiki_external::new_page($page['title'], $content, FORMAT_HTML, null, $this->cm->instance);
+    }
+
+    /**
+     * Remove duplicate pages by title, excluding the first page title on wiki.
+     *
+     * @param array $pages
+     * @param string $firstpagetitle The title of the first page
+     * @return array The pages without duplicates by title
+     */
+    protected function unique_pages_by_title(array $pages, string $firstpagetitle) {
+        $result = [];
+        foreach ($pages as $page) {
+            $title = $page['title'];
+            if ($title == $firstpagetitle) {
+                continue;
+            }
+            $result[$title] = $page;
+        }
+        return array_values($result);
     }
 }
