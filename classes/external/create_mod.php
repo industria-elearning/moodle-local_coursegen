@@ -84,6 +84,12 @@ class create_mod extends external_api {
             $apitoken = get_config('local_datacurso', 'apitoken');
             $baseurl = get_config('local_datacurso', 'baseurl');
 
+            // This request may take a long time depending on the complexity of the prompt that the AI ​​has to resolve.
+            \core_php_time_limit::raise();
+            raise_memory_limit(MEMORY_EXTRA);
+            // Release the session so other tabs in the same session are not blocked.
+            \core\session\manager::write_close();
+
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, rtrim($baseurl, '/') . '/resources/create-mod');
             curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Authorization: Bearer ' . $apitoken]);
