@@ -111,16 +111,18 @@ class create_mod extends external_api {
                 return [
                     'ok' => false,
                     'message' => get_string('error_generating_resource', 'local_datacurso'),
+                    'log' => "CURL request failed while creating resource. Error: {$curlerror}",
                 ];
             }
             curl_close($ch);
 
             $result = json_decode($result, true);
             if (!isset($result['result']['resource_type'])) {
-                debugging("Invalid response from external service. Response: " . json_encode($result));
+                debugging("Invalid response from AI service. Response: " . json_encode($result));
                 return [
                     'ok' => false,
                     'message' => get_string('error_generating_resource', 'local_datacurso'),
+                    'log' => "Invalid response from AI service. Response: " . json_encode($result),
                 ];
             }
 
@@ -132,6 +134,7 @@ class create_mod extends external_api {
                 return [
                     'ok' => false,
                     'message' => get_string('error_generating_resource', 'local_datacurso'),
+                    'log' => "Form file not found for module: {$modname}",
                 ];
             }
             require_once($modmoodleform);
@@ -146,6 +149,7 @@ class create_mod extends external_api {
                 return [
                     'ok' => false,
                     'message' => get_string('error_generating_resource', 'local_datacurso'),
+                    'log' => "Missing parameters in service response: " . json_encode($result),
                 ];
             }
 
@@ -182,6 +186,7 @@ class create_mod extends external_api {
             return [
                 'ok' => false,
                 'message' => get_string('error_generating_resource', 'local_datacurso'),
+                'log' => $e->getMessage(),
             ];
         }
     }
@@ -197,6 +202,7 @@ class create_mod extends external_api {
             'ok' => new external_value(PARAM_BOOL, 'Response status from server'),
             'message' => new external_value(PARAM_TEXT, 'Response message from server', VALUE_OPTIONAL),
             'courseurl' => new external_value(PARAM_URL, 'Course url from server', VALUE_OPTIONAL),
+            'log' => new external_value(PARAM_RAW, 'Log from server', VALUE_OPTIONAL),
         ]);
     }
 }
