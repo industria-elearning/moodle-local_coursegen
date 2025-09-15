@@ -23,14 +23,13 @@
  */
 
 define([
-  'core/templates',
-  'core/notification',
-  'core/modal',
-  'core/custom_interaction_events',
-  'core/str',
-  'local_datacurso/repository/chatbot'
+  "core/templates",
+  "core/notification",
+  "core/modal",
+  "core/custom_interaction_events",
+  "core/str",
+  "local_datacurso/repository/chatbot",
 ], (Templates, Notification, Modal, CustomEvents, Str, chatbotRepository) => {
-
   const LINK_SELECTOR = '[data-action="local_datacurso/add_activity_ai"]';
 
   let modal = null;
@@ -43,7 +42,7 @@ define([
     initialized = true;
 
     const events = [
-      'click',
+      "click",
       CustomEvents.events.activate,
       CustomEvents.events.keyboardActivate,
     ];
@@ -79,9 +78,15 @@ define([
         modal = null;
       }
 
-      const bodyHTML = await Templates.render('local_datacurso/add_activity_ai_modal', {});
+      const bodyHTML = await Templates.render(
+        "local_datacurso/add_activity_ai_modal",
+        {}
+      );
 
-      const title = await Str.get_string('addactivityai_modaltitle', 'local_datacurso');
+      const title = await Str.get_string(
+        "addactivityai_modaltitle",
+        "local_datacurso"
+      );
 
       modal = await Modal.create({
         title,
@@ -91,7 +96,7 @@ define([
       });
 
       // Manejar el evento de cierre del modal
-      modal.getRoot().on('hidden.bs.modal', () => {
+      modal.getRoot().on("hidden.bs.modal", () => {
         if (modal) {
           modal.destroy();
           modal = null;
@@ -104,55 +109,66 @@ define([
       // Handlers del chat
       const bodyEl = modal.getBody()[0];
       wireChatHandlers(bodyEl, payload);
-
     } catch (err) {
       Notification.exception(err);
     }
   };
 
   const wireChatHandlers = (container, payload) => {
-    const messagesEl = container.querySelector('.bdai-messages');
-    const form = container.querySelector('form.bdai-input');
-    const textarea = form.querySelector('textarea');
-    const sendBtn = form.querySelector('.bdai-send');
+    const messagesEl = container.querySelector(".bdai-messages");
+    const form = container.querySelector("form.bdai-input");
+    const textarea = form.querySelector("textarea");
+    const sendBtn = form.querySelector(".bdai-send");
 
     // Mensaje de bienvenida.
-    Str.get_string('addactivityai_welcome', 'local_datacurso').then((s) => {
+    Str.get_string("addactivityai_welcome", "local_datacurso").then((s) => {
       pushAI(messagesEl, s);
     });
 
     // Enviar con submit.
-    form.addEventListener('submit', async (e) => {
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const prompt = textarea.value.trim();
       if (!prompt) return;
 
       pushUser(messagesEl, prompt);
-      textarea.value = '';
+      textarea.value = "";
       textarea.focus();
 
       // Llamada al WS
       setLoading(sendBtn, true);
       const typing = pushTyping(messagesEl);
       try {
-        const response = await chatbotRepository.createMod({ ...payload, prompt });
+        const response = await chatbotRepository.createMod({
+          ...payload,
+          prompt,
+        });
         if (!response.ok) {
           throw new Error(response.message);
         }
 
         removeTyping(typing);
         renderWSResult(messagesEl, response);
-        
-        
+
         setTimeout(() => {
           window.location.href = response.courseurl;
         }, 800); // Pequeño delay para que se vea el mensaje de éxito
-        
       } catch (err) {
         removeTyping(typing);
-        Str.get_string('addactivityai_error', 'local_datacurso').then((s) => {
-          pushAI(messagesEl, `❌ ${s}`);
-        });
+
+        // This is when cloudflare timeout.
+        if (!err) {
+          const msg = await Str.get_string("resourcecreatedsuccess", "local_datacurso");
+          pushAI(messagesEl, msg);
+          setTimeout(() => {
+            window.location.href = `/course/view.php?id=${payload.courseid}`;
+          }, 800);
+        } else {
+          // Other errors.
+          Str.get_string("addactivityai_error", "local_datacurso").then((s) => {
+            pushAI(messagesEl, `❌ ${s}`);
+          });
+        }
       } finally {
         setLoading(sendBtn, false);
         scrollToBottom(messagesEl);
@@ -160,22 +176,22 @@ define([
     });
 
     // Enter para enviar (sin Ctrl, ya que es más común en chat)
-    textarea.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
+    textarea.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
         form.requestSubmit();
       }
     });
   };
 
-  const pushUser = (wrap, text) => addBubble(wrap, text, 'user');
-  const pushAI = (wrap, text) => addBubble(wrap, text, 'ai');
+  const pushUser = (wrap, text) => addBubble(wrap, text, "user");
+  const pushAI = (wrap, text) => addBubble(wrap, text, "ai");
 
   const addBubble = (wrap, text, role) => {
-    const row = document.createElement('div');
+    const row = document.createElement("div");
     row.className = `bdai-msg ${role}`;
-    const b = document.createElement('div');
-    b.className = 'bubble';
+    const b = document.createElement("div");
+    b.className = "bubble";
     b.textContent = text;
     row.appendChild(b);
     wrap.appendChild(row);
@@ -183,11 +199,12 @@ define([
   };
 
   const pushTyping = (wrap) => {
-    const row = document.createElement('div');
-    row.className = 'bdai-msg ai bdai-typing';
-    const b = document.createElement('div');
-    b.className = 'bubble';
-    b.innerHTML = '<span class="dot"></span><span class="dot"></span><span class="dot"></span>';
+    const row = document.createElement("div");
+    row.className = "bdai-msg ai bdai-typing";
+    const b = document.createElement("div");
+    b.className = "bubble";
+    b.innerHTML =
+      '<span class="dot"></span><span class="dot"></span><span class="dot"></span>';
     row.appendChild(b);
     wrap.appendChild(row);
     scrollToBottom(wrap);
@@ -202,7 +219,7 @@ define([
 
   const setLoading = (btn, isLoading) => {
     btn.disabled = isLoading;
-    btn.style.opacity = isLoading ? .7 : 1;
+    btn.style.opacity = isLoading ? 0.7 : 1;
   };
 
   const renderWSResult = (wrap, res) => {
@@ -211,7 +228,9 @@ define([
       if (res?.message) {
         pushAI(wrap, res.message);
       } else {
-        Str.get_string('addactivityai_faildefault', 'local_datacurso').then((s) => pushAI(wrap, s));
+        Str.get_string("addactivityai_faildefault", "local_datacurso").then(
+          (s) => pushAI(wrap, s)
+        );
       }
       return;
     }
@@ -219,13 +238,15 @@ define([
     if (res?.message) lines.push(res.message);
 
     if (lines.length) {
-      pushAI(wrap, lines.join('\n'));
+      pushAI(wrap, lines.join("\n"));
       setTimeout(() => {
-        const last = wrap.querySelector('.bdai-msg.ai:last-child .bubble');
-        if (last) last.textContent = lines.join('\n');
+        const last = wrap.querySelector(".bdai-msg.ai:last-child .bubble");
+        if (last) last.textContent = lines.join("\n");
       }, 50);
     } else {
-      Str.get_string('addactivityai_done', 'local_datacurso').then((s) => pushAI(wrap, s));
+      Str.get_string("addactivityai_done", "local_datacurso").then((s) =>
+        pushAI(wrap, s)
+      );
     }
   };
 
