@@ -81,5 +81,5 @@ $string['datacurso:view_syllabus'] = 'Ver programa';
 $string['apitoken'] = 'Token de la API';
 $string['apitoken_desc'] = 'Ingrese aquí su token de la API.';
 $string['resourcecreatedsuccess'] = 'Recurso creado con éxito.';
-
-
+$string['noimages'] = 'No generar imágenes';
+$string['yesimages'] = 'Generar imágenes';

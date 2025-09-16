@@ -47,6 +47,7 @@ class create_mod extends external_api {
             'courseid' => new external_value(PARAM_INT, 'Course id'),
             'sectionnum' => new external_value(PARAM_INT, 'Section number'),
             'prompt' => new external_value(PARAM_TEXT, 'Prompt to create module'),
+            'generateimages' => new external_value(PARAM_INT, '1 to generate images, 0 to not generate images', VALUE_OPTIONAL),
             'beforemod' => new external_value(PARAM_INT, 'Before module id', VALUE_OPTIONAL),
         ]);
     }
@@ -57,11 +58,12 @@ class create_mod extends external_api {
      * @param string $courseid Course id where the module will be created
      * @param int $sectionnum Section number where the module will be created
      * @param string $prompt Prompt to create module
+     * @param int $generateimages 1 indicates AI could generate images, 0 indicates AI could not generate images
      * @param int $beforemod Before module id where the module will be created
      *
      * @return array
      */
-    public static function execute(int $courseid, int $sectionnum, string $prompt, ?int $beforemod) {
+    public static function execute(int $courseid, int $sectionnum, string $prompt, int $generateimages, ?int $beforemod) {
         global $CFG, $DB, $COURSE;
 
         try {
@@ -69,12 +71,14 @@ class create_mod extends external_api {
                 'courseid' => $courseid,
                 'sectionnum' => $sectionnum,
                 'prompt' => $prompt,
+                'generateimages' => $generateimages,
                 'beforemod' => $beforemod,
             ]);
 
             $courseid = $params['courseid'];
             $sectionnum = $params['sectionnum'];
             $prompt = $params['prompt'];
+            $generateimages = $params['generateimages'];
             $beforemod = $params['beforemod'];
 
             $course = $DB->get_record('course', ['id' => $courseid], '*', MUST_EXIST);
@@ -101,6 +105,7 @@ class create_mod extends external_api {
                 'course_id' => $courseid,
                 'message' => $prompt,
                 'timezone' => \core_date::get_user_timezone(),
+                'generate_images' => $generateimages == 1,
             ]));
             $result = curl_exec($ch);
 

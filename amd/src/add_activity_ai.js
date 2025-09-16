@@ -131,17 +131,28 @@ define([
       const prompt = textarea.value.trim();
       if (!prompt) return;
 
+      const generateImages = document.querySelector('input[name="generate_images"]:checked').value;
+
       pushUser(messagesEl, prompt);
       textarea.value = "";
       textarea.focus();
 
-      // Llamada al WS
+      // Disable send button.
+      sendBtn.disabled = true;
+      // Disable textarea.
+      textarea.disabled = true;
+      // Disable radio buttons.
+      const radioButtons = document.querySelectorAll('input[name="generate_images"]');
+      radioButtons.forEach((rb) => {
+        rb.disabled = true;
+      });
       setLoading(sendBtn, true);
       const typing = pushTyping(messagesEl);
       try {
         const response = await chatbotRepository.createMod({
           ...payload,
           prompt,
+          generateimages: generateImages
         });
         if (!response.ok) {
           throw new Error(response.message);
@@ -170,6 +181,11 @@ define([
           });
         }
       } finally {
+        radioButtons.forEach((rb) => {
+          rb.disabled = false;
+        });
+        textarea.disabled = false;
+        sendBtn.disabled = false;
         setLoading(sendBtn, false);
         scrollToBottom(messagesEl);
       }

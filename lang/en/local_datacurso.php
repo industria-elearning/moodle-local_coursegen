@@ -94,5 +94,7 @@ $string['datacurso:view_syllabus'] = 'View syllabus';
 $string['apitoken'] = 'API Token';
 $string['apitoken_desc'] = 'Enter your API token here.';
 $string['resourcecreatedsuccess'] = 'Resource created successfully.';
+$string['noimages'] = 'Do not generate images';
+$string['yesimages'] = 'Generate images';
 
 
