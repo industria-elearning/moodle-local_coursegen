@@ -160,10 +160,13 @@ define([
 
         removeTyping(typing);
         renderWSResult(messagesEl, response);
-
-        setTimeout(() => {
-          window.location.href = response.courseurl;
-        }, 800); // Pequeño delay para que se vea el mensaje de éxito
+        // Mostrar opciones para crear otra actividad o finalizar.
+        await showNextActionButtons(messagesEl, response?.courseurl, {
+          onCreateAnother: () => {
+            // Enfocar en el textarea para que el usuario pueda escribir otra petición.
+            textarea.focus();
+          },
+        });
       } catch (err) {
         removeTyping(typing);
 
@@ -171,9 +174,12 @@ define([
         if (!err) {
           const msg = await Str.get_string("resourcecreatedsuccess", "local_datacurso");
           pushAI(messagesEl, msg);
-          setTimeout(() => {
-            window.location.href = `/course/view.php?id=${payload.courseid}`;
-          }, 800);
+          // No redirigir automáticamente. Mostrar opciones.
+          await showNextActionButtons(messagesEl, null, {
+            onCreateAnother: () => {
+              textarea.focus();
+            },
+          });
         } else {
           // Other errors.
           Str.get_string("addactivityai_error", "local_datacurso").then((s) => {
@@ -263,6 +269,49 @@ define([
       Str.get_string("addactivityai_done", "local_datacurso").then((s) =>
         pushAI(wrap, s)
       );
+    }
+  };
+
+  // Muestra botones de siguiente acción: crear otra actividad (sí) o finalizar (no), usando template Mustache.
+  const showNextActionButtons = async (wrap, courseurl, { onCreateAnother } = {}) => {
+    // Evitar duplicar el conjunto de botones si ya se añadieron.
+    if (wrap.querySelector('.bdai-next-actions')) {
+      return;
+    }
+
+    try {
+      const tpl = await Templates.renderForPromise('local_datacurso/add_activity_ai_next_actions', {});
+      const {html, js} = tpl;
+      // Insertar el HTML en el contenedor usando la API de Moodle, incluyendo JS del template si lo hubiera.
+      await Templates.appendNodeContents(wrap, html, js);
+      // Obtener el nodo recién insertado (la última ocurrencia por clase).
+      const nodes = wrap.querySelectorAll('.bdai-next-actions');
+      const node = nodes[nodes.length - 1];
+
+      const yesBtn = node?.querySelector('[data-action="bdai-create-another"]');
+      const noBtn = node?.querySelector('[data-action="bdai-finish"]');
+
+      if (yesBtn) {
+        yesBtn.addEventListener('click', () => {
+          node.remove();
+          if (typeof onCreateAnother === 'function') {
+            onCreateAnother();
+          }
+          scrollToBottom(wrap);
+        });
+      }
+
+      if (noBtn) {
+        noBtn.addEventListener('click', () => {
+          window.location.reload();
+        });
+      }
+
+      scrollToBottom(wrap);
+    } catch (e) {
+      // Si algo falla al renderizar el template, no detiene el flujo; simplemente no muestra los botones.
+      // Notificamos el error para facilitar el diagnóstico en caso de que no se muestren los botones.
+      Notification.exception(e);
     }
   };
 
