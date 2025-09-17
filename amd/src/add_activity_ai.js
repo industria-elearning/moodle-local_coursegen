@@ -172,7 +172,7 @@ define([
           const msg = await Str.get_string("resourcecreatedsuccess", "local_datacurso");
           pushAI(messagesEl, msg);
           setTimeout(() => {
-            window.location.href = `/course/view.php?id=${payload.courseid}`;
+            window.location.reload();
           }, 800);
         } else {
           // Other errors.
