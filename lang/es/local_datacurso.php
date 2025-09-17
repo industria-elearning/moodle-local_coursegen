@@ -83,3 +83,8 @@ $string['apitoken_desc'] = 'Ingrese aquí su token de la API.';
 $string['resourcecreatedsuccess'] = 'Recurso creado con éxito.';
 $string['noimages'] = 'No generar imágenes';
 $string['yesimages'] = 'Generar imágenes';
+
+// Acciones siguientes (después de crear recurso con IA).
+$string['addactivityai_next_text'] = '¿Deseas crear otro recurso?';
+$string['addactivityai_next_yes'] = 'Sí, crear otro';
+$string['addactivityai_next_no'] = 'No';

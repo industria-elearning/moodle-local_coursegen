@@ -95,6 +95,8 @@ $string['apitoken'] = 'API Token';
 $string['apitoken_desc'] = 'Enter your API token here.';
 $string['resourcecreatedsuccess'] = 'Resource created successfully.';
 $string['noimages'] = 'Do not generate images';
+$string['addactivityai_next_text'] = 'Do you want to create another resource?';
+$string['addactivityai_next_no'] = 'No';
+$string['addactivityai_next_yes'] = 'Yes, create another';
 $string['yesimages'] = 'Generate images';
-
 
