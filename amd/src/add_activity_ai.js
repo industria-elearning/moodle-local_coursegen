@@ -162,7 +162,7 @@ define([
         renderWSResult(messagesEl, response);
 
         setTimeout(() => {
-          window.location.href = response.courseurl;
+          window.location.reload();
         }, 800); // Pequeño delay para que se vea el mensaje de éxito
       } catch (err) {
         removeTyping(typing);
