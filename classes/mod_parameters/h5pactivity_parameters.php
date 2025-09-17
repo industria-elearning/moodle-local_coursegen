@@ -16,6 +16,10 @@
 
 namespace local_datacurso\mod_parameters;
 
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->libdir . '/filelib.php');
+
 /**
  * Class h5pactivity_parameters
  *
