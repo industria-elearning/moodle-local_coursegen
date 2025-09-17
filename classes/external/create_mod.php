@@ -162,6 +162,15 @@ class create_mod extends external_api {
             $parameters->section = $sectionnum;
             $parameters->beforemod = $beforemod;
 
+            $paramclass = '\\local_datacurso\\mod_parameters\\' . $modname . '_parameters';
+            $classexists = class_exists($paramclass);
+            $issubclass = is_subclass_of($paramclass, \local_datacurso\mod_parameters\base_parameters::class);
+            if ($classexists && $issubclass) {
+                /** @var \local_datacurso\mod_parameters\base_parameters $paraminstance */
+                $paraminstance = new $paramclass($parameters);
+                $parameters = $paraminstance->get_parameters();
+            }
+
             $newcm = add_moduleinfo($parameters, $course, $mform);
 
             $modsettings = $parameters->mod_settings;
