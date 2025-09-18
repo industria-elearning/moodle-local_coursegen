@@ -27,6 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $string['actions'] = 'Actions';
 $string['addactivityai_arialabel'] = 'AI assistant to create resources/activities';
+$string['addcourseai_arialabel'] = 'AI assistant to create courses';
 $string['addactivityai_created_cmid'] = 'Resource/activity created. (cmid: {$a})';
 $string['addactivityai_created_named'] = 'Created: {$a->type} "{$a->name}"';
 $string['addactivityai_done'] = 'Done! The resource/activity was created.';
@@ -41,7 +42,15 @@ $string['addactivityai_placeholder'] = 'Describe what resource or activity you w
 $string['addactivityai_warnings_prefix'] = 'Warnings: {$a}';
 $string['addactivityai_welcome'] = 'Hi! Tell me what resource or activity you need and I will create it in your course. 😊';
 $string['addactivitywithia'] = 'Add activity or resource with AI';
+$string['addcourseai_done'] = 'Done! The course was created successfully.';
+$string['addcourseai_error'] = 'An error occurred while creating the course. Please try again or modify the prompt.';
+$string['addcourseai_faildefault'] = 'It was not possible to create the course.';
+$string['addcourseai_label'] = 'Describe the course you want to create';
+$string['addcourseai_modaltitle'] = 'Create course with AI';
+$string['addcourseai_placeholder'] = 'Describe what kind of course you want to create';
+$string['addcourseai_welcome'] = 'Hi! Tell me what course you need and I will help you create it. 😊';
 $string['addmodel'] = 'Add Model';
+$string['coursecreatedsuccess'] = 'Course created successfully.';
 $string['apitoken'] = 'API Token';
 $string['apitoken_desc'] = 'Enter your API token here.';
 $string['baseurl'] = 'API Base URL';
