@@ -63,12 +63,13 @@ class ai_context {
 
             // Verificar la respuesta.
             if ($error) {
-                throw new \moodle_exception('error_upload_failed', 'local_datacurso', '', $error);
+                \core\notification::error(get_string('error_upload_failed', 'local_datacurso', $error));
+                return;
             }
 
             if ($httpcode !== 200) {
-                throw new \moodle_exception('error_upload_failed', 'local_datacurso', '',
-                    get_string('error_http_code', 'local_datacurso', $httpcode));
+                \core\notification::error(get_string('error_upload_failed', 'local_datacurso', $httpcode));
+                return;
             }
 
         } catch (\Exception $e) {
