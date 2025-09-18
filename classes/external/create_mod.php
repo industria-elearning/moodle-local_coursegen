@@ -17,7 +17,6 @@
 namespace local_datacurso\external;
 
 use context_course;
-use core_course_external;
 use external_api;
 use external_function_parameters;
 use external_single_structure;
@@ -88,6 +87,13 @@ class create_mod extends external_api {
             $apitoken = get_config('local_datacurso', 'apitoken');
             $baseurl = get_config('local_datacurso', 'baseurl');
 
+            $aicontext = $DB->get_record_sql(
+                'SELECT cc.context_type, m.name FROM {local_datacurso_course_context} cc
+                    LEFT JOIN {local_datacurso_model} m
+                ON cc.model_id = m.id
+                    WHERE cc.courseid = ?',
+                [$courseid]);
+
             // This request may take a long time depending on the complexity of the prompt that the AI ​​has to resolve.
             \core_php_time_limit::raise();
             raise_memory_limit(MEMORY_EXTRA);
@@ -106,6 +112,8 @@ class create_mod extends external_api {
                 'message' => $prompt,
                 'timezone' => \core_date::get_user_timezone(),
                 'generate_images' => $generateimages == 1,
+                'context_type' => $aicontext->context_type,
+                'model_name' => $aicontext->name,
             ]));
             $result = curl_exec($ch);
 
