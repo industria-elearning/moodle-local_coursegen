@@ -179,7 +179,7 @@ class course_form_hook {
      * @param string $contexttype Context type (model or syllabus)
      * @param int|null $modelid Selected model ID (if context type is model)
      */
-    private static function save_course_context(int $courseid, string $contexttype, ?int $modelid = null): void {
+    private static function save_course_context($courseid, $contexttype, $modelid = null): void {
         global $DB, $USER;
 
         $now = time();
