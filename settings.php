@@ -73,4 +73,10 @@ if ($hassiteconfig) {
     );
 
     $ADMIN->add($pluginname, $settings);
+    // Add manage models page.
+    $ADMIN->add($pluginname, new admin_externalpage(
+        'local_datacurso_manage_models',
+        get_string('managemodels', 'local_datacurso'),
+        new moodle_url('/local/datacurso/manage_models.php')
+    ));
 }
