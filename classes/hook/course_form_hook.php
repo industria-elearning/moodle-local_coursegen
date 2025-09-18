@@ -58,7 +58,6 @@ class course_form_hook {
 
         // Obtener modelos de la base de datos.
         $models = model::get_all();
-        $modeloptions = ['' => get_string('choosemodel', 'local_datacurso')];
         foreach ($models as $model) {
             $modeloptions[$model->id] = $model->name;
         }

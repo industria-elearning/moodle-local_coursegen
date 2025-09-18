@@ -17,7 +17,6 @@
 namespace local_datacurso\hook;
 
 use core\hook\output\before_footer_html_generation;
-use core\hook\output\before_standard_head_html_generation;
 
 /**
  * Hook para cargar el chat flotante
@@ -34,42 +33,9 @@ class chat_hook {
      * @param before_footer_html_generation $hook El hook del evento.
      */
     public static function before_footer_html_generation(before_footer_html_generation $hook): void {
-        global $PAGE, $COURSE, $USER;
-
-        if (!self::is_course_context()) {
-            return;
-        }
-
-        $context = \context_course::instance($COURSE->id);
-
-        // Verificar si es profesor o tiene permisos de edición.
-        if (!has_capability('moodle/course:update', $context) ||
-            !has_capability('moodle/course:manageactivities', $context)) {
-            return;
-        }
-
-        $PAGE->requires->js_call_amd('local_datacurso/add_activity_ai_button', 'init', ['courseid' => $COURSE->id]);
-        // $PAGE->requires->js_call_amd('local_datacurso/add_activity_ai_button', 'init');
-
-        // $PAGE->requires->js_call_amd('local_datacurso/add_activity_ai', 'init');
-
-        // // Solo cargar en contextos de curso.
-        // if (!self::is_course_context()) {
-        //     return;
-        // }
-
-        // // Cargar JavaScript del chat.
-        // $PAGE->requires->js_call_amd('local_datacurso/chat', 'init');
-
-        // // Agregar datos del contexto para JavaScript.
-        // $chatdata = [
-        //     'courseid' => $COURSE->id ?? 0,
-        //     'userid' => $USER->id,
-        //     'userrole' => self::get_user_role_in_course(),
-        //     'contextlevel' => $PAGE->context->contextlevel ?? 0,
-        // ];
-
-        // $PAGE->requires->data_for_js('datacurso_chat_config', $chatdata);
+        global $PAGE;
+        self::add_activity_ai_button();
+        self::add_course_ai_button();
     }
 
     /**
@@ -102,31 +68,42 @@ class chat_hook {
     }
 
     /**
-     * Obtiene el rol del usuario en el curso actual
+     * Add activity AI button
      */
-    private static function get_user_role_in_course(): string {
-        global $PAGE, $COURSE, $USER;
+    private static function add_activity_ai_button(): void {
+        global $PAGE, $COURSE;
 
-        if (!isset($COURSE) || $COURSE->id <= 1) {
-            return 'Estudiante';
+        if (!self::is_course_context()) {
+            return;
         }
 
         $context = \context_course::instance($COURSE->id);
 
         // Verificar si es profesor o tiene permisos de edición.
-        if (has_capability('moodle/course:update', $context) ||
-            has_capability('moodle/course:manageactivities', $context)) {
-            return 'Profesor';
+        if (!has_capability('moodle/course:update', $context) ||
+            !has_capability('moodle/course:manageactivities', $context)) {
+            return;
         }
 
-        // Verificar roles específicos.
-        $roles = get_user_roles($context, $USER->id);
-        foreach ($roles as $role) {
-            if (in_array($role->shortname, ['teacher', 'editingteacher', 'manager', 'coursecreator'])) {
-                return 'Profesor';
-            }
+        $PAGE->requires->js_call_amd('local_datacurso/add_activity_ai_button', 'init', ['courseid' => $COURSE->id]);
+    }
+
+    /**
+     * Add course AI button
+     */
+    private static function add_course_ai_button(): void {
+        global $PAGE;
+        $iseditpage = $PAGE->url->get_path() === '/course/edit.php';
+
+        if (!$iseditpage) {
+            return;
         }
 
-        return 'Estudiante';
+        $courseid = $PAGE->url->get_param('id');
+        if ($courseid) {
+            return;
+        }
+
+        $PAGE->requires->js_call_amd('local_datacurso/add_course_ai_button', 'init', []);
     }
 }
