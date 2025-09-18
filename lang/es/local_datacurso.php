@@ -24,6 +24,7 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
+
 $string['addactivityai_arialabel'] = 'Asistente de IA para crear recursos/actividades';
 $string['addactivityai_created_cmid'] = 'Recurso/actividad creado. (cmid: {$a})';
 $string['addactivityai_created_named'] = 'Creado: {$a->type} "{$a->name}"';
@@ -86,3 +87,30 @@ $string['tenanttoken_desc'] = 'Ingrese aquí su token de arrendatario.';
 $string['training_objective_field'] = 'Defina el OBJETIVO DE FORMACIÓN de esta asignatura.';
 $string['unauthorized'] = 'Acceso no autorizado';
 $string['yesimages'] = 'Generar imágenes';
+$string['actions'] = 'Acciones';
+$string['confirmdelete'] = '¿Está seguro de eliminar este modelo?';
+$string['context_type_field'] = 'Tipo de contexto';
+$string['context_type_model'] = 'Modelo instruccional';
+$string['context_type_syllabus'] = 'Silabo';
+$string['datacurso:managemodels'] = 'Gestionar modelos';
+$string['datacurso:view_syllabus'] = 'Ver silabo';
+$string['delete'] = 'Eliminar';
+$string['deletemodel'] = 'Eliminar modelo';
+$string['edit'] = 'Editar';
+$string['editmodel'] = 'Editar modelo';
+$string['error_missing_config'] = 'Configuración de API faltante. Por favor, verifique sus configuraciones.';
+$string['error_upload_model_failed'] = 'Error al subir el modelo al servicio de IA: {$a}';
+$string['generated_on'] = 'Generado el';
+$string['invalidmodel'] = 'Modelo inválido';
+$string['modelcontent'] = 'Model Content';
+$string['modelcreated'] = 'Modelo creado';
+$string['modeldeleted'] = 'Modelo eliminado';
+$string['modelmodified'] = 'Modelo modificado';
+$string['modelname'] = 'Nombre del modelo';
+$string['modelnameexists'] = 'Ya existe un modelo con este nombre';
+$string['modelsaved'] = 'Modelo guardado';
+$string['modelsavedanduploaded'] = 'Modelo guardado y subido a IA';
+$string['modelsaveduploadfailed'] = 'Modelo guardado pero falló al subir a IA';
+$string['nomodels'] = 'No se encontraron modelos';
+$string['site'] = 'Sitio';
+
