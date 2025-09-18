@@ -18,8 +18,9 @@ namespace local_datacurso\hook;
 
 use core_course\hook\after_form_definition;
 use core_course\hook\after_form_definition_after_data;
-use core_course\hook\after_form_validation;
 use core_course\hook\after_form_submission;
+use local_datacurso\ai_context;
+use local_datacurso\model;
 
 /**
  * Hook para extender el formulario de curso con campos personalizados.
@@ -36,24 +37,40 @@ class course_form_hook {
      * @param after_form_definition $hook Objeto del hook con el formulario.
      */
     public static function after_form_definition(after_form_definition $hook): void {
+        global $PAGE;
         $mform = $hook->mform;
 
         // Agregar una sección para los campos personalizados.
         $mform->addElement('header', 'local_datacurso_header',
             get_string('custom_fields_header', 'local_datacurso'));
 
-        $modeloptions = [
-            get_string('choosemodel', 'local_datacurso'),
-            'option1' => 'Libre',
-            'option2' => 'Robert Gagne',
-            'option3' => 'ADDIE',
+        // Agregar selector de tipo de contexto.
+        $contexttypes = [
+            'model' => get_string('context_type_model', 'local_datacurso'),
+            'syllabus' => get_string('context_type_syllabus', 'local_datacurso'),
         ];
         $mform->addElement(
             'select',
-            'local_datacurso_custom_select_model',
+            'local_datacurso_context_type',
+            get_string('context_type_field', 'local_datacurso'),
+            $contexttypes
+        );
+
+        // Obtener modelos de la base de datos.
+        $models = model::get_all();
+        $modeloptions = ['' => get_string('choosemodel', 'local_datacurso')];
+        foreach ($models as $model) {
+            $modeloptions[$model->id] = $model->name;
+        }
+
+        // Agregar selector de modelo instruccional.
+        $mform->addElement(
+            'select',
+            'local_datacurso_select_model',
             get_string('custom_model_select_field', 'local_datacurso'),
             $modeloptions
         );
+        $mform->hideIf('local_datacurso_select_model', 'local_datacurso_context_type', 'neq', 'model');
 
         // Agregar campo para subir PDF del sílabo.
         $mform->addElement(
@@ -68,6 +85,7 @@ class course_form_hook {
             ]
         );
         $mform->addHelpButton('local_datacurso_syllabus_pdf', 'syllabus_pdf_field', 'local_datacurso');
+        $mform->hideIf('local_datacurso_syllabus_pdf', 'local_datacurso_context_type', 'neq', 'syllabus');
     }
 
     /**
@@ -76,6 +94,7 @@ class course_form_hook {
      * @param after_form_definition_after_data $hook Hook object with the form.
      */
     public static function after_form_definition_after_data(after_form_definition_after_data $hook): void {
+        global $DB;
         $courseid = optional_param('id', 0, PARAM_INT);
         if (!empty($courseid)) {
             $context = \context_course::instance($courseid);
@@ -93,10 +112,23 @@ class course_form_hook {
                 ['subdirs' => 0, 'maxfiles' => 1, 'accepted_types' => ['.pdf']]
             );
 
+            // Get saved context type and model selection from database.
+            $contexttype = '';
+            $selectedmodel = '';
+
+            // Get existing course context data from database.
+            $contextdata = $DB->get_record('local_datacurso_course_context', ['courseid' => $courseid]);
+            if ($contextdata) {
+                $contexttype = $contextdata->context_type;
+                $selectedmodel = $contextdata->model_id;
+            }
+
             $editform = $hook->formwrapper;
 
             $editform->set_data([
                 'local_datacurso_syllabus_pdf' => $draftitemid,
+                'local_datacurso_context_type' => $contexttype,
+                'local_datacurso_select_model' => $selectedmodel,
             ]);
         }
     }
@@ -110,103 +142,72 @@ class course_form_hook {
         global $DB;
 
         $data = $hook->get_data();
-
         $courseid = $data->id;
 
-        $draftitemid = $data->local_datacurso_syllabus_pdf;
+        // Get the context type selection.
+        $contexttype = isset($data->local_datacurso_context_type) ? $data->local_datacurso_context_type : '';
 
-        if ($draftitemid) {
-            file_save_draft_area_files(
-                $draftitemid,
-                \context_course::instance($courseid)->id,
-                'local_datacurso',
-                'syllabus',
-                0,
-                [
-                    'subdirs' => 0,
-                    'maxfiles' => 1,
-                    'accepted_types' => ['.pdf'],
-                ]
-            );
-            self::upload_syllabus_to_ai($courseid);
+        if ($contexttype === 'syllabus') {
+            // Handle syllabus upload.
+            $draftitemid = $data->local_datacurso_syllabus_pdf;
+
+            if ($draftitemid) {
+                file_save_draft_area_files(
+                    $draftitemid,
+                    \context_course::instance($courseid)->id,
+                    'local_datacurso',
+                    'syllabus',
+                    0,
+                    [
+                        'subdirs' => 0,
+                        'maxfiles' => 1,
+                        'accepted_types' => ['.pdf'],
+                    ]
+                );
+                ai_context::upload_syllabus_to_ai($courseid);
+            }
         }
+
+        // Store the context type and selected option in the database.
+        self::save_course_context($courseid, $contexttype, $data->local_datacurso_select_model);
     }
 
     /**
-     * Sube el archivo de sílabo al endpoint de IA.
+     * Save course context data to database.
      *
-     * @param int $courseid ID del curso.
+     * @param int $courseid Course ID
+     * @param string $contexttype Context type (model or syllabus)
+     * @param int|null $modelid Selected model ID (if context type is model)
      */
-    private static function upload_syllabus_to_ai(int $courseid): void {
-        global $CFG;
+    private static function save_course_context(int $courseid, string $contexttype, ?int $modelid = null): void {
+        global $DB, $USER;
 
-        try {
-            $fs = get_file_storage();
-            $context = \context_course::instance($courseid);
+        $now = time();
 
-            $files = $fs->get_area_files($context->id, 'local_datacurso', 'syllabus', 0, 'itemid', false);
+        // Check if record already exists.
+        $existingrecord = $DB->get_record('local_datacurso_course_context', ['courseid' => $courseid]);
 
-            if (empty($files)) {
-                return;
-            }
+        if ($existingrecord) {
+            // Update existing record.
+            $record = new \stdClass();
+            $record->id = $existingrecord->id;
+            $record->context_type = $contexttype;
+            $record->model_id = ($contexttype === 'model') ? $modelid : null;
+            $record->timemodified = $now;
+            $record->usermodified = $USER->id;
 
-            $file = reset($files);
-            if (!$file) {
-                return;
-            }
+            $DB->update_record('local_datacurso_course_context', $record);
+        } else {
+            // Create new record.
+            $record = new \stdClass();
+            $record->courseid = $courseid;
+            $record->context_type = $contexttype;
+            $record->model_id = ($contexttype === 'model') ? $modelid : null;
+            $record->timecreated = $now;
+            $record->timemodified = $now;
+            $record->usermodified = $USER->id;
 
-            $siteid = md5($CFG->wwwroot);
-
-            // Guardar el archivo temporalmente.
-            $tempfile = $file->copy_content_to_temp();
-
-            // Preparar el archivo como recurso CURL.
-            $cfile = new \CURLFile($tempfile, $file->get_mimetype(), $file->get_filename());
-
-            // Preparar los datos del POST.
-            $postdata = [
-                'title' => $file->get_filename(),
-                'file' => $cfile,
-                'body' => $siteid,
-                'site_id' => $siteid,
-                'course_id' => $courseid,
-            ];
-
-            $apitoken = get_config('local_datacurso', 'apitoken');
-            $baseurl = get_config('local_datacurso', 'baseurl');
-
-            // Realizar la petición HTTP con cURL.
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, rtrim($baseurl, '/') . '/context/upload');
-            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $apitoken]);
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-            $response = curl_exec($ch);
-            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            $error = curl_error($ch);
-            curl_close($ch);
-
-            // Verificar la respuesta.
-            if ($error) {
-                throw new \moodle_exception('error_upload_failed', 'local_datacurso', '', $error);
-            }
-
-            if ($httpcode !== 200) {
-                throw new \moodle_exception('error_upload_failed', 'local_datacurso', '',
-                    get_string('error_http_code', 'local_datacurso', $httpcode));
-            }
-
-            // Log del éxito.
-            debugging("DataCurso: Syllabus uploaded successfully for course {$courseid}", DEBUG_NORMAL);
-
-        } catch (\Exception $e) {
-            // Log del error.
-            debugging("DataCurso: Error uploading syllabus for course {$courseid}: " . $e->getMessage(), DEBUG_NORMAL);
-
-            // Mostrar notificación de error al usuario.
-            \core\notification::error(get_string('error_upload_failed', 'local_datacurso', $e->getMessage()));
+            $DB->insert_record('local_datacurso_course_context', $record);
         }
     }
 }
