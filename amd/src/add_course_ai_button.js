@@ -63,11 +63,11 @@ const addAIButton = async () => {
 const handleAIButtonClick = async () => {
   // Get course ID from URL if editing existing course
   const urlParams = new URLSearchParams(window.location.search);
-  const courseId = urlParams.get("id");
+  const courseId = urlParams.get("category");
 
   // Prepare payload for the modal
   const payload = {
-    courseid: courseId || null,
+    categoryid: courseId || null,
     action: "create_course",
   };
 
