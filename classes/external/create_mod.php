@@ -169,6 +169,7 @@ class create_mod extends external_api {
             $parameters = (object)$result['result']['parameters'];
             $parameters->section = $sectionnum;
             $parameters->beforemod = $beforemod;
+            $parameters->module = $module->id;
 
             $paramclass = '\\local_datacurso\\mod_parameters\\' . $modname . '_parameters';
             $classexists = class_exists($paramclass);
