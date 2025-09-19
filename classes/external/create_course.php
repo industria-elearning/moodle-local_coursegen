@@ -161,6 +161,19 @@ class create_course extends external_api {
                 self::process_course_sections($course->id, $apiresponse['sections_info']);
             }
 
+            // Process generated activities if provided in the response.
+            if (!empty($apiresponse['generated_activities'])) {
+                self::process_generated_activities($course->id, $apiresponse['generated_activities']);
+            }
+
+            // Update course name and shortname.
+            $course->fullname = $apiresponse['course_info']['fullname'];
+
+            if (!$DB->record_exists('course', ['shortname' => $apiresponse['course_info']['shortname']])) {
+                $course->shortname = $apiresponse['course_info']['shortname'];
+            }
+            update_course($course);
+
             // Return success response.
             return [
                 'success' => true,
@@ -264,6 +277,76 @@ class create_course extends external_api {
         }
 
         // Rebuild course cache.
+        rebuild_course_cache($courseid, true);
+    }
+
+    /**
+     * Process generated activities from API response.
+     *
+     * @param int $courseid Course ID
+     * @param array $activities Generated activities from API
+     */
+    private static function process_generated_activities($courseid, $activities) {
+        global $CFG, $DB;
+
+        require_once($CFG->dirroot . '/course/modlib.php');
+
+        $course = get_course($courseid);
+
+        foreach ($activities as $activity) {
+            $modname = $activity['resource_type'];
+            $parameters = $activity['parameters'];
+
+            try {
+                // Validate module exists.
+                $modmoodleform = "$CFG->dirroot/mod/$modname/mod_form.php";
+                if (!file_exists($modmoodleform)) {
+                    debugging("Form file not found for module: {$modname}");
+                    continue;
+                }
+                require_once($modmoodleform);
+
+                $sectionnum = $parameters['section'] ?? 0;
+
+                // Prepare module data.
+                list($module, $context, $cw, $cm, $data) = prepare_new_moduleinfo_data($course, $modname, $sectionnum);
+
+                $mformclassname = 'mod_' . $modname . '_mod_form';
+                $mform = new $mformclassname($data, $cw->section, $cm, $course);
+
+                // Convert parameters to object and add required fields.
+                $moduledata = (object)$parameters;
+                $moduledata->section = $sectionnum;
+                $moduledata->module = $module->id;
+
+                // Process parameters through parameter class if exists.
+                $paramclass = '\\local_datacurso\\mod_parameters\\' . $modname . '_parameters';
+                if (class_exists($paramclass) && is_subclass_of($paramclass, \local_datacurso\mod_parameters\base_parameters::class)) {
+                    /** @var \local_datacurso\mod_parameters\base_parameters $paraminstance */
+                    $paraminstance = new $paramclass($moduledata);
+                    $moduledata = $paraminstance->get_parameters();
+                }
+
+                // Create the module.
+                $newcm = add_moduleinfo($moduledata, $course, $mform);
+
+                // Process module settings if provided.
+                if (!empty($moduledata->mod_settings)) {
+                    $settingsclass = '\\local_datacurso\\mod_settings\\' . $modname . '_settings';
+                    if (class_exists($settingsclass) && is_subclass_of($settingsclass, \local_datacurso\mod_settings\base_settings::class)) {
+                        /** @var \local_datacurso\mod_settings\base_settings $settingsinstance */
+                        $settingsinstance = new $settingsclass($newcm, $moduledata->mod_settings);
+                        $settingsinstance->add_settings();
+                    }
+                }
+
+            } catch (\Exception $e) {
+                debugging("Error creating module {$modname}: " . $e->getMessage());
+                continue; // Continue with next activity
+            }
+        }
+
+        // Rebuild course cache after adding all activities.
         rebuild_course_cache($courseid, true);
     }
 
