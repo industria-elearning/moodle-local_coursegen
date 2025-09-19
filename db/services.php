@@ -59,4 +59,12 @@ $functions = [
         'ajax' => true,
         'capabilities' => 'moodle/course:manageactivities,moodle/course:update',
     ],
+    'local_datacurso_create_course' => [
+        'classname' => 'local_datacurso\external\create_course',
+        'methodname' => 'execute',
+        'description' => 'Create course with AI assistance',
+        'type' => 'write',
+        'ajax' => true,
+        'capabilities' => 'moodle/course:create',
+    ],
 ];
