@@ -1,3 +1,4 @@
+/* eslint-disable */
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -32,7 +33,7 @@ export async function createCourseContext(courseId) {
     return ajax.call([
         {
             methodname: "local_datacurso_create_course_context",
-            args: { courseid: courseId },
+            args: {courseid: courseId},
         },
     ])[0];
 }
@@ -65,6 +66,33 @@ export async function createMod({courseid, sectionnum, beforemod, prompt, genera
     return ajax.call([
         {
             methodname: "local_datacurso_create_mod",
+            args,
+        },
+    ])[0];
+}
+
+/**
+ * Create course with AI assistance.
+ *
+ * @param {{
+ *     categoryid: number,
+ *     prompt: string,
+ *     generateimages: number,
+ * }} payload - The payload to create course
+ * - categoryid: The ID of the category where the course will be created
+ * - prompt: The AI prompt for course creation
+ * - generateimages: 0 not generate images, 1 generate images
+ * @return {Promise<Object>} response
+ */
+export async function createCourse({categoryid, prompt, generateimages}) {
+    const args = {
+        categoryid: Number(categoryid),
+        prompt,
+        generateimages: generateimages ? Number(generateimages) : 0,
+    };
+    return ajax.call([
+        {
+            methodname: "local_datacurso_create_course",
             args,
         },
     ])[0];

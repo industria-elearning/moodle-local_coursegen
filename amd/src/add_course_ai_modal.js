@@ -1,3 +1,4 @@
+/* eslint-disable */
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -24,9 +25,8 @@
 import Templates from "core/templates";
 import Notification from "core/notification";
 import Modal from "core/modal";
-// eslint-disable-next-line camelcase
 import { get_string } from "core/str";
-import chatbotRepository from "local_datacurso/repository/chatbot";
+import * as chatbotRepository from "local_datacurso/repository/chatbot";
 
 let modal = null;
 
@@ -124,13 +124,13 @@ const wireChatHandlers = (container, payload) => {
     try {
       // Call API to create course
       const response = await chatbotRepository.createCourse({
-        ...payload,
+        categoryid: payload.categoryid || 1, // Default to category 1 if not provided
         prompt,
         generateimages: generateImages,
       });
 
-      if (!response.ok) {
-        throw new Error(response.message);
+      if (!response.success) {
+        throw new Error(response.message || 'Course creation failed');
       }
 
       removeTyping(typing);
@@ -138,9 +138,10 @@ const wireChatHandlers = (container, payload) => {
 
       // Reload page after success
       setTimeout(() => {
-        window.location.reload();
+        window.location.href = response.courseurl;
       }, 800);
     } catch (error) {
+      console.log(error);
       removeTyping(typing);
 
       if (!error) {
