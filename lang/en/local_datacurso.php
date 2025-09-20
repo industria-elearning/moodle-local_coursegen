@@ -27,9 +27,9 @@ defined('MOODLE_INTERNAL') || die();
 
 $string['actions'] = 'Actions';
 $string['addactivityai_arialabel'] = 'AI assistant to create resources/activities';
-$string['addcourseai_arialabel'] = 'AI assistant to create courses';
 $string['addactivityai_created_cmid'] = 'Resource/activity created. (cmid: {$a})';
 $string['addactivityai_created_named'] = 'Created: {$a->type} "{$a->name}"';
+$string['addcourseai_arialabel'] = 'AI assistant to create courses';
 $string['addactivityai_done'] = 'Done! The resource/activity was created.';
 $string['addactivityai_error'] = 'An error occurred while creating the resource. Please try again or modify the prompt.';
 $string['addactivityai_faildefault'] = 'It was not possible to create the resource.';
@@ -50,9 +50,11 @@ $string['addcourseai_modaltitle'] = 'Create course with AI';
 $string['addcourseai_placeholder'] = 'Describe what kind of course you want to create';
 $string['addcourseai_welcome'] = 'Hi! Tell me what course you need and I will help you create it. 😊';
 $string['addmodel'] = 'Add Model';
-$string['coursecreatedsuccess'] = 'Course created successfully.';
 $string['apitoken'] = 'API Token';
 $string['apitoken_desc'] = 'Enter your API token here.';
+$string['cannotgenerateuniqueshortname'] = 'Cannot generate unique course shortname';
+$string['coursecreated'] = 'Course created successfully';
+$string['coursecreatedsuccess'] = 'Course created successfully.';
 $string['baseurl'] = 'API Base URL';
 $string['baseurl_desc'] = 'Enter the base URL of the DataCurso API with version. e.g. https://api.datacurso.com/api/v3';
 $string['cachedef_apitoken'] = 'Cache for API token obtained from DataCurso';
@@ -138,3 +140,19 @@ $string['tenanttoken_desc'] = 'Enter your tenant token here.';
 $string['training_objective_field'] = 'Define the TRAINING OBJECTIVE in this subject.';
 $string['unauthorized'] = 'Unauthorized access';
 $string['yesimages'] = 'Generate images';
+
+// AI Loading Progress strings
+$string['ai_analyzing_content'] = 'AI is analyzing your content...';
+$string['ai_generating_structure'] = 'AI is generating course structure...';
+$string['ai_creating_activities'] = 'AI is creating activities and resources...';
+$string['ai_organizing_materials'] = 'AI is organizing learning materials...';
+$string['ai_finalizing_course'] = 'AI is finalizing course details...';
+$string['ai_almost_ready'] = 'Almost ready! AI is making final adjustments...';
+$string['ai_creating_course'] = 'AI is Creating Your Course';
+$string['ai_loading_please_wait'] = 'Please wait while AI creates your personalized course content. This may take a few minutes.';
+
+// AI Course Planning strings
+$string['error_api_config'] = 'API configuration is missing. Please check your settings.';
+$string['error_starting_course_planning'] = 'There was an error starting the course planning session. Please try again.';
+$string['error_saving_session'] = 'Failed to save the planning session. Please try again.';
+$string['course_planning_started'] = 'Course planning session started successfully.';
