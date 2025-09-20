@@ -24,6 +24,8 @@
 
 namespace local_datacurso\external;
 
+use local_datacurso\ai_context;
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/externallib.php');
@@ -48,7 +50,7 @@ class create_course extends external_api {
      */
     public static function execute_parameters() {
         return new external_function_parameters([
-            'categoryid' => new external_value(PARAM_INT, 'Category ID where the course will be created'),
+            'formdata' => new external_value(PARAM_RAW, 'Course form data'),
             'prompt' => new external_value(PARAM_TEXT, 'AI prompt for course creation'),
             'generateimages' => new external_value(PARAM_INT, 'Generate images flag (0 or 1)', VALUE_DEFAULT, 0),
         ]);
@@ -57,21 +59,33 @@ class create_course extends external_api {
     /**
      * Create a course with AI assistance.
      *
-     * @param int $categoryid Category ID where the course will be created
+     * @param string $formdata Course form data
      * @param string $prompt AI prompt for course creation
      * @param int $generateimages Generate images flag
      * @return array Result of the course creation
      * @throws moodle_exception
      */
-    public static function execute(int $categoryid, string $prompt, int $generateimages = 0) {
-        global $CFG, $DB, $USER;
+    public static function execute($formdata, $prompt, $generateimages = 0) {
+        global $CFG, $DB;
 
         try {
             $params = self::validate_parameters(self::execute_parameters(), [
-                'categoryid' => $categoryid,
+                'formdata' => $formdata,
                 'prompt' => $prompt,
                 'generateimages' => $generateimages,
             ]);
+
+            $formdata = json_decode($params['formdata'], true);
+
+            // Course fields.
+            $categoryid = clean_param($formdata['category'], PARAM_INT);
+            $fullname = clean_param($formdata['fullname'], PARAM_TEXT);
+            $shortname = clean_param($formdata['shortname'], PARAM_TEXT);
+
+            // Datacurso fields.
+            $contexttype = clean_param($formdata['local_datacurso_context_type'], PARAM_TEXT);
+            $draftitemid = clean_param($formdata['local_datacurso_syllabus_pdf'], PARAM_INT);
+            $modelid = $contexttype === 'model' ? clean_param($formdata['local_datacurso_select_model'], PARAM_INT) : null;
 
             // Validate context and permissions.
             $context = context_system::instance();
@@ -79,18 +93,15 @@ class create_course extends external_api {
             require_capability('moodle/course:create', $context);
 
             // Validate category exists and user has permission.
-            $category = $DB->get_record('course_categories', ['id' => $params['categoryid']], '*', MUST_EXIST);
+            $category = $DB->get_record('course_categories', ['id' => $categoryid], '*', MUST_EXIST);
             $categorycontext = \context_coursecat::instance($category->id);
             require_capability('moodle/course:create', $categorycontext);
 
-            // Generate unique shortname.
-            $shortname = self::generate_unique_shortname();
-
             // Create the course with basic data first.
             $coursedata = new \stdClass();
-            $coursedata->fullname = $shortname;
+            $coursedata->fullname = $fullname;
             $coursedata->shortname = $shortname;
-            $coursedata->category = $params['categoryid'];
+            $coursedata->category = $categoryid;
             $coursedata->summary = '';
             $coursedata->summaryformat = FORMAT_HTML;
             $coursedata->format = 'topics';
@@ -103,13 +114,18 @@ class create_course extends external_api {
             // Create the course.
             $course = create_course($coursedata);
 
-            // Prepare data for AI endpoint with course_id.
-            $aidata = [
-                'prompt' => $params['prompt'],
-                'generate_images' => (bool)$params['generateimages'],
-                'course_id' => $course->id,
-                'category_id' => $params['categoryid'],
-            ];
+            if ($contexttype === 'syllabus') {
+
+                // Save syllabus PDF from draft area.
+                $success = ai_context::save_syllabus_from_draft($course->id, $draftitemid);
+
+                if ($success) {
+                    ai_context::upload_syllabus_to_ai($course->id);
+                }
+            }
+
+            // Store the context type and selected option in the database.
+            ai_context::save_course_context($course->id, $contexttype, $modelid);
 
             $apitoken = get_config('local_datacurso', 'apitoken');
             $baseurl = get_config('local_datacurso', 'baseurl');
@@ -129,9 +145,8 @@ class create_course extends external_api {
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
                 'site_id' => md5($CFG->wwwroot),
                 'course_id' => $course->id,
-                'message' => $prompt,
-                'timezone' => \core_date::get_user_timezone(),
-                'generate_images' => $generateimages == 1,
+                'course_name' => $course->fullname,
+                'context_type' => $contexttype,
             ]));
             $result = curl_exec($ch);
 
@@ -166,14 +181,6 @@ class create_course extends external_api {
                 self::process_generated_activities($course->id, $apiresponse['generated_activities']);
             }
 
-            // Update course name and shortname.
-            $course->fullname = $apiresponse['course_info']['fullname'];
-
-            if (!$DB->record_exists('course', ['shortname' => $apiresponse['course_info']['shortname']])) {
-                $course->shortname = $apiresponse['course_info']['shortname'];
-            }
-            update_course($course);
-
             // Return success response.
             return [
                 'success' => true,
@@ -193,6 +200,22 @@ class create_course extends external_api {
                 'message' => $e->getMessage(),
             ];
         }
+    }
+
+    /**
+     * Returns description of method return value.
+     *
+     * @return external_single_structure
+     */
+    public static function execute_returns() {
+        return new external_single_structure([
+            'success' => new external_value(PARAM_BOOL, 'Success status'),
+            'courseid' => new external_value(PARAM_INT, 'Created course ID'),
+            'shortname' => new external_value(PARAM_TEXT, 'Course shortname'),
+            'fullname' => new external_value(PARAM_TEXT, 'Course fullname'),
+            'message' => new external_value(PARAM_TEXT, 'Status message'),
+            'courseurl' => new external_value(PARAM_URL, 'Course URL', VALUE_OPTIONAL),
+        ]);
     }
 
     /**
@@ -348,21 +371,5 @@ class create_course extends external_api {
 
         // Rebuild course cache after adding all activities.
         rebuild_course_cache($courseid, true);
-    }
-
-    /**
-     * Returns description of method return value.
-     *
-     * @return external_single_structure
-     */
-    public static function execute_returns() {
-        return new external_single_structure([
-            'success' => new external_value(PARAM_BOOL, 'Success status'),
-            'courseid' => new external_value(PARAM_INT, 'Created course ID'),
-            'shortname' => new external_value(PARAM_TEXT, 'Course shortname'),
-            'fullname' => new external_value(PARAM_TEXT, 'Course fullname'),
-            'message' => new external_value(PARAM_TEXT, 'Status message'),
-            'courseurl' => new external_value(PARAM_URL, 'Course URL', VALUE_OPTIONAL),
-        ]);
     }
 }
