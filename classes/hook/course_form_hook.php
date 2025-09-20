@@ -19,9 +19,8 @@ namespace local_datacurso\hook;
 use core_course\hook\after_form_definition;
 use core_course\hook\after_form_definition_after_data;
 use core_course\hook\after_form_submission;
-use local_datacurso\ai_context;
+use local_datacurso\ai_course;
 use local_datacurso\model;
-use moodle_url;
 
 /**
  * Hook para extender el formulario de curso con campos personalizados.
@@ -86,6 +85,10 @@ class course_form_hook {
         );
         $mform->addHelpButton('local_datacurso_syllabus_pdf', 'syllabus_pdf_field', 'local_datacurso');
         $mform->hideIf('local_datacurso_syllabus_pdf', 'local_datacurso_context_type', 'neq', 'syllabus');
+
+        // Add hidden field for AI creation to identify the form submission.
+        $mform->addElement('hidden', 'local_datacurso_create_ai_course', 0);
+        $mform->setType('local_datacurso_create_ai_course', PARAM_INT);
     }
 
     /**
@@ -141,10 +144,9 @@ class course_form_hook {
     public static function after_form_submission(after_form_submission $hook): void {
         global $DB;
 
-        $aicreation = optional_param('ai_creation', 0, PARAM_INT);
-
         $data = $hook->get_data();
         $courseid = $data->id;
+        $createaicourse = $data->local_datacurso_create_ai_course;
 
         // Get the context type selection.
         $contexttype = isset($data->local_datacurso_context_type) ? $data->local_datacurso_context_type : '';
@@ -164,8 +166,13 @@ class course_form_hook {
         // Store the context type and selected option in the database.
         ai_context::save_course_context($courseid, $contexttype, $data->local_datacurso_select_model);
 
-        if ($aicreation) {
-            redirect(new moodle_url('/course/view.php', ['id' => $courseid, 'ai_creation' => 1]));
+        if (!empty($createaicourse)) {
+            ai_course::start_course_planning(
+                $courseid,
+                $contexttype,
+                $data->local_datacurso_select_model,
+                $data->fullname
+            );
         }
     }
 }
