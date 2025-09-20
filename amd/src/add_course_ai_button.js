@@ -64,46 +64,9 @@ const addAIButton = async () => {
 const handleAIButtonClick = async (e) => {
   e.preventDefault();
 
-  // Get course ID from URL if editing existing course
-  const urlParams = new URLSearchParams(window.location.search);
-  const categoryid = urlParams.get("category");
-
   const form = document.querySelector('form[action*="course/edit.php"]');
-  const formData = new FormData(form);
-  const formDataObject = Object.fromEntries(formData.entries());
-  const formDataJson = JSON.stringify(formDataObject);
-
-  // const response = await chatbotRepository.createCourse({
-  //   formdata: formDataJson,
-  // });
-
-  // Add AI creation parameter to the form action URL
-  // const currentAction = form.action;
-  // const actionUrl = new URL(currentAction);
-  
-  // // Preserve existing parameters and add the AI parameter
-  // actionUrl.searchParams.set('ai_creation', '1');
-  
-  // // Update the form action with the new URL
-  // form.action = actionUrl.toString();
-
-  // requestSubmit ejecuta validaciones y listeners de submit como un envío normal
-  // if (typeof form.requestSubmit === 'function') {
-  //   form.requestSubmit();
-  // } else {
-  //   form.submit(); // Fallback (puede saltarse validaciones HTML5 en navegadores viejos)
-  // }
-
-  // const formData = new FormData(form);
-  // const formDataObject = Object.fromEntries(formData.entries());
-  // const formDataJson = JSON.stringify(formDataObject);
-  // // Prepare payload for the modal
-  const payload = {
-    formdata: formDataJson,
-  };
-
-  // Open the course AI modal
-  await openCourseModal(payload);
+  document.querySelector('input[name="local_datacurso_create_ai_course"]').value = 1;
+  document.querySelector('input[name="saveanddisplay"]').click();
 };
 
 /**
