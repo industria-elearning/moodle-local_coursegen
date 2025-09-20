@@ -151,4 +151,83 @@ class ai_context {
             \core\notification::error(get_string('error_upload_failed', 'local_datacurso', $e->getMessage()));
         }
     }
+
+    /**
+     * Save syllabus PDF file from draft area to course context.
+     *
+     * @param int $courseid Course ID where the syllabus will be saved
+     * @param int|null $draftitemid Draft item ID from the syllabus file picker
+     * @return bool True if syllabus was saved successfully, false otherwise
+     */
+    public static function save_syllabus_from_draft(int $courseid, ?int $draftitemid = null): bool {
+        if (!$draftitemid) {
+            return false;
+        }
+
+        // Syllabus file options - only PDF files allowed.
+        $fileoptions = [
+            'subdirs' => 0,
+            'maxfiles' => 1,
+            'accepted_types' => ['.pdf'],
+        ];
+
+        try {
+            file_save_draft_area_files(
+                $draftitemid,
+                \context_course::instance($courseid)->id,
+                'local_datacurso',
+                'syllabus',
+                0,
+                [
+                    'subdirs' => 0,
+                    'maxfiles' => 1,
+                    'accepted_types' => ['.pdf'],
+                ]
+            );
+            return true;
+        } catch (\Exception $e) {
+            // Log the error or handle it as needed.
+            debugging('Error saving syllabus from draft: ' . $e->getMessage(), DEBUG_DEVELOPER);
+            return false;
+        }
+    }
+
+    /**
+     * Save course context data to database.
+     *
+     * @param int $courseid Course ID
+     * @param string $contexttype Context type (model or syllabus)
+     * @param int|null $modelid Selected model ID (if context type is model)
+     */
+    public static function save_course_context($courseid, $contexttype, $modelid = null): void {
+        global $DB, $USER;
+
+        $now = time();
+
+        // Check if record already exists.
+        $existingrecord = $DB->get_record('local_datacurso_course_context', ['courseid' => $courseid]);
+
+        if ($existingrecord) {
+            // Update existing record.
+            $record = new \stdClass();
+            $record->id = $existingrecord->id;
+            $record->context_type = $contexttype;
+            $record->model_id = ($contexttype === 'model') ? $modelid : null;
+            $record->timemodified = $now;
+            $record->usermodified = $USER->id;
+
+            $DB->update_record('local_datacurso_course_context', $record);
+        } else {
+            // Create new record.
+            $record = new \stdClass();
+            $record->courseid = $courseid;
+            $record->context_type = $contexttype;
+            $record->model_id = ($contexttype === 'model') ? $modelid : null;
+            $record->timecreated = $now;
+            $record->timemodified = $now;
+            $record->usermodified = $USER->id;
+
+            $DB->insert_record('local_datacurso_course_context', $record);
+        }
+    }
 }
