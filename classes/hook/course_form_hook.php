@@ -21,6 +21,7 @@ use core_course\hook\after_form_definition_after_data;
 use core_course\hook\after_form_submission;
 use local_datacurso\ai_context;
 use local_datacurso\model;
+use moodle_url;
 
 /**
  * Hook para extender el formulario de curso con campos personalizados.
@@ -140,6 +141,8 @@ class course_form_hook {
     public static function after_form_submission(after_form_submission $hook): void {
         global $DB;
 
+        $aicreation = optional_param('ai_creation', 0, PARAM_INT);
+
         $data = $hook->get_data();
         $courseid = $data->id;
 
@@ -150,63 +153,19 @@ class course_form_hook {
             // Handle syllabus upload.
             $draftitemid = $data->local_datacurso_syllabus_pdf;
 
-            if ($draftitemid) {
-                file_save_draft_area_files(
-                    $draftitemid,
-                    \context_course::instance($courseid)->id,
-                    'local_datacurso',
-                    'syllabus',
-                    0,
-                    [
-                        'subdirs' => 0,
-                        'maxfiles' => 1,
-                        'accepted_types' => ['.pdf'],
-                    ]
-                );
+            // Save syllabus PDF from draft area.
+            $success = ai_context::save_syllabus_from_draft($courseid, $draftitemid);
+
+            if ($success) {
                 ai_context::upload_syllabus_to_ai($courseid);
             }
         }
 
         // Store the context type and selected option in the database.
-        self::save_course_context($courseid, $contexttype, $data->local_datacurso_select_model);
-    }
+        ai_context::save_course_context($courseid, $contexttype, $data->local_datacurso_select_model);
 
-    /**
-     * Save course context data to database.
-     *
-     * @param int $courseid Course ID
-     * @param string $contexttype Context type (model or syllabus)
-     * @param int|null $modelid Selected model ID (if context type is model)
-     */
-    private static function save_course_context($courseid, $contexttype, $modelid = null): void {
-        global $DB, $USER;
-
-        $now = time();
-
-        // Check if record already exists.
-        $existingrecord = $DB->get_record('local_datacurso_course_context', ['courseid' => $courseid]);
-
-        if ($existingrecord) {
-            // Update existing record.
-            $record = new \stdClass();
-            $record->id = $existingrecord->id;
-            $record->context_type = $contexttype;
-            $record->model_id = ($contexttype === 'model') ? $modelid : null;
-            $record->timemodified = $now;
-            $record->usermodified = $USER->id;
-
-            $DB->update_record('local_datacurso_course_context', $record);
-        } else {
-            // Create new record.
-            $record = new \stdClass();
-            $record->courseid = $courseid;
-            $record->context_type = $contexttype;
-            $record->model_id = ($contexttype === 'model') ? $modelid : null;
-            $record->timecreated = $now;
-            $record->timemodified = $now;
-            $record->usermodified = $USER->id;
-
-            $DB->insert_record('local_datacurso_course_context', $record);
+        if ($aicreation) {
+            redirect(new moodle_url('/course/view.php', ['id' => $courseid, 'ai_creation' => 1]));
         }
     }
 }
