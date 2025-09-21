@@ -15,79 +15,72 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Course AI Modal Module - Modern ES6 implementation
+ * Course AI Modal Module using Moodle's modal factory
  *
  * @module     local_datacurso/add_course_ai_modal
  * @copyright  2025 Buendata <soluciones@buendata.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import Templates from "core/templates";
-import Notification from "core/notification";
-import Modal from "core/modal";
-import { get_string } from "core/str";
-import * as chatbotRepository from "local_datacurso/repository/chatbot";
+import Modal from 'core/modal';
+import Templates from 'core/templates';
+import Notification from 'core/notification';
+import {get_string} from 'core/str';
+import * as chatbotRepository from 'local_datacurso/repository/chatbot';
 
-let modal = null;
+let currentModal = null;
 
 /**
- * Open the course AI chat modal
- * @param {Object} payload - The payload data for the course
+ * Initialize and show the course AI modal
+ * @returns {Promise}
  */
-export const openCourseModal = async (payload = {}) => {
-  try {
-    // Close existing modal if open
-    if (modal) {
-      await modal.destroy();
-      modal = null;
+export const init = async() => {
+    try {
+        // Close existing modal if open
+        if (currentModal) {
+            currentModal.destroy();
+            currentModal = null;
+        }
+
+        // Get modal title and body content
+        const [title, bodyHTML] = await Promise.all([
+            get_string('addcourseai_modaltitle', 'local_datacurso'),
+            Templates.render('local_datacurso/add_course_ai_modal', {})
+        ]);
+
+        // Create modal using modern Modal class
+        currentModal = await Modal.create({
+            title: title,
+            body: bodyHTML,
+            large: true,
+            scrollable: true,
+            removeOnClose: true
+        });
+
+        currentModal.getRoot().addClass('local_datacurso_course_ai_modal');
+
+        currentModal.show();
+
+        const bodyEl = currentModal.getBody()[0];
+        initializeChatInterface(bodyEl);
+        return currentModal;
+
+    } catch (error) {
+        Notification.exception(error);
+        return null;
     }
-
-    // Render modal body template
-    const bodyHTML = await Templates.render(
-      "local_datacurso/add_course_ai_modal",
-      {}
-    );
-
-    // Get modal title
-    const title = await get_string("addcourseai_modaltitle", "local_datacurso");
-
-    // Create modal
-    modal = await Modal.create({
-      title,
-      large: true,
-      show: true,
-      removeOnClose: true,
-    });
-
-    // Handle modal close event
-    modal.getRoot().on("hidden.bs.modal", () => {
-      if (modal) {
-        modal.destroy();
-        modal = null;
-      }
-    });
-
-    // Set modal body
-    await modal.setBody(bodyHTML);
-
-    // Wire up chat handlers
-    const bodyEl = modal.getBody()[0];
-    wireChatHandlers(bodyEl, payload);
-  } catch (error) {
-    Notification.exception(error);
-  }
 };
 
 /**
- * Wire up chat handlers for the modal
+ * Initialize the chat interface
  * @param {Element} container - The modal container element
  * @param {Object} payload - The payload data
  */
-const wireChatHandlers = (container, payload) => {
-  const messagesEl = container.querySelector(".bdai-messages");
-  const form = container.querySelector("form.bdai-input");
+const initializeChatInterface = (container, payload) => {
+  const messagesEl = container.querySelector(".local_datacurso_ai_messages");
+  const form = container.querySelector("form.local_datacurso_ai_input");
   const textarea = form.querySelector("textarea");
-  const sendBtn = form.querySelector(".bdai-send");
+  const sendBtn = form.querySelector(".local_datacurso_ai_send");
 
   // Welcome message
   get_string('addcourseai_welcome', 'local_datacurso').then((welcomeMsg) => {
@@ -215,7 +208,7 @@ const pushAI = (wrap, text) => addBubble(wrap, text, "ai");
  */
 const addBubble = (wrap, text, role) => {
   const row = document.createElement("div");
-  row.className = `bdai-msg ${role}`;
+  row.className = `local_datacurso_ai_msg ${role}`;
   const bubble = document.createElement("div");
   bubble.className = "bubble";
   bubble.textContent = text;
@@ -231,7 +224,7 @@ const addBubble = (wrap, text, role) => {
  */
 const pushTyping = (wrap) => {
   const row = document.createElement("div");
-  row.className = "bdai-msg ai bdai-typing";
+  row.className = "local_datacurso_ai_msg ai local_datacurso_ai_typing";
   const bubble = document.createElement("div");
   bubble.className = "bubble";
   bubble.innerHTML =
@@ -295,7 +288,7 @@ const renderWSResult = (wrap, response) => {
   if (lines.length) {
     pushAI(wrap, lines.join("\n"));
     setTimeout(() => {
-      const last = wrap.querySelector(".bdai-msg.ai:last-child .bubble");
+      const last = wrap.querySelector(".local_datacurso_ai_msg.ai:last-child .bubble");
       if (last) {
         last.textContent = lines.join("\n");
       }
