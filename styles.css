@@ -291,3 +291,7 @@ span.local_datacurso-sparkles-icon.white {
     height: calc(100vh - 3.5rem - 120px);
     flex: 1;
 }
+
+.local_datacurso_course_chat {
+    height: 100%;
+}
