@@ -27,15 +27,19 @@ import Templates from 'core/templates';
 import Notification from 'core/notification';
 import {get_string} from 'core/str';
 import * as chatbotRepository from 'local_datacurso/repository/chatbot';
+import {startStreaming} from 'local_datacurso/course_streaming';
 
 let currentModal = null;
 
 /**
  * Initialize and show the course AI modal
+ * @param {Object} params - Parameters object
+ * @param {string} params.streamingurl - The complete URL for course streaming (including session)
  * @returns {Promise}
  */
-export const init = async() => {
+export const init = async(params = {}) => {
     try {
+      console.log(params);
         // Close existing modal if open
         if (currentModal) {
             currentModal.destroy();
@@ -62,7 +66,7 @@ export const init = async() => {
         currentModal.show();
 
         const bodyEl = currentModal.getBody()[0];
-        initializeChatInterface(bodyEl);
+        initializeChatInterface(bodyEl, params);
         return currentModal;
 
     } catch (error) {
@@ -74,116 +78,18 @@ export const init = async() => {
 /**
  * Initialize the chat interface
  * @param {Element} container - The modal container element
- * @param {Object} payload - The payload data
+ * @param {Object} params - The parameters including streaming URL
  */
-const initializeChatInterface = (container, payload) => {
-  const messagesEl = container.querySelector(".local_datacurso_ai_messages");
-  const form = container.querySelector("form.local_datacurso_ai_input");
-  const textarea = form.querySelector("textarea");
-  const sendBtn = form.querySelector(".local_datacurso_ai_send");
-
-  // Welcome message
-  get_string('addcourseai_welcome', 'local_datacurso').then((welcomeMsg) => {
-    pushAI(messagesEl, welcomeMsg);
-    return welcomeMsg;
-  }).catch(() => {
-    // Fallback welcome message
-    pushAI(messagesEl, 'Hi! Tell me what course you need and I will help you create it. 😊');
-  });
-
-  // Handle form submission
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const prompt = textarea.value.trim();
-    if (!prompt) {
-      return;
-    }
-
-    // Get generate images option
-    const generateImages =
-      document.querySelector('input[name="generate_images"]:checked')?.value ||
-      "no";
-
-    // Add user message
-    pushUser(messagesEl, prompt);
-    textarea.value = "";
-    textarea.focus();
-
-    // Disable form elements
-    setFormDisabled(true);
-    setLoading(sendBtn, true);
-    const typing = pushTyping(messagesEl);
-
+const initializeChatInterface = async (container, params) => {
+    // Find the streaming button and add event listener
     try {
-      // Call API to create course
-      const response = await chatbotRepository.createCourse({
-        categoryid: payload.categoryid || 1, // Default to category 1 if not provided
-        prompt,
-        generateimages: generateImages,
-      });
-
-      if (!response.success) {
-        throw new Error(response.message || 'Course creation failed');
-      }
-
-      removeTyping(typing);
-      renderWSResult(messagesEl, response);
-
-      // Reload page after success
-      setTimeout(() => {
-        window.location.href = response.courseurl;
-      }, 800);
+        // Start streaming with the URL provided by PHP (already includes session)
+        await startStreaming(params.streamingurl, container);
+        
     } catch (error) {
-      console.log(error);
-      removeTyping(typing);
-
-      if (!error) {
-        // Handle timeout case
-        const successMsg = await get_string(
-          "coursecreatedsuccess",
-          "local_datacurso"
-        );
-        pushAI(messagesEl, successMsg);
-        setTimeout(() => {
-          window.location.reload();
-        }, 800);
-      } else {
-        // Handle other errors
-        const errorMsg = await get_string(
-          "addcourseai_error",
-          "local_datacurso"
-        );
-        pushAI(messagesEl, `❌ ${errorMsg}`);
-      }
-    } finally {
-      setFormDisabled(false);
-      setLoading(sendBtn, false);
-      scrollToBottom(messagesEl);
+        console.error('Error starting streaming:', error);
+        Notification.exception(error);
     }
-  });
-
-  // Handle Enter key for sending
-  textarea.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      form.requestSubmit();
-    }
-  });
-
-  /**
-   * Enable/disable form elements
-   * @param {boolean} disabled - Whether to disable the form
-   */
-  function setFormDisabled(disabled) {
-    textarea.disabled = disabled;
-    sendBtn.disabled = disabled;
-    const radioButtons = document.querySelectorAll(
-      'input[name="generate_images"]'
-    );
-    radioButtons.forEach((rb) => {
-      rb.disabled = disabled;
-    });
-  }
 };
 
 /**
