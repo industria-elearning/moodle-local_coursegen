@@ -17,6 +17,7 @@
 namespace local_datacurso\hook;
 
 use core\hook\output\before_footer_html_generation;
+use local_datacurso\ai_course;
 
 /**
  * Hook para cargar el chat flotante
@@ -36,6 +37,7 @@ class chat_hook {
         global $PAGE;
         self::add_activity_ai_button();
         self::add_course_ai_button();
+        self::check_ai_course_creation();
     }
 
     /**
@@ -105,5 +107,39 @@ class chat_hook {
         }
 
         $PAGE->requires->js_call_amd('local_datacurso/add_course_ai_button', 'init', []);
+    }
+
+    /**
+     * Check if course is being created with AI and open modal if needed
+     */
+    private static function check_ai_course_creation(): void {
+        global $PAGE, $COURSE;
+
+        // Check if we are on course/view.php page.
+        if ($PAGE->url->get_path() !== '/course/view.php') {
+            return;
+        }
+
+        // Check if we have a valid course ID.
+        if (!isset($COURSE) || $COURSE->id <= 1) {
+            return;
+        }
+
+        // Get course session from database.
+        $session = ai_course::get_course_session($COURSE->id);
+        // If no session exists, return.
+        if (!$session) {
+            return;
+        }
+
+        // Check if session is in planning or creating status (1 or 2).
+        if ($session->status == 1 || $session->status == 2) {
+            // Load the AI course modal.
+            $PAGE->requires->js_call_amd('local_datacurso/add_course_ai_modal', 'init', [
+                'courseid' => $COURSE->id,
+                'sessionid' => $session->session_id,
+                'status' => $session->status,
+            ]);
+        }
     }
 }
