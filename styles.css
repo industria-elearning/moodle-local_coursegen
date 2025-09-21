@@ -288,10 +288,24 @@ span.local_datacurso-sparkles-icon.white {
 
 .local_datacurso_course_ai_modal .modal-body {
     overflow-y: auto;
-    height: calc(100vh - 3.5rem - 120px);
     flex: 1;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
 }
 
 .local_datacurso_course_chat {
-    height: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.local_datacurso_course_ai_modal .local_datacurso_course_chat #course-planning-actions {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.local_datacurso_course_ai_modal .local_datacurso_course_chat #course-chat-interface {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
 }
