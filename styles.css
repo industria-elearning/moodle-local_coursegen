@@ -134,7 +134,7 @@ span.local_datacurso-sparkles-icon.white {
 }
 
 /* Contenedor general */
-.bdai-chat {
+.local_datacurso_ai_chat {
     display: flex;
     flex-direction: column;
     min-height: 40vh;
@@ -142,7 +142,7 @@ span.local_datacurso-sparkles-icon.white {
 }
 
 /* Área de mensajes */
-.bdai-messages {
+.local_datacurso_ai_messages {
     flex: 1 1 auto;
     overflow: auto;
     padding: 0.5rem;
@@ -152,12 +152,12 @@ span.local_datacurso-sparkles-icon.white {
 }
 
 /* Burbujas */
-.bdai-msg {
+.local_datacurso_ai_msg {
     display: flex;
     margin: .5rem 0;
 }
 
-.bdai-msg .bubble {
+.local_datacurso_ai_msg .bubble {
     padding: .5rem .75rem;
     border-radius: 1rem;
     max-width: 85%;
@@ -165,42 +165,42 @@ span.local_datacurso-sparkles-icon.white {
     word-break: break-word;
 }
 
-.bdai-msg.user {
+.local_datacurso_ai_msg.user {
     justify-content: flex-end;
 }
 
-.bdai-msg.user .bubble {
+.local_datacurso_ai_msg.user .bubble {
     background: var(--primary);
     color: var(--white);
     border-bottom-right-radius: .25rem;
 }
 
-.bdai-msg.ai .bubble {
+.local_datacurso_ai_msg.ai .bubble {
     background: var(--white);
     border: 1px solid rgba(0, 0, 0, .08);
     border-bottom-left-radius: .25rem;
 }
 
 /* “Escribiendo…” */
-.bdai-typing .dot {
+.local_datacurso_ai_typing .dot {
     display: inline-block;
     width: .35rem;
     height: .35rem;
     margin: 0 .12rem;
     border-radius: 50%;
     background: rgba(0, 0, 0, .45);
-    animation: bdaiBlink 1.2s infinite ease-in-out;
+    animation: local_datacurso_ai_blink 1.2s infinite ease-in-out;
 }
 
-.bdai-typing .dot:nth-child(2) {
+.local_datacurso_ai_typing .dot:nth-child(2) {
     animation-delay: .15s;
 }
 
-.bdai-typing .dot:nth-child(3) {
+.local_datacurso_ai_typing .dot:nth-child(3) {
     animation-delay: .3s;
 }
 
-@keyframes bdaiBlink {
+@keyframes local_datacurso_ai_blink {
 
     0%,
     80%,
@@ -216,7 +216,7 @@ span.local_datacurso-sparkles-icon.white {
 }
 
 /* Form */
-.bdai-input .form-text {
+.local_datacurso_ai_input .form-text {
     opacity: .8;
 }
 
@@ -232,14 +232,14 @@ span.local_datacurso-sparkles-icon.white {
 /* Nuevos estilos */
 
 /* Grupo de entrada */
-.bdai-input-group {
+.local_datacurso_ai_input_group {
     display: flex;
     align-items: center;
     gap: 0.4rem;
 }
 
 /* Textarea ocupa todo el espacio */
-.bdai-textarea {
+.local_datacurso_ai_textarea {
     flex: 1;
     resize: none;
     border-radius: .5rem;
@@ -250,7 +250,7 @@ span.local_datacurso-sparkles-icon.white {
 }
 
 /* Botón de enviar con ancho fijo */
-.bdai-send {
+.local_datacurso_ai_send {
     flex: 0 0 42px;
     height: 42px;
     border: none;
@@ -264,11 +264,30 @@ span.local_datacurso-sparkles-icon.white {
     transition: background-color 0.2s ease-in-out;
 }
 
-.bdai-send:hover {
+.local_datacurso_ai_send:hover {
     background-color: var(--blue);
 }
 
 /* Ícono */
-.bdai-send svg {
+.local_datacurso_ai_send svg {
     pointer-events: none;
+}
+
+/* AI Course Modal Styles */
+.local_datacurso_course_ai_modal .modal-dialog {
+    max-width: 75vw;
+    width: 75vw;
+    margin: 1.75rem auto;
+}
+
+.local_datacurso_course_ai_modal .modal-content {
+    height: calc(100vh - 3.5rem);
+    display: flex;
+    flex-direction: column;
+}
+
+.local_datacurso_course_ai_modal .modal-body {
+    overflow-y: auto;
+    height: calc(100vh - 3.5rem - 120px);
+    flex: 1;
 }
