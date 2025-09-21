@@ -67,4 +67,12 @@ $functions = [
         'ajax' => true,
         'capabilities' => 'moodle/course:create',
     ],
+    'local_datacurso_plan_course_message' => [
+        'classname' => 'local_datacurso\external\plan_course_message',
+        'methodname' => 'execute',
+        'description' => 'Send message to AI course planning session',
+        'type' => 'write',
+        'ajax' => true,
+        'capabilities' => 'moodle/course:update',
+    ],
 ];
