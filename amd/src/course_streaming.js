@@ -56,7 +56,6 @@ export const startStreaming = async (streamingUrl, container) => {
   
     evtSource.onmessage = async (event) => {
       const data = JSON.parse(event.data);
-      console.log("Received:", data);
   
       switch (data.type) {
         case "section_start":
@@ -126,10 +125,13 @@ export const startStreaming = async (streamingUrl, container) => {
                 <i class="text-white" style="font-size: 0.8rem;">✓</i>
               </div>
             `;
-          const completionMsg = document.createElement("div");
-          completionMsg.className = "mt-4 text-center";
-          eventList.appendChild(completionMsg);
-          await typeWriter(completionMsg, "✅ Plan del curso completado", 50);
+          
+          // Show planning action buttons when streaming completes
+          const planningActions = document.getElementById('course-planning-actions');
+          if (planningActions) {
+            planningActions.style.display = 'block';
+          }
+          
           evtSource.close();
           break;
       }
