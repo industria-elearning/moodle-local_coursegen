@@ -115,10 +115,10 @@ define([
   };
 
   const wireChatHandlers = (container, payload) => {
-    const messagesEl = container.querySelector(".bdai-messages");
-    const form = container.querySelector("form.bdai-input");
+    const messagesEl = container.querySelector(".local_datacurso_ai_messages");
+    const form = container.querySelector("form.local_datacurso_ai_input");
     const textarea = form.querySelector("textarea");
-    const sendBtn = form.querySelector(".bdai-send");
+    const sendBtn = form.querySelector(".local_datacurso_ai_send");
 
     // Mensaje de bienvenida.
     Str.get_string("addactivityai_welcome", "local_datacurso").then((s) => {
@@ -205,7 +205,7 @@ define([
 
   const addBubble = (wrap, text, role) => {
     const row = document.createElement("div");
-    row.className = `bdai-msg ${role}`;
+    row.className = `local_datacurso_ai_msg ${role}`;
     const b = document.createElement("div");
     b.className = "bubble";
     b.textContent = text;
@@ -216,7 +216,7 @@ define([
 
   const pushTyping = (wrap) => {
     const row = document.createElement("div");
-    row.className = "bdai-msg ai bdai-typing";
+    row.className = "local_datacurso_ai_msg ai local_datacurso_ai_typing";
     const b = document.createElement("div");
     b.className = "bubble";
     b.innerHTML =
@@ -256,7 +256,7 @@ define([
     if (lines.length) {
       pushAI(wrap, lines.join("\n"));
       setTimeout(() => {
-        const last = wrap.querySelector(".bdai-msg.ai:last-child .bubble");
+        const last = wrap.querySelector(".local_datacurso_ai_msg.ai:last-child .bubble");
         if (last) last.textContent = lines.join("\n");
       }, 50);
     } else {
