@@ -19,6 +19,7 @@ namespace local_datacurso\hook;
 use core_course\hook\after_form_definition;
 use core_course\hook\after_form_definition_after_data;
 use core_course\hook\after_form_submission;
+use local_datacurso\ai_context;
 use local_datacurso\ai_course;
 use local_datacurso\model;
 
