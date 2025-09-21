@@ -156,3 +156,18 @@ $string['error_api_config'] = 'API configuration is missing. Please check your s
 $string['error_starting_course_planning'] = 'There was an error starting the course planning session. Please try again.';
 $string['error_saving_session'] = 'Failed to save the planning session. Please try again.';
 $string['course_planning_started'] = 'Course planning session started successfully.';
+
+// Plan Course Message API strings
+$string['error_no_session_found'] = 'No planning session found for this course and user.';
+$string['error_api_not_configured'] = 'API configuration is missing. Please check your settings.';
+$string['error_api_request_failed'] = 'Failed to send message to AI service. Please try again.';
+$string['error_invalid_api_response'] = 'Invalid response from AI service.';
+$string['message_sent_successfully'] = 'Message sent successfully to AI planning session.';
+
+// Course Planning UI strings
+$string['accept_planning_create_course'] = 'Accept and create course';
+$string['adjust_course_planning'] = 'Adjust course planning';
+$string['adjust_planning_title'] = 'Adjust course planning';
+$string['adjust_planning_description'] = 'Describe any changes you want to make to the course planning.';
+$string['enter_message'] = 'Enter your message';
+$string['planning_chat_placeholder'] = 'Describe the adjustments you want to make to the course planning...';
