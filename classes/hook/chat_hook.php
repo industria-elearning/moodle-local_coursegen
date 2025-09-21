@@ -134,11 +134,17 @@ class chat_hook {
 
         // Check if session is in planning or creating status (1 or 2).
         if ($session->status == 1 || $session->status == 2) {
-            // Load the AI course modal.
+            // Get base URL from config.
+            $baseurl = get_config('local_datacurso', 'baseurl');
+
+            // Build streaming URL with session ID.
+            $streamingurl = 'http://localhost:3000/api/v1/moodle/plan-course/stream?session_id=54badfd3-c86b-4efa-aa58-9e1eb0045e19';
+
+            // Load the AI course modal with streaming URL.
             $PAGE->requires->js_call_amd('local_datacurso/add_course_ai_modal', 'init', [
-                'courseid' => $COURSE->id,
-                'sessionid' => $session->session_id,
-                'status' => $session->status,
+                [
+                    'streamingurl' => $streamingurl,
+                ],
             ]);
         }
     }
