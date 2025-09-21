@@ -23,20 +23,20 @@
  */
 
 function typeWriter(element, text, speed) {
-    return new Promise((resolve) => {
-      let i = 0;
-      function typing() {
-        if (i < text.length) {
-          element.textContent += text.charAt(i);
-          i++;
-          setTimeout(typing, speed);
-        } else {
-          resolve();
-        }
+  return new Promise((resolve) => {
+    let i = 0;
+    function typing() {
+      if (i < text.length) {
+        element.textContent += text.charAt(i);
+        i++;
+        setTimeout(typing, speed);
+      } else {
+        resolve();
       }
-      typing();
-    });
-  }
+    }
+    typing();
+  });
+}
 
 /**
  * Start course streaming from the provided URL
@@ -46,16 +46,13 @@ function typeWriter(element, text, speed) {
  */
 export const startStreaming = async (streamingUrl, container) => {
     const progressIndicator = document.getElementById("progress-indicator");
-    // const eventList = document.getElementById("list");
-    const eventList = container.querySelector("[data-region='local_datacurso/course_streaming']")
+    const eventList = container.querySelector("[data-region='local_datacurso/course_streaming']");
     const progressIcon = document.getElementById("progress-icon");
   
     eventList.innerHTML = "";
     progressIndicator.style.display = "block";
   
-    const evtSource = new EventSource(
-      streamingUrl
-    );
+    const evtSource = new EventSource(streamingUrl);
   
     evtSource.onmessage = async (event) => {
       const data = JSON.parse(event.data);
@@ -64,11 +61,11 @@ export const startStreaming = async (streamingUrl, container) => {
       switch (data.type) {
         case "section_start":
           const sectionHeader = document.createElement("div");
-          sectionHeader.className = "section-header bg-light p-3 mb-3 rounded";
+          sectionHeader.className = "mb-3";
           eventList.appendChild(sectionHeader);
   
           const title = document.createElement("h3");
-          title.className = "text-primary mb-2";
+          title.className = "mb-2";
           sectionHeader.appendChild(title);
           await typeWriter(
             title,
@@ -76,18 +73,20 @@ export const startStreaming = async (streamingUrl, container) => {
             20
           );
   
-          const hours = document.createElement("p");
-          hours.className = "mb-2 text-muted";
-          sectionHeader.appendChild(hours);
+          const details = document.createElement("ul");
+          details.className = "mb-2 pl-3";
+          sectionHeader.appendChild(details);
+  
+          const hours = document.createElement("li");
+          details.appendChild(hours);
           await typeWriter(
             hours,
             `Horas teóricas: ${data.section.ht_hours} | Horas autónomas: ${data.section.had_hours}`,
             15
           );
   
-          const objectives = document.createElement("p");
-          objectives.className = "mb-0";
-          sectionHeader.appendChild(objectives);
+          const objectives = document.createElement("li");
+          details.appendChild(objectives);
           await typeWriter(
             objectives,
             `Objetivos: ${data.section.objectives}`,
@@ -96,33 +95,28 @@ export const startStreaming = async (streamingUrl, container) => {
           break;
   
         case "activity":
-          const activityItem = document.createElement("div");
-          activityItem.className = "activity-item card mb-2 ml-4";
+          const activityItem = document.createElement("ul");
+          activityItem.className = "ml-4 mb-2";
           eventList.appendChild(activityItem);
   
-          const cardBody = document.createElement("div");
-          cardBody.className = "card-body py-2";
-          activityItem.appendChild(cardBody);
+          const activityLine = document.createElement("li");
+          activityItem.appendChild(activityLine);
   
-          const activityTitle = document.createElement("h5");
-          activityTitle.className = "card-title mb-1";
-          cardBody.appendChild(activityTitle);
+          const activityTitle = document.createElement("strong");
+          activityLine.appendChild(activityTitle);
           await typeWriter(activityTitle, data.activity.title, 25);
   
-          const activityDesc = document.createElement("p");
-          activityDesc.className = "card-text mb-2";
-          cardBody.appendChild(activityDesc);
-          await typeWriter(activityDesc, data.activity.description, 8);
+          const activityDesc = document.createElement("span");
+          activityLine.appendChild(activityDesc);
+          await typeWriter(activityDesc, `: ${data.activity.description}`, 8);
   
-          const resourceType = document.createElement("span");
-          resourceType.className = "badge badge-success";
-          resourceType.textContent = data.activity.resource_type;
-          cardBody.appendChild(resourceType);
+          const resourceType = document.createElement("em");
+          resourceType.textContent = ` (${data.activity.resource_type})`;
+          activityLine.appendChild(resourceType);
           break;
   
         case "section_end":
           const separator = document.createElement("hr");
-          separator.className = "my-4";
           eventList.appendChild(separator);
           break;
   
@@ -133,11 +127,12 @@ export const startStreaming = async (streamingUrl, container) => {
               </div>
             `;
           const completionMsg = document.createElement("div");
-          completionMsg.className = "alert alert-success text-center mt-4";
+          completionMsg.className = "mt-4 text-center";
           eventList.appendChild(completionMsg);
           await typeWriter(completionMsg, "✅ Plan del curso completado", 50);
           evtSource.close();
           break;
       }
     };
-};
+  }
+  
