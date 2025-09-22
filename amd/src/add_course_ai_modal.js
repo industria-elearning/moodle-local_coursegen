@@ -27,7 +27,7 @@ import Templates from 'core/templates';
 import Notification from 'core/notification';
 import {get_string} from 'core/str';
 import {startStreaming} from 'local_datacurso/course_streaming';
-import Ajax from 'core/ajax';
+import {planCourseMessage} from 'local_datacurso/repository/chatbot';
 
 let currentModal = null;
 
@@ -123,6 +123,29 @@ const addBubble = (wrap, text, role) => {
 const scrollToBottom = (wrap) => {
   wrap.scrollTop = wrap.scrollHeight;
 };
+
+/**
+ * Typewriter effect for streaming text into an element.
+ * @param {HTMLElement} element
+ * @param {string} text
+ * @param {number} speed
+ * @returns {Promise<void>}
+ */
+function typeWriter(element, text, speed) {
+  return new Promise((resolve) => {
+    let i = 0;
+    function typing() {
+      if (i < text.length) {
+        element.textContent += text.charAt(i);
+        i++;
+        setTimeout(typing, speed);
+      } else {
+        resolve();
+      }
+    }
+    typing();
+  });
+}
 
 /**
  * Setup planning buttons event handlers
@@ -225,27 +248,29 @@ const setupPlanningButtons = (container, params) => {
             submitBtn.disabled = true;
             
             try {
-                // Call the plan_course_message webservice
-                const response = await Ajax.call([{
-                    methodname: 'local_datacurso_plan_course_message',
-                    args: {
-                        courseid: params.courseid || 0, // You'll need to pass courseid in params
-                        text: message
-                    }
-                }])[0];
+                // Call the plan_course_message via repository
+                const response = await planCourseMessage({
+                    courseid: params.courseid,
+                    text: message,
+                });
                 
-                if (response.success && response.data && response.data.status) {
-                    // Add AI response as streaming text (not bubble)
-                    const aiResponse = document.createElement("div");
-                    aiResponse.className = "mb-3 text-muted";
-                    streamingContainer.appendChild(aiResponse);
-                    await typeWriter(aiResponse, response.data.status, 15);
-                } else {
+                if (!response.success) {
                     // Add error message as streaming text
                     const errorResponse = document.createElement("div");
                     errorResponse.className = "mb-3 text-danger";
                     streamingContainer.appendChild(errorResponse);
                     await typeWriter(errorResponse, response.message || 'Error processing your request', 15);
+                }
+
+                // If backend returns a streaming URL, render an inline streaming block and start streaming
+                const streamingUrl = response.data.streamingurl;
+                if (streamingUrl) {
+                    const html = await Templates.render('local_datacurso/course_streaming_inline', {});
+                    const temp = document.createElement('div');
+                    temp.innerHTML = html;
+                    const streamingBlock = temp.firstElementChild;
+                    streamingContainer.appendChild(streamingBlock);
+                    await startStreaming(streamingUrl, streamingBlock);
                 }
                 
             } catch (error) {
