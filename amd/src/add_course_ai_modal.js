@@ -83,6 +83,12 @@ export const init = async(params = {}) => {
 const initializeChatInterface = async (container, params) => {
     // Find the streaming button and add event listener
     try {
+        // Ensure chat interface is hidden when (re)starting streaming
+        const chatInterface = container.querySelector('#course-chat-interface');
+        if (chatInterface) {
+            chatInterface.style.display = 'none';
+        }
+
         // Start streaming with the URL provided by PHP (already includes session)
         await startStreaming(params.streamingurl, container);
         
@@ -265,6 +271,11 @@ const setupPlanningButtons = (container, params) => {
                 // If backend returns a streaming URL, render an inline streaming block and start streaming
                 const streamingUrl = response.data.streamingurl;
                 if (streamingUrl) {
+                    // Hide chat interface when a new streaming session starts
+                    if (chatInterface) {
+                        chatInterface.style.display = 'none';
+                    }
+
                     const html = await Templates.render('local_datacurso/course_streaming_inline', {});
                     const temp = document.createElement('div');
                     temp.innerHTML = html;
