@@ -22,6 +22,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+let htmlBuffer = '';
+let rafPending = false;
+
 function typeWriter(element, text, speed) {
   return new Promise((resolve) => {
     let i = 0;
@@ -56,89 +59,36 @@ export const startStreaming = async (streamingUrl, container) => {
   
     const evtSource = new EventSource(streamingUrl);
   
-    evtSource.onmessage = async (event) => {
-      const data = JSON.parse(event.data);
-  
-      switch (data.type) {
-        case "section_start":
-          const sectionHeader = document.createElement("div");
-          sectionHeader.className = "mb-3";
-          eventList.appendChild(sectionHeader);
-  
-          const title = document.createElement("h3");
-          title.className = "mb-2";
-          sectionHeader.appendChild(title);
-          await typeWriter(
-            title,
-            `Sección ${data.section.section}: ${data.section.title}`,
-            20
-          );
-  
-          const details = document.createElement("ul");
-          details.className = "mb-2 pl-3";
-          sectionHeader.appendChild(details);
-  
-          const hours = document.createElement("li");
-          details.appendChild(hours);
-          await typeWriter(
-            hours,
-            `Horas teóricas: ${data.section.ht_hours} | Horas autónomas: ${data.section.had_hours}`,
-            15
-          );
-  
-          const objectives = document.createElement("li");
-          details.appendChild(objectives);
-          await typeWriter(
-            objectives,
-            `Objetivos: ${data.section.objectives}`,
-            10
-          );
-          break;
-  
-        case "activity":
-          const activityItem = document.createElement("ul");
-          activityItem.className = "ml-4 mb-2";
-          eventList.appendChild(activityItem);
-  
-          const activityLine = document.createElement("li");
-          activityItem.appendChild(activityLine);
-  
-          const activityTitle = document.createElement("strong");
-          activityLine.appendChild(activityTitle);
-          await typeWriter(activityTitle, data.activity.title, 25);
-  
-          const activityDesc = document.createElement("span");
-          activityLine.appendChild(activityDesc);
-          await typeWriter(activityDesc, `: ${data.activity.description}`, 8);
-  
-          const resourceType = document.createElement("em");
-          resourceType.textContent = ` (${data.activity.resource_type})`;
-          activityLine.appendChild(resourceType);
-          break;
-  
-        case "section_end":
-          const separator = document.createElement("hr");
-          eventList.appendChild(separator);
-          break;
-  
-        case "complete":
-          if (progressIcon) {
-            progressIcon.innerHTML = `
-              <div class="bg-success rounded-circle d-flex align-items-center justify-content-center" style="width: 1.5rem; height: 1.5rem;">
-                <i class="text-white" style="font-size: 0.8rem;">✓</i>
-              </div>
-            `;
-          }
-          
-          // Show planning action buttons when streaming completes
-          const planningActions = document.getElementById('course-planning-actions');
-          if (planningActions) {
-            planningActions.style.display = 'block';
-          }
-          
-          evtSource.close();
-          break;
+    evtSource.addEventListener('assistant_token', (event) => {
+      appendToken(event.data, eventList);
+    });
+
+    evtSource.addEventListener('assistant_message_end', () => {
+      progressIcon.innerHTML = `
+        <div class="bg-success rounded-circle d-flex align-items-center justify-content-center" style="width: 1.5rem; height: 1.5rem;">
+          <i class="text-white" style="font-size: 0.8rem;">✓</i>
+        </div>
+      `;
+      const planningActions = document.getElementById('course-planning-actions');
+      if (planningActions) {
+        planningActions.style.display = 'block';
       }
-    };
-  }
+      evtSource.close();
+    });
+};
+
+function updateHtmlSoon(container) {
+  if (rafPending) return;
+  rafPending = true;
+  requestAnimationFrame(() => {
+    rafPending = false;
+    container.innerHTML = htmlBuffer;
+    container.scrollTop = container.scrollHeight;
+  });
+}
+
+function appendToken(token, container) {
+  htmlBuffer += token;
+  updateHtmlSoon(container);
+}
   
