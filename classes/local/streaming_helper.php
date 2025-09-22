@@ -44,6 +44,6 @@ class streaming_helper {
 
         // Build streaming URL with session ID.
         $baseurl = rtrim($baseurl, '/');
-        return $baseurl . '/api/v1/moodle/plan-course/stream?session_id=' . urlencode($sessionid);
+        return $baseurl . '/planning/plan-course/stream?session_id=' . urlencode($sessionid);
     }
 }
