@@ -70,7 +70,7 @@ class create_course_context extends external_api {
             'tenant_id' => get_config('local_datacurso', 'tenantid'),
         ];
 
-        $response = $datacursoapi->post('/v1/course', ['data' => $payload]);
+        $response = $datacursoapi->post('/v1/courses', ['data' => $payload]);
 
         if(empty($response['data'])) {
             throw new \invalid_parameter_exception('Error creating course context in DataCurso backend');
