@@ -45,12 +45,14 @@ function typeWriter(element, text, speed) {
  * @returns {Promise} Promise that resolves when streaming is complete
  */
 export const startStreaming = async (streamingUrl, container) => {
-    const progressIndicator = document.getElementById("progress-indicator");
+    const progressIndicator = container.querySelector("[data-region='local_datacurso/course_streaming/progress']");
     const eventList = container.querySelector("[data-region='local_datacurso/course_streaming']");
-    const progressIcon = document.getElementById("progress-icon");
+    const progressIcon = container.querySelector("[data-region='local_datacurso/course_streaming/progress/icon']");
   
     eventList.innerHTML = "";
-    progressIndicator.style.display = "block";
+    if (progressIndicator) {
+      progressIndicator.style.display = "block";
+    }
   
     const evtSource = new EventSource(streamingUrl);
   
@@ -120,11 +122,13 @@ export const startStreaming = async (streamingUrl, container) => {
           break;
   
         case "complete":
-          progressIcon.innerHTML = `
+          if (progressIcon) {
+            progressIcon.innerHTML = `
               <div class="bg-success rounded-circle d-flex align-items-center justify-content-center" style="width: 1.5rem; height: 1.5rem;">
                 <i class="text-white" style="font-size: 0.8rem;">✓</i>
               </div>
             `;
+          }
           
           // Show planning action buttons when streaming completes
           const planningActions = document.getElementById('course-planning-actions');
