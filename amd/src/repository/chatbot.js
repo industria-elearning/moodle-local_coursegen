@@ -39,6 +39,29 @@ export async function createCourseContext(courseId) {
 }
 
 /**
+ * Send a planning message for the course AI conversation.
+ * The backend should also return a streaming URL to reconnect to the stream.
+ *
+ * @param {{
+ *   courseid: number,
+ *   text: string,
+ * }} payload - The payload to send the planning message
+ * @return {Promise<Object>} response
+ */
+export async function planCourseMessage({courseid, text}) {
+    const args = {
+        courseid: Number(courseid) || 0,
+        text,
+    };
+    return ajax.call([
+        {
+            methodname: "local_datacurso_plan_course_message",
+            args,
+        },
+    ])[0];
+}
+
+/**
  * Create module for ask question to chatbot based in that information.
  *
  * @param {{
