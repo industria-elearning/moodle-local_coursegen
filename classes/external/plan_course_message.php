@@ -34,6 +34,7 @@ use external_value;
 use external_single_structure;
 use context_course;
 use moodle_exception;
+use local_datacurso\local\streaming_helper;
 
 /**
  * External API for sending messages to AI course planning sessions.
@@ -154,12 +155,14 @@ class plan_course_message extends external_api {
             $session->timemodified = time();
             $DB->update_record('local_datacurso_course_sessions', $session);
 
-            // Return success response with API status.
+            // Build streaming URL and return success response with API status.
+            $streamingurl = streaming_helper::get_streaming_url_for_session($session->session_id);
             return [
                 'success' => true,
                 'message' => get_string('message_sent_successfully', 'local_datacurso'),
                 'data' => [
-                    'status' => $apiresponse['status'],
+                    'status' => $apiresponse['status'] ?? '',
+                    'streamingurl' => $streamingurl,
                 ],
             ];
 
@@ -183,6 +186,7 @@ class plan_course_message extends external_api {
             'message' => new external_value(PARAM_TEXT, 'Status message'),
             'data' => new external_single_structure([
                 'status' => new external_value(PARAM_TEXT, 'API status response', VALUE_OPTIONAL),
+                'streamingurl' => new external_value(PARAM_URL, 'Streaming URL to reconnect', VALUE_OPTIONAL),
             ], 'Api response data', VALUE_OPTIONAL),
         ]);
     }
