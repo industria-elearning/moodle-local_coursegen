@@ -67,6 +67,7 @@ export const init = async(params = {}) => {
         const bodyEl = currentModal.getBody()[0];
         initializeChatInterface(bodyEl, params);
         setupPlanningButtons(bodyEl, params);
+        setupPlanningToggle(bodyEl);
         return currentModal;
 
     } catch (error) {
@@ -154,6 +155,52 @@ function typeWriter(element, text, speed) {
 }
 
 /**
+ * Collapse the planning phase and show summary
+ * @param {Element} container - The modal container element
+ */
+const collapsePlanningPhase = (container) => {
+    const planningPhase = container.querySelector('#planning-phase-section');
+    const planningSummary = container.querySelector('#planning-summary-collapsed');
+    const planningDetailsContent = container.querySelector('#planning-details-content');
+    
+    if (planningPhase && planningSummary && planningDetailsContent) {
+        // Move planning content to collapsed section
+        const planningContent = planningPhase.innerHTML;
+        planningDetailsContent.innerHTML = planningContent;
+        
+        // Hide planning phase and show summary
+        planningPhase.style.display = 'none';
+        planningSummary.style.display = 'block';
+    }
+};
+
+/**
+ * Setup collapsible planning details toggle
+ * @param {Element} container - The modal container element
+ */
+const setupPlanningToggle = (container) => {
+    const toggleBtn = container.querySelector('#toggle-planning-details');
+    const collapseElement = container.querySelector('#planning-details-collapse');
+    const toggleIcon = container.querySelector('#planning-toggle-icon');
+    
+    if (toggleBtn && collapseElement && toggleIcon) {
+        toggleBtn.addEventListener('click', () => {
+            const isCollapsed = !collapseElement.classList.contains('show');
+            
+            if (isCollapsed) {
+                collapseElement.classList.add('show');
+                toggleIcon.classList.remove('fa-chevron-down');
+                toggleIcon.classList.add('fa-chevron-up');
+            } else {
+                collapseElement.classList.remove('show');
+                toggleIcon.classList.remove('fa-chevron-up');
+                toggleIcon.classList.add('fa-chevron-down');
+            }
+        });
+    }
+};
+
+/**
  * Setup planning buttons event handlers
  * @param {Element} container - The modal container element
  * @param {Object} params - The parameters including course ID
@@ -187,19 +234,14 @@ const setupPlanningButtons = (container, params) => {
                     throw new Error(response.message || 'Error al ejecutar el plan');
                 }
 
-                // Hide chat interface and action buttons when execution starts
-                if (chatInterface) {
-                    chatInterface.style.display = 'none';
-                }
-                
-                // Hide planning action buttons
-                const planningActions = container.querySelector('#course-planning-actions');
-                if (planningActions) {
-                    planningActions.style.display = 'none';
-                }
+                // Collapse planning phase and show execution phase
+                collapsePlanningPhase(container);
+
+                // Get execution container
+                const executionContainer = container.querySelector('#execution-phase-container');
 
                 // Start execution streaming
-                if (response.data && response.data.streamingurl && streamingContainer) {
+                if (response.data && response.data.streamingurl && executionContainer) {
                     // Create streaming block template with execution-specific texts
                     const html = await Templates.render('local_datacurso/course_streaming_inline', {
                         title: 'Creando el curso',
@@ -208,7 +250,7 @@ const setupPlanningButtons = (container, params) => {
                     const temp = document.createElement('div');
                     temp.innerHTML = html;
                     const streamingBlock = temp.firstElementChild;
-                    streamingContainer.appendChild(streamingBlock);
+                    executionContainer.appendChild(streamingBlock);
                     await startExecutionStreaming(response.data.streamingurl, streamingBlock, courseId);
                 }
 
