@@ -26,8 +26,8 @@ import Modal from 'core/modal';
 import Templates from 'core/templates';
 import Notification from 'core/notification';
 import {get_string} from 'core/str';
-import {startStreaming} from 'local_datacurso/course_streaming';
-import {planCourseMessage} from 'local_datacurso/repository/chatbot';
+import {startStreaming, startExecutionStreaming} from 'local_datacurso/course_streaming';
+import {planCourseMessage, planCourseExecute} from 'local_datacurso/repository/chatbot';
 
 let currentModal = null;
 
@@ -173,29 +173,60 @@ const setupPlanningButtons = (container, params) => {
             acceptBtn.textContent = 'Creating Course...';
             
             try {
-                // Here you would call the actual course creation API
-                // For now, just show a success message
-                await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
+                // Extract course ID from streaming URL or use params.courseid
+                const courseId = params.courseid;
                 
+                if (!courseId) {
+                    throw new Error('No se pudo obtener el ID del curso');
+                }
+
+                // Call the plan course execute webservice
+                const response = await planCourseExecute(courseId);
+                
+                if (!response.success) {
+                    throw new Error(response.message || 'Error al ejecutar el plan');
+                }
+
+                // Hide chat interface and action buttons when execution starts
+                if (chatInterface) {
+                    chatInterface.style.display = 'none';
+                }
+                
+                // Hide planning action buttons
+                const planningActions = container.querySelector('#course-planning-actions');
+                if (planningActions) {
+                    planningActions.style.display = 'none';
+                }
+
+                // Start execution streaming
+                if (response.data && response.data.streamingurl && streamingContainer) {
+                    // Create streaming block template with execution-specific texts
+                    const html = await Templates.render('local_datacurso/course_streaming_inline', {
+                        title: 'Creando curso',
+                        subtitle: 'Generando contenido del curso...'
+                    });
+                    const temp = document.createElement('div');
+                    temp.innerHTML = html;
+                    const streamingBlock = temp.firstElementChild;
+                    streamingContainer.appendChild(streamingBlock);
+                    await startExecutionStreaming(response.data.streamingurl, streamingBlock, courseId);
+                }
+
+                // Show success notification after execution completes
                 get_string('addcourseai_done', 'local_datacurso').then((msg) => {
                     Notification.addNotification({
                         message: msg,
                         type: 'success'
                     });
-                    if (currentModal) {
-                        currentModal.destroy();
-                    }
                 }).catch(() => {
                     Notification.addNotification({
-                        message: 'Course created successfully!',
+                        message: 'Curso creado exitosamente!',
                         type: 'success'
                     });
-                    if (currentModal) {
-                        currentModal.destroy();
-                    }
                 });
                 
             } catch (error) {
+                console.error('Error creating course:', error);
                 acceptBtn.disabled = false;
                 get_string('accept_planning_create_course', 'local_datacurso').then((msg) => {
                     acceptBtn.textContent = msg;
@@ -266,6 +297,7 @@ const setupPlanningButtons = (container, params) => {
                     errorResponse.className = "mb-3 text-danger";
                     streamingContainer.appendChild(errorResponse);
                     await typeWriter(errorResponse, response.message || 'Error processing your request', 15);
+                    return;
                 }
 
                 // If backend returns a streaming URL, render an inline streaming block and start streaming
