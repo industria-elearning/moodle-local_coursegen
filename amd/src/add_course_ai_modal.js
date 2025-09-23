@@ -202,7 +202,7 @@ const setupPlanningButtons = (container, params) => {
                 if (response.data && response.data.streamingurl && streamingContainer) {
                     // Create streaming block template with execution-specific texts
                     const html = await Templates.render('local_datacurso/course_streaming_inline', {
-                        title: 'Creando curso',
+                        title: 'Creando el curso',
                         subtitle: 'Generando contenido del curso...'
                     });
                     const temp = document.createElement('div');
@@ -308,12 +308,18 @@ const setupPlanningButtons = (container, params) => {
                         chatInterface.style.display = 'none';
                     }
 
+                    // Add a separator to distinguish the correction from previous content
+                    const separator = document.createElement('div');
+                    separator.className = 'mt-4 mb-3 border-top pt-3';
+                    separator.innerHTML = '<h6 class="text-muted"><i class="fa fa-edit"></i> Corrección del plan:</h6>';
+                    streamingContainer.appendChild(separator);
+
                     const html = await Templates.render('local_datacurso/course_streaming_inline', {});
                     const temp = document.createElement('div');
                     temp.innerHTML = html;
                     const streamingBlock = temp.firstElementChild;
                     streamingContainer.appendChild(streamingBlock);
-                    await startStreaming(streamingUrl, streamingBlock);
+                    await startStreaming(streamingUrl, streamingBlock, true); // Pass true to indicate this is a correction
                 }
                 
             } catch (error) {

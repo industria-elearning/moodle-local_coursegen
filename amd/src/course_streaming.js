@@ -24,16 +24,14 @@
 
 import { createCourse } from "local_datacurso/repository/chatbot";
 
-let htmlBuffer = "";
-let rafPending = false;
-
 /**
  * Start course streaming from the provided URL
  * @param {string} streamingUrl - The EventSource URL for streaming
  * @param {Element} container - Container element for displaying results
+ * @param {boolean} isCorrection - Whether this is a plan correction (don't clear existing content)
  * @returns {Promise} Promise that resolves when streaming is complete
  */
-export const startStreaming = async (streamingUrl, container) => {
+export const startStreaming = async (streamingUrl, container, isCorrection = false) => {
   const progressIndicator = container.querySelector(
     "[data-region='local_datacurso/course_streaming/progress']"
   );
@@ -44,10 +42,33 @@ export const startStreaming = async (streamingUrl, container) => {
     "[data-region='local_datacurso/course_streaming/progress/icon']"
   );
 
-  eventList.innerHTML = "";
+  // Create local buffer and RAF state for this streaming instance
+  let htmlBuffer = "";
+  let rafPending = false;
+
+  // Only clear content if this is not a correction
+  if (!isCorrection) {
+    eventList.innerHTML = "";
+  }
   if (progressIndicator) {
     progressIndicator.style.display = "block";
   }
+
+  // Local functions for this streaming instance
+  const updateHtmlSoon = (container) => {
+    if (rafPending) return;
+    rafPending = true;
+    requestAnimationFrame(() => {
+      rafPending = false;
+      container.innerHTML = htmlBuffer;
+      container.scrollTop = container.scrollHeight;
+    });
+  };
+
+  const appendToken = (token, container) => {
+    htmlBuffer += token;
+    updateHtmlSoon(container);
+  };
 
   const evtSource = new EventSource(streamingUrl);
 
@@ -223,17 +244,3 @@ export const startExecutionStreaming = async (
   es.addEventListener("execution_complete", onComplete);
 };
 
-function updateHtmlSoon(container) {
-  if (rafPending) return;
-  rafPending = true;
-  requestAnimationFrame(() => {
-    rafPending = false;
-    container.innerHTML = htmlBuffer;
-    container.scrollTop = container.scrollHeight;
-  });
-}
-
-function appendToken(token, container) {
-  htmlBuffer += token;
-  updateHtmlSoon(container);
-}
