@@ -50,82 +50,48 @@ class create_course extends external_api {
      */
     public static function execute_parameters() {
         return new external_function_parameters([
-            'formdata' => new external_value(PARAM_RAW, 'Course form data'),
-            'prompt' => new external_value(PARAM_TEXT, 'AI prompt for course creation'),
-            'generateimages' => new external_value(PARAM_INT, 'Generate images flag (0 or 1)', VALUE_DEFAULT, 0),
+            'courseid' => new external_value(PARAM_INT, 'Course ID'),
         ]);
     }
 
     /**
-     * Create a course with AI assistance.
+     * Apply AI-generated course content to an existing course.
      *
-     * @param string $formdata Course form data
-     * @param string $prompt AI prompt for course creation
-     * @param int $generateimages Generate images flag
-     * @return array Result of the course creation
+     * @param int $courseid Course ID
+     * @return array Result of the course content application
      * @throws moodle_exception
      */
-    public static function execute($formdata, $prompt, $generateimages = 0) {
-        global $CFG, $DB;
+    public static function execute($courseid) {
+        global $CFG, $DB, $USER;
 
         try {
             $params = self::validate_parameters(self::execute_parameters(), [
-                'formdata' => $formdata,
-                'prompt' => $prompt,
-                'generateimages' => $generateimages,
+                'courseid' => $courseid,
             ]);
 
-            $formdata = json_decode($params['formdata'], true);
+            $courseid = $params['courseid'];
 
-            // Course fields.
-            $categoryid = clean_param($formdata['category'], PARAM_INT);
-            $fullname = clean_param($formdata['fullname'], PARAM_TEXT);
-            $shortname = clean_param($formdata['shortname'], PARAM_TEXT);
+            // Validate course exists and user has permission.
+            $course = $DB->get_record('course', ['id' => $courseid], '*', MUST_EXIST);
+            $coursecontext = \context_course::instance($course->id);
+            self::validate_context($coursecontext);
+            require_capability('moodle/course:manageactivities', $coursecontext);
 
-            // Datacurso fields.
-            $contexttype = clean_param($formdata['local_datacurso_context_type'], PARAM_TEXT);
-            $draftitemid = clean_param($formdata['local_datacurso_syllabus_pdf'], PARAM_INT);
-            $modelid = $contexttype === 'model' ? clean_param($formdata['local_datacurso_select_model'], PARAM_INT) : null;
+            // Validate that a session exists for this course and user.
+            $session = $DB->get_record('local_datacurso_course_sessions', [
+                'courseid' => $course->id,
+                'userid' => $USER->id,
+            ]);
 
-            // Validate context and permissions.
-            $context = context_system::instance();
-            self::validate_context($context);
-            require_capability('moodle/course:create', $context);
-
-            // Validate category exists and user has permission.
-            $category = $DB->get_record('course_categories', ['id' => $categoryid], '*', MUST_EXIST);
-            $categorycontext = \context_coursecat::instance($category->id);
-            require_capability('moodle/course:create', $categorycontext);
-
-            // Create the course with basic data first.
-            $coursedata = new \stdClass();
-            $coursedata->fullname = $fullname;
-            $coursedata->shortname = $shortname;
-            $coursedata->category = $categoryid;
-            $coursedata->summary = '';
-            $coursedata->summaryformat = FORMAT_HTML;
-            $coursedata->format = 'topics';
-            $coursedata->visible = 0;
-            $coursedata->startdate = time();
-            $coursedata->enddate = 0;
-            $coursedata->newsitems = 0;
-            $coursedata->numsections = 0;
-
-            // Create the course.
-            $course = create_course($coursedata);
-
-            if ($contexttype === 'syllabus') {
-
-                // Save syllabus PDF from draft area.
-                $success = ai_context::save_syllabus_from_draft($course->id, $draftitemid);
-
-                if ($success) {
-                    ai_context::upload_syllabus_to_ai($course->id);
-                }
+            if (!$session) {
+                return [
+                    'success' => false,
+                    'message' => get_string('error_no_session_found', 'local_datacurso', $course->id),
+                    'courseid' => $course->id,
+                    'shortname' => $course->shortname,
+                    'fullname' => $course->fullname,
+                ];
             }
-
-            // Store the context type and selected option in the database.
-            ai_context::save_course_context($course->id, $contexttype, $modelid);
 
             $apitoken = get_config('local_datacurso', 'apitoken');
             $baseurl = get_config('local_datacurso', 'baseurl');
@@ -137,27 +103,24 @@ class create_course extends external_api {
             \core\session\manager::write_close();
 
             $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, rtrim($baseurl, '/') . '/resources/create-course');
+            curl_setopt($ch, CURLOPT_URL, rtrim($baseurl, '/') . '/planning/plan-course/result?session_id=' . urlencode($session->session_id));
             curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Authorization: Bearer ' . $apitoken]);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_FAILONERROR, true);
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-                'site_id' => md5($CFG->wwwroot),
-                'course_id' => $course->id,
-                'course_name' => $course->fullname,
-                'context_type' => $contexttype,
-            ]));
+            curl_setopt($ch, CURLOPT_HTTPGET, true);
             $result = curl_exec($ch);
 
             if (!$result) {
                 $curlerror = curl_error($ch);
-                debugging("CURL request failed while creating resource. Error: {$curlerror}");
+                debugging("CURL request failed while getting plan course result. Error: {$curlerror}");
                 curl_close($ch);
+
+                // Update session status to failed (4).
+                self::update_session_status($session->id, 4);
                 return [
                     'success' => false,
                     'message' => get_string('error_generating_resource', 'local_datacurso'),
-                    'log' => "CURL request failed while creating resource. Error: {$curlerror}",
+                    'log' => "CURL request failed while getting plan course result. Error: {$curlerror}",
                 ];
             }
             curl_close($ch);
@@ -165,21 +128,41 @@ class create_course extends external_api {
             // Process API response.
             $apiresponse = json_decode($result, true);
             if (json_last_error() !== JSON_ERROR_NONE) {
+                // Update session status to failed (4).
+                self::update_session_status($session->id, 4);
+
                 return [
                     'success' => false,
                     'message' => 'Invalid JSON response from API',
                 ];
             }
 
+            // Check if the plan is completed.
+            if (empty($apiresponse['status']) || $apiresponse['status'] !== 'completed') {
+                // Update session status to failed (4).
+                self::update_session_status($session->id, 4);
+
+                return [
+                    'success' => false,
+                    'message' => 'Course plan is not completed yet',
+                ];
+            }
+
+            // Extract result data.
+            $resultdata = $apiresponse['result'] ?? [];
+
             // Process sections if provided in the response.
-            if (!empty($apiresponse['sections_info'])) {
-                self::process_course_sections($course->id, $apiresponse['sections_info']);
+            if (!empty($resultdata['sections_info'])) {
+                self::process_course_sections($course->id, $resultdata['sections_info']);
             }
 
             // Process generated activities if provided in the response.
-            if (!empty($apiresponse['generated_activities'])) {
-                self::process_generated_activities($course->id, $apiresponse['generated_activities']);
+            if (!empty($resultdata['generated_activities'])) {
+                self::process_generated_activities($course->id, $resultdata['generated_activities']);
             }
+
+            // Update session status to created (3).
+            self::update_session_status($session->id, 3);
 
             // Return success response.
             return [
@@ -192,9 +175,14 @@ class create_course extends external_api {
             ];
 
         } catch (\Exception $e) {
+            // Update session status to failed (4) if session exists.
+            if (isset($session) && $session) {
+                self::update_session_status($session->id, 4);
+            }
+
             return [
                 'success' => false,
-                'courseid' => 0,
+                'courseid' => $courseid ?? 0,
                 'shortname' => '',
                 'fullname' => '',
                 'message' => $e->getMessage(),
@@ -371,5 +359,22 @@ class create_course extends external_api {
 
         // Rebuild course cache after adding all activities.
         rebuild_course_cache($courseid, true);
+    }
+
+    /**
+     * Update the status of a course session.
+     *
+     * @param int $sessionid Session ID
+     * @param int $status Status code (1=planning, 2=creating, 3=created, 4=failed)
+     */
+    private static function update_session_status($sessionid, $status) {
+        global $DB;
+
+        $updatedata = new \stdClass();
+        $updatedata->id = $sessionid;
+        $updatedata->status = $status;
+        $updatedata->timemodified = time();
+
+        $DB->update_record('local_datacurso_course_sessions', $updatedata);
     }
 }
