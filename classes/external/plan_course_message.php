@@ -114,7 +114,7 @@ class plan_course_message extends external_api {
 
             // Make the API request.
             $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, rtrim($baseurl, '/') . '/plan-course/message');
+            curl_setopt($ch, CURLOPT_URL, rtrim($baseurl, '/') . '/planning/plan-course/message');
             curl_setopt($ch, CURLOPT_HTTPHEADER, [
                 'Content-Type: application/json',
                 'Authorization: Bearer ' . $apitoken,
@@ -150,10 +150,6 @@ class plan_course_message extends external_api {
                     'data' => null,
                 ];
             }
-
-            // Update session timestamp.
-            $session->timemodified = time();
-            $DB->update_record('local_datacurso_course_sessions', $session);
 
             // Build streaming URL and return success response with API status.
             $streamingurl = streaming_helper::get_streaming_url_for_session($session->session_id);
