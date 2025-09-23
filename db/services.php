@@ -75,4 +75,12 @@ $functions = [
         'ajax' => true,
         'capabilities' => 'moodle/course:update',
     ],
+    'local_datacurso_plan_course_execute' => [
+        'classname' => 'local_datacurso\external\plan_course_execute',
+        'methodname' => 'execute',
+        'description' => 'Execute AI course planning session',
+        'type' => 'write',
+        'ajax' => true,
+        'capabilities' => 'moodle/course:update',
+    ],
 ];
