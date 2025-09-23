@@ -95,28 +95,37 @@ export async function createMod({courseid, sectionnum, beforemod, prompt, genera
 }
 
 /**
- * Create course with AI assistance.
+ * Apply AI-generated content to an existing course.
  *
  * @param {{
- *     formdata: string,
- *     prompt: string,
- *     generateimages: number,
- * }} payload - The payload to create course
- * - formdata: The form data to create course
- * - prompt: The AI prompt for course creation
- * - generateimages: 0 not generate images, 1 generate images
+ *     courseid: number,
+ * }} payload - The payload to apply course content
+ * - courseid: The course ID to apply content to
  * @return {Promise<Object>} response
  */
-export async function createCourse({formdata, prompt, generateimages}) {
+export async function createCourse({courseid}) {
     const args = {
-        formdata,
-        prompt,
-        generateimages: generateimages ? Number(generateimages) : 0,
+        courseid: Number(courseid),
     };
     return ajax.call([
         {
             methodname: "local_datacurso_create_course",
             args,
+        },
+    ])[0];
+}
+
+/**
+ * Execute AI course planning session.
+ *
+ * @param {number} courseid - The course ID to execute
+ * @return {Promise<Object>} response
+ */
+export async function planCourseExecute(courseid) {
+    return ajax.call([
+        {
+            methodname: "local_datacurso_plan_course_execute",
+            args: {courseid: Number(courseid)},
         },
     ])[0];
 }
