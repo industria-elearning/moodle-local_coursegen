@@ -22,24 +22,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-let htmlBuffer = '';
-let rafPending = false;
+import { createCourse } from "local_datacurso/repository/chatbot";
 
-function typeWriter(element, text, speed) {
-  return new Promise((resolve) => {
-    let i = 0;
-    function typing() {
-      if (i < text.length) {
-        element.textContent += text.charAt(i);
-        i++;
-        setTimeout(typing, speed);
-      } else {
-        resolve();
-      }
-    }
-    typing();
-  });
-}
+let htmlBuffer = "";
+let rafPending = false;
 
 /**
  * Start course streaming from the provided URL
@@ -48,33 +34,193 @@ function typeWriter(element, text, speed) {
  * @returns {Promise} Promise that resolves when streaming is complete
  */
 export const startStreaming = async (streamingUrl, container) => {
-    const progressIndicator = container.querySelector("[data-region='local_datacurso/course_streaming/progress']");
-    const eventList = container.querySelector("[data-region='local_datacurso/course_streaming']");
-    const progressIcon = container.querySelector("[data-region='local_datacurso/course_streaming/progress/icon']");
-  
-    eventList.innerHTML = "";
-    if (progressIndicator) {
-      progressIndicator.style.display = "block";
-    }
-  
-    const evtSource = new EventSource(streamingUrl);
-  
-    evtSource.addEventListener('assistant_token', (event) => {
-      appendToken(event.data, eventList);
-    });
+  const progressIndicator = container.querySelector(
+    "[data-region='local_datacurso/course_streaming/progress']"
+  );
+  const eventList = container.querySelector(
+    "[data-region='local_datacurso/course_streaming']"
+  );
+  const progressIcon = container.querySelector(
+    "[data-region='local_datacurso/course_streaming/progress/icon']"
+  );
 
-    evtSource.addEventListener('assistant_message_end', () => {
-      progressIcon.innerHTML = `
+  eventList.innerHTML = "";
+  if (progressIndicator) {
+    progressIndicator.style.display = "block";
+  }
+
+  const evtSource = new EventSource(streamingUrl);
+
+  evtSource.addEventListener("assistant_token", (event) => {
+    appendToken(event.data, eventList);
+  });
+
+  evtSource.addEventListener("assistant_message_end", () => {
+    progressIcon.innerHTML = `
         <div class="bg-success rounded-circle d-flex align-items-center justify-content-center" style="width: 1.5rem; height: 1.5rem;">
           <i class="text-white" style="font-size: 0.8rem;">✓</i>
         </div>
       `;
-      const planningActions = document.getElementById('course-planning-actions');
-      if (planningActions) {
-        planningActions.style.display = 'block';
+    const planningActions = document.getElementById("course-planning-actions");
+    if (planningActions) {
+      planningActions.style.display = "block";
+    }
+    evtSource.close();
+  });
+};
+
+/**
+ * Helper to parse backend dict-like payloads
+ * @param {string} raw - Raw data from event
+ * @returns {Object|null} Parsed object or null
+ */
+const parseBest = (raw) => {
+  if (!raw) return null;
+  const s = String(raw).trim();
+  try {
+    return JSON.parse(s);
+  } catch (_) {}
+  try {
+    // Best-effort convert Python dict repr to JSON
+    let t = s
+      .replace(/'/g, '"')
+      .replace(/\bNone\b/g, "null")
+      .replace(/\bTrue\b/g, "true")
+      .replace(/\bFalse\b/g, "false");
+    return JSON.parse(t);
+  } catch (_) {
+    return null;
+  }
+};
+
+/**
+ * Add status message to the execution container
+ * @param {string} message - Status message
+ * @param {string} type - Status type (info, ok, error)
+ * @param {Element} container - Container element
+ */
+const addStatus = (message, type, container) => {
+  const statusDiv = document.createElement("div");
+  statusDiv.className = `alert alert-${
+    type === "ok" ? "success" : type === "error" ? "danger" : "info"
+  } mb-2`;
+  statusDiv.innerHTML = `<small>${message}</small>`;
+  container.appendChild(statusDiv);
+  container.scrollTop = container.scrollHeight;
+};
+
+/**
+ * Start execution streaming from the provided URL
+ * @param {string} streamingUrl - The EventSource URL for streaming
+ * @param {Element} container - Container element for displaying results
+ * @returns {Promise} Promise that resolves when streaming is complete
+ */
+export const startExecutionStreaming = async (
+  streamingUrl,
+  container,
+  courseid
+) => {
+  const progressIndicator = container.querySelector(
+    "[data-region='local_datacurso/course_streaming/progress']"
+  );
+  const eventList = container.querySelector(
+    "[data-region='local_datacurso/course_streaming']"
+  );
+  const progressIcon = container.querySelector(
+    "[data-region='local_datacurso/course_streaming/progress/icon']"
+  );
+
+  console.log({ container, progressIndicator, eventList, progressIcon });
+  eventList.innerHTML = "";
+  if (progressIndicator) {
+    progressIndicator.style.display = "block";
+  }
+
+  const es = new EventSource(streamingUrl);
+
+  const onActStart = (e) => {
+    console.log("onActStart", e);
+    const obj = parseBest(e.data) || {};
+    const idx = obj.index ?? "?";
+    const title = obj.title || "";
+    const sec = obj.section_index ?? "?";
+    addStatus(
+      `🧩 Iniciando actividad #${idx} (sección ${sec}): ${title}`,
+      "info",
+      eventList
+    );
+  };
+
+  const onActDone = (e) => {
+    console.log("onActDone", e);
+    const obj = parseBest(e.data) || {};
+    const done = obj.done ?? 0;
+    const total = obj.total ?? 0;
+    const percent = obj.percent ?? 0;
+    addStatus(
+      `✅ Actividad completada (${done}/${total}) — ${percent}%`,
+      "ok",
+      eventList
+    );
+  };
+
+  const onProgress = (e) => {
+    console.log("onProgress", e);
+    const obj = parseBest(e.data) || {};
+    const done = obj.done ?? 0;
+    const total = obj.total ?? 0;
+    const percent = obj.percent ?? 0;
+    addStatus(`📈 Progreso: ${done}/${total} (${percent}%)`, "info", eventList);
+  };
+
+  const onExecError = (e) => {
+    console.log("onExecError", e);
+    addStatus(`❌ Error en una actividad`, "error", eventList);
+  };
+
+  const onComplete = async (e) => {
+    console.log("onComplete", e);
+
+    // Close the EventSource connection first
+    es.close();
+    progressIcon.innerHTML = `
+        <div class="bg-success rounded-circle d-flex align-items-center justify-content-center" style="width: 1.5rem; height: 1.5rem;">
+          <i class="text-white" style="font-size: 0.8rem;">✓</i>
+        </div>
+      `;
+
+    // Call createCourse to apply the AI-generated content
+    try {
+      const result = await createCourse({ courseid });
+
+      if (result.success) {
+        addStatus("✅ Curso creado exitosamente", "ok", eventList);
+        // Reload the page after 500ms
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
+      } else {
+        addStatus(
+          `❌ Error al crear el curso: ${result.message}`,
+          "error",
+          eventList
+        );
       }
-      evtSource.close();
-    });
+    } catch (error) {
+      addStatus(
+        `❌ Error al crear el curso: ${error.message}`,
+        "error",
+        eventList
+      );
+    }
+  };
+
+  // Register event listeners
+  es.addEventListener("execution_activity_start", onActStart);
+  es.addEventListener("execution_activity_done", onActDone);
+  es.addEventListener("execution_progress", onProgress);
+  es.addEventListener("execution_error", onExecError);
+  es.addEventListener("execution_complete", onComplete);
 };
 
 function updateHtmlSoon(container) {
@@ -91,4 +237,3 @@ function appendToken(token, container) {
   htmlBuffer += token;
   updateHtmlSoon(container);
 }
-  
