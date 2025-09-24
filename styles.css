@@ -137,8 +137,6 @@ span.local_datacurso-sparkles-icon.white {
 .local_datacurso_ai_chat {
     display: flex;
     flex-direction: column;
-    min-height: 40vh;
-    max-height: 70vh;
 }
 
 /* Área de mensajes */
@@ -294,6 +292,23 @@ span.local_datacurso-sparkles-icon.white {
     flex-direction: column;
 }
 
+.local_datacurso_course_ai_modal .local_datacurso_ai_chat {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+    display: flex;
+    flex-direction: column;
+    margin-top: auto;
+}
+
+.local_datacurso_course_ai_modal .local_datacurso_ai_messages {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 0.5rem;
+}
 .local_datacurso_course_chat {
     flex: 1;
     display: flex;
