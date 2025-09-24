@@ -11,12 +11,12 @@
       <div class="d-flex align-items-center">
         <div data-region="local_datacurso/course_streaming/progress/icon" class="mr-3">
           <div class="spinner-border text-primary" role="status" style="width: 1.25rem; height: 1.25rem;">
-            <span class="sr-only">Loading...</span>
+            <span class="sr-only">{{#str}} course_streaming_loading, local_datacurso {{/str}}</span>
           </div>
         </div>
         <div>
-          <h6 class="mb-0">{{#title}}{{title}}{{/title}}{{^title}}Planificando la creación del curso{{/title}}</h6>
-          <small class="text-muted">{{#subtitle}}{{subtitle}}{{/subtitle}}{{^subtitle}}Generando contenido del plan de estudios...{{/subtitle}}</small>
+          <h6 class="mb-0">{{#title}}{{title}}{{/title}}{{^title}}{{#str}} course_streaming_planning_title, local_datacurso {{/str}}{{/title}}</h6>
+          <small class="text-muted">{{#subtitle}}{{subtitle}}{{/subtitle}}{{^subtitle}}{{#str}} course_streaming_planning_subtitle, local_datacurso {{/str}}{{/subtitle}}</small>
         </div>
       </div>
     </div>

@@ -217,21 +217,21 @@ const setupPlanningButtons = (container, params) => {
         acceptBtn.addEventListener('click', async () => {
             // Disable button to prevent double clicks
             acceptBtn.disabled = true;
-            acceptBtn.textContent = 'Creating Course...';
+            acceptBtn.textContent = await get_string('creating_course', 'local_datacurso');
             
             try {
                 // Extract course ID from streaming URL or use params.courseid
                 const courseId = params.courseid;
                 
                 if (!courseId) {
-                    throw new Error('No se pudo obtener el ID del curso');
+                    throw new Error(await get_string('error_no_course_id', 'local_datacurso'));
                 }
 
                 // Call the plan course execute webservice
                 const response = await planCourseExecute(courseId);
                 
                 if (!response.success) {
-                    throw new Error(response.message || 'Error al ejecutar el plan');
+                    throw new Error(response.message || await get_string('error_executing_plan', 'local_datacurso'));
                 }
 
                 // Collapse planning phase and show execution phase
@@ -244,8 +244,8 @@ const setupPlanningButtons = (container, params) => {
                 if (response.data && response.data.streamingurl && executionContainer) {
                     // Create streaming block template with execution-specific texts
                     const html = await Templates.render('local_datacurso/course_streaming_inline', {
-                        title: 'Creando el curso',
-                        subtitle: 'Generando contenido del curso...'
+                        title: await get_string('course_creating_title', 'local_datacurso'),
+                        subtitle: await get_string('course_creating_subtitle', 'local_datacurso')
                     });
                     const temp = document.createElement('div');
                     temp.innerHTML = html;
@@ -260,11 +260,16 @@ const setupPlanningButtons = (container, params) => {
                         message: msg,
                         type: 'success'
                     });
+                    return null;
                 }).catch(() => {
-                    Notification.addNotification({
-                        message: 'Curso creado exitosamente!',
-                        type: 'success'
-                    });
+                    return get_string('course_created_success', 'local_datacurso');
+                }).then((msg) => {
+                    if (msg) {
+                        Notification.addNotification({
+                            message: msg,
+                            type: 'success'
+                        });
+                    }
                 });
                 
             } catch (error) {
@@ -338,7 +343,8 @@ const setupPlanningButtons = (container, params) => {
                     const errorResponse = document.createElement("div");
                     errorResponse.className = "mb-3 text-danger";
                     streamingContainer.appendChild(errorResponse);
-                    await typeWriter(errorResponse, response.message || 'Error processing your request', 15);
+                    const errorMsg = response.message || await get_string('error_processing_request', 'local_datacurso');
+                    await typeWriter(errorResponse, errorMsg, 15);
                     return;
                 }
 
@@ -353,7 +359,8 @@ const setupPlanningButtons = (container, params) => {
                     // Add a separator to distinguish the correction from previous content
                     const separator = document.createElement('div');
                     separator.className = 'mt-4 mb-3 border-top pt-3';
-                    separator.innerHTML = '<h6 class="text-muted"><i class="fa fa-edit"></i> Corrección del plan:</h6>';
+                    const correctionText = await get_string('adjust_planning_title', 'local_datacurso');
+                    separator.innerHTML = `<h6 class="text-muted"><i class="fa fa-edit"></i> ${correctionText}</h6>`;
                     streamingContainer.appendChild(separator);
 
                     const html = await Templates.render('local_datacurso/course_streaming_inline', {});
@@ -369,7 +376,8 @@ const setupPlanningButtons = (container, params) => {
                 const errorResponse = document.createElement("div");
                 errorResponse.className = "mb-3 text-danger";
                 streamingContainer.appendChild(errorResponse);
-                await typeWriter(errorResponse, 'Error: ' + error.message, 15);
+                const errorMsg = await get_string('error_sending_message', 'local_datacurso');
+                await typeWriter(errorResponse, `${errorMsg}: ${error.message}`, 15);
                 console.error('Error sending message:', error);
             } finally {
                 submitBtn.disabled = false;

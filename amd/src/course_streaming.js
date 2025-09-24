@@ -23,6 +23,7 @@
  */
 
 import { createCourse } from "local_datacurso/repository/chatbot";
+import { get_string } from "core/str";
 
 /**
  * Start course streaming from the provided URL
@@ -159,44 +160,52 @@ export const startExecutionStreaming = async (
 
   const es = new EventSource(streamingUrl);
 
-  const onActStart = (e) => {
+  const onActStart = async (e) => {
     console.log("onActStart", e);
     const obj = parseBest(e.data) || {};
     const idx = obj.index ?? "?";
     const title = obj.title || "";
     const sec = obj.section_index ?? "?";
-    addStatus(
-      `🧩 Iniciando actividad #${idx} (sección ${sec}): ${title}`,
-      "info",
-      eventList
-    );
+    const msg = await get_string("execution_activity_start", "local_datacurso", {
+      index: idx,
+      section: sec,
+      title: title,
+    });
+    addStatus(msg, "info", eventList);
   };
 
-  const onActDone = (e) => {
+  const onActDone = async (e) => {
     console.log("onActDone", e);
     const obj = parseBest(e.data) || {};
     const done = obj.done ?? 0;
     const total = obj.total ?? 0;
     const percent = obj.percent ?? 0;
-    addStatus(
-      `✅ Actividad completada (${done}/${total}) — ${percent}%`,
-      "ok",
-      eventList
-    );
+    const msg = await get_string("execution_activity_done", "local_datacurso", {
+      done,
+      total,
+      percent,
+    });
+    addStatus(msg, "ok", eventList);
   };
 
-  const onProgress = (e) => {
+  const onProgress = async (e) => {
     console.log("onProgress", e);
     const obj = parseBest(e.data) || {};
     const done = obj.done ?? 0;
     const total = obj.total ?? 0;
     const percent = obj.percent ?? 0;
-    addStatus(`📈 Progreso: ${done}/${total} (${percent}%)`, "info", eventList);
+    const msg = await get_string("execution_progress", "local_datacurso", {
+      done,
+      total,
+      percent,
+    });
+    addStatus(msg, "info", eventList);
   };
 
-  const onExecError = (e) => {
+  const onExecError = async (e) => {
     console.log("onExecError", e);
-    addStatus(`❌ Error en una actividad`, "error", eventList);
+    const msg = await get_string("execution_error_activity", "local_datacurso");
+    addStatus(msg, "error", eventList);
   };
 
   const onComplete = async (e) => {
@@ -215,24 +224,19 @@ export const startExecutionStreaming = async (
       const result = await createCourse({ courseid });
 
       if (result.success) {
-        addStatus("✅ Curso creado exitosamente", "ok", eventList);
+        const okmsg = await get_string("course_created_success_simple", "local_datacurso");
+        addStatus(okmsg, "ok", eventList);
         // Reload the page after 500ms
         setTimeout(() => {
           window.location.reload();
         }, 500);
       } else {
-        addStatus(
-          `❌ Error al crear el curso: ${result.message}`,
-          "error",
-          eventList
-        );
+        const errmsg = await get_string("error_creating_course", "local_datacurso", result.message || "");
+        addStatus(errmsg, "error", eventList);
       }
     } catch (error) {
-      addStatus(
-        `❌ Error al crear el curso: ${error.message}`,
-        "error",
-        eventList
-      );
+      const errmsg = await get_string("error_creating_course", "local_datacurso", error.message || "");
+      addStatus(errmsg, "error", eventList);
     }
   };
 

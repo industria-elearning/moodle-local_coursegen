@@ -23,7 +23,6 @@
  */
 
 import Templates from "core/templates";
-import { openCourseModal } from "local_datacurso/add_course_ai_modal";
 
 /**
  * Initialize the AI button functionality
