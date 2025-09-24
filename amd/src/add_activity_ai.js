@@ -90,10 +90,17 @@ define([
 
       modal = await Modal.create({
         title,
+        body: bodyHTML,
         large: true,
-        show: true,
+        scrollable: true,
         removeOnClose: true,
       });
+
+      // Align width/appearance with course AI modal.
+      modal.getRoot().addClass('local_datacurso_course_ai_modal');
+
+      // Explicitly show after creation (no show: true in options).
+      modal.show();
 
       // Manejar el evento de cierre del modal
       modal.getRoot().on("hidden.bs.modal", () => {
@@ -102,10 +109,6 @@ define([
           modal = null;
         }
       });
-
-      await modal.setBody(bodyHTML);
-      // No llamar a show() nuevamente; el modal ya fue creado con show: true.
-
       // Handlers del chat
       const bodyEl = modal.getBody()[0];
       wireChatHandlers(bodyEl, payload);
