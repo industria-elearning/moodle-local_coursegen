@@ -46,4 +46,27 @@ class streaming_helper {
         $baseurl = rtrim($baseurl, '/');
         return $baseurl . '/planning/plan-course/stream?session_id=' . urlencode($sessionid);
     }
+
+    /**
+     * Build the streaming URL for a module creation job (create-mod), adjusting base URL for localhost dev environments.
+     *
+     * @param string $jobid
+     * @return string streaming URL
+     */
+    public static function get_mod_streaming_url_for_job(string $jobid): string {
+        global $CFG;
+
+        // Get base URL from config.
+        $baseurl = get_config('local_datacurso', 'baseurl');
+
+        // Validate if this is a local site and adjust baseurl to localhost:port.
+        if (strpos($CFG->wwwroot, 'http://localhost') === 0) {
+            $port = parse_url($baseurl, PHP_URL_PORT) ?? 80;
+            $baseurl = "http://localhost:$port";
+        }
+
+        // Build streaming URL with job ID.
+        $baseurl = rtrim($baseurl, '/');
+        return $baseurl . '/resources/create-mod/stream?job_id=' . urlencode($jobid);
+    }
 }

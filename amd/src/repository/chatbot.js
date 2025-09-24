@@ -78,7 +78,41 @@ export async function planCourseMessage({courseid, text}) {
  * - generateimages: 0 not generate images, 1 generate images
  * @return {Promise<Object>} response
  */
-export async function createMod({courseid, sectionnum, beforemod, prompt, generateimages}) {
+export async function createMod({courseid, sectionnum, beforemod, prompt, generateimages, jobid}) {
+    const args = {
+        courseid: Number(courseid),
+        sectionnum: Number(sectionnum),
+        beforemod: beforemod ? Number(beforemod) : null,
+        prompt,
+        generateimages: generateimages ? Number(generateimages) : 0,
+        jobid: jobid
+    };
+    return ajax.call([
+        {
+            methodname: "local_datacurso_create_mod",
+            args,
+        },
+    ])[0];
+}
+
+/**
+ * Create module with streaming support for real-time updates.
+ *
+ * @param {{
+ *     courseid: number,
+ *     sectionnum: number,
+ *     beforemod: number,
+ *     prompt: string,
+ *     generateimages: number,
+ * }} payload - The payload to create module with streaming
+ * - courseid: The ID of the course to create module for
+ * - sectionnum: The number of the section to create module for
+ * - beforemod: The ID of the module before which the new module will be created
+ * - prompt: The message to create
+ * - generateimages: 0 not generate images, 1 generate images
+ * @return {Promise<Object>} response
+ */
+export async function createModStream({courseid, sectionnum, beforemod, prompt, generateimages}) {
     const args = {
         courseid: Number(courseid),
         sectionnum: Number(sectionnum),
@@ -88,7 +122,7 @@ export async function createMod({courseid, sectionnum, beforemod, prompt, genera
     };
     return ajax.call([
         {
-            methodname: "local_datacurso_create_mod",
+            methodname: "local_datacurso_create_mod_stream",
             args,
         },
     ])[0];

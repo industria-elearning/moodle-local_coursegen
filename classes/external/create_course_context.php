@@ -67,7 +67,7 @@ class create_course_context extends external_api {
         if (!file_exists($dir)) {
             mkdir($dir, 0777, true); // crea el directorio con permisos
         }
-    
+
         $filepath = "$CFG->tempdir/moddata/course-$courseid.json";
         $content = json_encode($coursecontent, JSON_PRETTY_PRINT);
         $handle = fopen($filepath, 'w');

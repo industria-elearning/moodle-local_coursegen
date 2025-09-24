@@ -59,6 +59,14 @@ $functions = [
         'ajax' => true,
         'capabilities' => 'moodle/course:manageactivities,moodle/course:update',
     ],
+    'local_datacurso_create_mod_stream' => [
+        'classname' => 'local_datacurso\external\create_mod_stream',
+        'methodname' => 'execute',
+        'description' => 'Start streaming job to create module with AI and store job_id',
+        'type' => 'write',
+        'ajax' => true,
+        'capabilities' => 'moodle/course:manageactivities,moodle/course:update',
+    ],
     'local_datacurso_create_course' => [
         'classname' => 'local_datacurso\external\create_course',
         'methodname' => 'execute',

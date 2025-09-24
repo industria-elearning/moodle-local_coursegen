@@ -24,7 +24,6 @@
 
 namespace local_datacurso\external;
 
-use local_datacurso\ai_context;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -35,7 +34,6 @@ use external_api;
 use external_function_parameters;
 use external_value;
 use external_single_structure;
-use context_system;
 use moodle_exception;
 
 /**
@@ -102,9 +100,18 @@ class create_course extends external_api {
             // Release the session so other tabs in the same session are not blocked.
             \core\session\manager::write_close();
 
+            $headers = [
+                'Content-Type:application/json',
+                'Authorization: Bearer ' . $apitoken,
+            ];
+
+            if ($DB->record_exists('config_plugins', ['plugin' => 'tool_wp', 'name' => 'version'])) {
+                $headers[] = 'X-Workplace: true';
+            }
+
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, rtrim($baseurl, '/') . '/planning/plan-course/result?session_id=' . urlencode($session->session_id));
-            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Authorization: Bearer ' . $apitoken]);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_FAILONERROR, true);
             curl_setopt($ch, CURLOPT_HTTPGET, true);

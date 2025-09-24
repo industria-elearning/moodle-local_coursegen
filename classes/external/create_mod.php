@@ -48,6 +48,7 @@ class create_mod extends external_api {
             'prompt' => new external_value(PARAM_TEXT, 'Prompt to create module'),
             'generateimages' => new external_value(PARAM_INT, '1 to generate images, 0 to not generate images', VALUE_OPTIONAL),
             'beforemod' => new external_value(PARAM_INT, 'Before module id', VALUE_OPTIONAL),
+            'jobid' => new external_value(PARAM_TEXT, 'Streaming job id to fetch result from AI service', VALUE_OPTIONAL),
         ]);
     }
 
@@ -62,7 +63,7 @@ class create_mod extends external_api {
      *
      * @return array
      */
-    public static function execute(int $courseid, int $sectionnum, string $prompt, int $generateimages, ?int $beforemod) {
+    public static function execute(int $courseid, int $sectionnum, string $prompt, int $generateimages, ?int $beforemod, ?string $jobid = null) {
         global $CFG, $DB, $COURSE;
 
         try {
@@ -72,6 +73,7 @@ class create_mod extends external_api {
                 'prompt' => $prompt,
                 'generateimages' => $generateimages,
                 'beforemod' => $beforemod,
+                'jobid' => $jobid,
             ]);
 
             $courseid = $params['courseid'];
@@ -79,6 +81,7 @@ class create_mod extends external_api {
             $prompt = $params['prompt'];
             $generateimages = $params['generateimages'];
             $beforemod = $params['beforemod'];
+            $jobid = $params['jobid'] ?? null;
 
             $course = $DB->get_record('course', ['id' => $courseid], '*', MUST_EXIST);
             $context = context_course::instance($course->id);
@@ -100,21 +103,21 @@ class create_mod extends external_api {
             // Release the session so other tabs in the same session are not blocked.
             \core\session\manager::write_close();
 
+            // This webservice is intended to be called after a streaming job completes.
+            if (empty($jobid)) {
+                return [
+                    'ok' => false,
+                    'message' => get_string('error_generating_resource', 'local_datacurso'),
+                    'log' => 'Missing jobid for result endpoint.',
+                ];
+            }
+
             $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, rtrim($baseurl, '/') . '/resources/create-mod');
+            $targeturl = rtrim($baseurl, '/') . '/resources/create-mod/result?job_id=' . urlencode($jobid);
+            curl_setopt($ch, CURLOPT_URL, $targeturl);
             curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Authorization: Bearer ' . $apitoken]);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_FAILONERROR, true);
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-                'site_id' => md5($CFG->wwwroot),
-                'course_id' => $courseid,
-                'message' => $prompt,
-                'timezone' => \core_date::get_user_timezone(),
-                'generate_images' => $generateimages == 1,
-                'context_type' => $aicontext->context_type,
-                'model_name' => $aicontext->name,
-            ]));
             $result = curl_exec($ch);
 
             if (!$result) {
@@ -131,11 +134,11 @@ class create_mod extends external_api {
 
             $result = json_decode($result, true);
             if (!isset($result['result']['resource_type'])) {
-                debugging("Invalid response from AI service. Response: " . json_encode($result));
+                debugging("Invalid response from AI service (result). Response: " . json_encode($result));
                 return [
                     'ok' => false,
                     'message' => get_string('error_generating_resource', 'local_datacurso'),
-                    'log' => "Invalid response from AI service. Response: " . json_encode($result),
+                    'log' => "Invalid response from AI service (result). Response: " . json_encode($result),
                 ];
             }
 

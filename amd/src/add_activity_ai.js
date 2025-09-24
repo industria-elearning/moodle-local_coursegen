@@ -29,7 +29,8 @@ define([
   "core/custom_interaction_events",
   "core/str",
   "local_datacurso/repository/chatbot",
-], (Templates, Notification, Modal, CustomEvents, Str, chatbotRepository) => {
+  "local_datacurso/module_streaming",
+], (Templates, Notification, Modal, CustomEvents, Str, chatbotRepository, moduleStreaming) => {
   const LINK_SELECTOR = '[data-action="local_datacurso/add_activity_ai"]';
 
   let modal = null;
@@ -138,52 +139,75 @@ define([
 
       pushUser(messagesEl, prompt);
       textarea.value = "";
-      textarea.focus();
 
-      // Disable send button.
+      // Disable form elements
       sendBtn.disabled = true;
-      // Disable textarea.
       textarea.disabled = true;
-      // Disable radio buttons.
       const radioButtons = document.querySelectorAll('input[name="generate_images"]');
       radioButtons.forEach((rb) => {
         rb.disabled = true;
       });
       setLoading(sendBtn, true);
-      const typing = pushTyping(messagesEl);
+
       try {
-        const response = await chatbotRepository.createMod({
+        // Start streaming job
+        const response = await chatbotRepository.createModStream({
           ...payload,
           prompt,
           generateimages: generateImages
         });
+
         if (!response.ok) {
           throw new Error(response.message);
         }
 
-        removeTyping(typing);
-        renderWSResult(messagesEl, response);
+        // Clear messages and show streaming interface
+        messagesEl.innerHTML = "";
+        
+        // Create streaming container
+        const streamingContainer = document.createElement("div");
+        streamingContainer.innerHTML = `
+          <div data-region="local_datacurso/module_streaming/progress" style="display: block;">
+            <div class="d-flex align-items-center mb-3">
+              <div data-region="local_datacurso/module_streaming/progress/icon" class="me-2">
+                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+              </div>
+              <div>
+                <h6 class="mb-0">Creando módulo...</h6>
+                <small class="text-muted">Por favor espera mientras se genera el contenido</small>
+              </div>
+            </div>
+          </div>
+          <div data-region="local_datacurso/module_streaming" class="border rounded p-3" style="max-height: 300px; overflow-y: auto;"></div>
+        `;
+        messagesEl.appendChild(streamingContainer);
 
-        setTimeout(() => {
-          window.location.reload();
-        }, 800); // Pequeño delay para que se vea el mensaje de éxito
+        // Start module streaming
+        await moduleStreaming.startModuleStreaming(
+          response.streamingurl, 
+          streamingContainer, 
+          {
+            courseid: payload.courseid,
+            sectionnum: payload.sectionnum,
+            beforemod: payload.beforemod,
+            jobid: response.job_id
+          }
+        );
+
       } catch (err) {
-        removeTyping(typing);
-
-        // This is when cloudflare timeout.
-        if (!err) {
-          const msg = await Str.get_string("resourcecreatedsuccess", "local_datacurso");
-          pushAI(messagesEl, msg);
-          setTimeout(() => {
-            window.location.reload();
-          }, 800);
+        console.error("Error starting module creation:", err);
+        
+        // Show error message
+        if (err && err.message) {
+          pushAI(messagesEl, `❌ Error: ${err.message}`);
         } else {
-          // Other errors.
-          Str.get_string("addactivityai_error", "local_datacurso").then((s) => {
-            pushAI(messagesEl, `❌ ${s}`);
-          });
+          const errorMsg = await Str.get_string("addactivityai_error", "local_datacurso");
+          pushAI(messagesEl, `❌ ${errorMsg}`);
         }
       } finally {
+        // Re-enable form elements
         radioButtons.forEach((rb) => {
           rb.disabled = false;
         });
