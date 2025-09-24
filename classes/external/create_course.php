@@ -232,6 +232,44 @@ class create_course extends external_api {
     }
 
     /**
+     * Delete all course sections except section 0 and clear section 0 modules.
+     *
+     * @param int $courseid Course ID
+     */
+    private static function delete_course_sections($courseid) {
+        global $DB;
+
+        // Get course object.
+        $course = get_course($courseid);
+
+        // First, clear all modules from section 0 (general section).
+        $modinfo = get_fast_modinfo($course);
+        $section0 = $modinfo->get_section_info(0);
+
+        if ($section0 && !empty($section0->sequence)) {
+            // Get all course modules in section 0.
+            $cms = $modinfo->get_cms();
+            foreach ($cms as $cm) {
+                if ($cm->sectionnum == 0) {
+                    course_delete_module($cm->id);
+                }
+            }
+        }
+
+        // Get all sections except section 0.
+        $sections = $DB->get_records_select('course_sections',
+            'course = ? AND section > 0',
+            [$courseid],
+            'section DESC' // Delete from highest to lowest to avoid numbering issues.
+        );
+
+        foreach ($sections as $section) {
+            // Use Moodle's core function to delete section safely.
+            course_delete_section($course, $section->section);
+        }
+    }
+
+    /**
      * Process course sections from API response.
      *
      * @param int $courseid Course ID
@@ -244,7 +282,10 @@ class create_course extends external_api {
         $course = get_course($courseid);
         $courseformat = course_get_format($course);
 
-        // Get existing sections indexed by section number.
+        // Delete all existing sections except section 0 (general section).
+        self::delete_course_sections($courseid);
+
+        // Get existing sections indexed by section number (should only be section 0 now).
         $sections = $DB->get_records('course_sections', ['course' => $courseid], 'section ASC');
         $existingsections = array_column($sections, null, 'section');
 
