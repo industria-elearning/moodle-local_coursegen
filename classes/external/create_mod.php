@@ -22,6 +22,7 @@ use external_function_parameters;
 use external_single_structure;
 use external_value;
 use local_datacurso\mod_settings\base_settings;
+use local_datacurso\utils\text_editor_parameter_cleaner;
 
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/externallib.php');
@@ -162,7 +163,9 @@ class create_mod extends external_api {
                 ];
             }
 
-            $parameters = (object)$result['result']['parameters'];
+            // Clean text editor parameters before processing.
+            $cleanedparameters = text_editor_parameter_cleaner::clean_text_editor_objects($result['result']['parameters']);
+            $parameters = (object)$cleanedparameters;
             $parameters->section = $sectionnum;
             $parameters->beforemod = $beforemod;
             $parameters->module = $module->id;

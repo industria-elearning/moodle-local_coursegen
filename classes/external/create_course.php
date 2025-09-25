@@ -18,7 +18,7 @@
  * External API for creating courses with AI assistance.
  *
  * @package    local_datacurso
- * @copyright  2024 Your Name
+ * @copyright  2025 Buendata <wilber@buendata.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -35,6 +35,7 @@ use external_function_parameters;
 use external_value;
 use external_single_structure;
 use moodle_exception;
+use local_datacurso\utils\text_editor_parameter_cleaner;
 
 /**
  * External API for creating courses with AI assistance.
@@ -165,7 +166,11 @@ class create_course extends external_api {
 
             // Process generated activities if provided in the response.
             if (!empty($resultdata['generated_activities'])) {
-                self::process_generated_activities($course->id, $resultdata['generated_activities']);
+                // Clean text editor parameters before processing.
+                $cleanedactivities = text_editor_parameter_cleaner::clean_editor_parameters(
+                    $resultdata['generated_activities']
+                );
+                self::process_generated_activities($course->id, $cleanedactivities);
             }
 
             // Update session status to created (3).
