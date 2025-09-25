@@ -45,10 +45,8 @@ class create_mod extends external_api {
         return new external_function_parameters([
             'courseid' => new external_value(PARAM_INT, 'Course id'),
             'sectionnum' => new external_value(PARAM_INT, 'Section number'),
-            'prompt' => new external_value(PARAM_TEXT, 'Prompt to create module'),
-            'generateimages' => new external_value(PARAM_INT, '1 to generate images, 0 to not generate images', VALUE_OPTIONAL),
+            'jobid' => new external_value(PARAM_TEXT, 'Streaming job id to fetch result from AI service'),
             'beforemod' => new external_value(PARAM_INT, 'Before module id', VALUE_OPTIONAL),
-            'jobid' => new external_value(PARAM_TEXT, 'Streaming job id to fetch result from AI service', VALUE_OPTIONAL),
         ]);
     }
 
@@ -57,31 +55,26 @@ class create_mod extends external_api {
      *
      * @param string $courseid Course id where the module will be created
      * @param int $sectionnum Section number where the module will be created
-     * @param string $prompt Prompt to create module
-     * @param int $generateimages 1 indicates AI could generate images, 0 indicates AI could not generate images
      * @param int $beforemod Before module id where the module will be created
+     * @param string $jobid Streaming job id to fetch result from AI service
      *
      * @return array
      */
-    public static function execute(int $courseid, int $sectionnum, string $prompt, int $generateimages, ?int $beforemod, ?string $jobid = null) {
+    public static function execute(int $courseid, int $sectionnum, string $jobid, ?int $beforemod) {
         global $CFG, $DB, $COURSE;
 
         try {
             $params = self::validate_parameters(self::execute_parameters(), [
                 'courseid' => $courseid,
                 'sectionnum' => $sectionnum,
-                'prompt' => $prompt,
-                'generateimages' => $generateimages,
-                'beforemod' => $beforemod,
                 'jobid' => $jobid,
+                'beforemod' => $beforemod,
             ]);
 
             $courseid = $params['courseid'];
             $sectionnum = $params['sectionnum'];
-            $prompt = $params['prompt'];
-            $generateimages = $params['generateimages'];
             $beforemod = $params['beforemod'];
-            $jobid = $params['jobid'] ?? null;
+            $jobid = $params['jobid'];
 
             $course = $DB->get_record('course', ['id' => $courseid], '*', MUST_EXIST);
             $context = context_course::instance($course->id);

@@ -166,8 +166,14 @@ define([
           if (progressIndicator) {
             const titleElement = progressIndicator.querySelector("h6, h5");
             const subtitleElement = progressIndicator.querySelector("small");
-            if (titleElement) titleElement.textContent = "Creando módulo...";
-            if (subtitleElement) subtitleElement.textContent = "Por favor espera mientras se genera el contenido";
+            if (titleElement) {
+              const titleText = await Str.get_string('module_creation_title', 'local_datacurso');
+              titleElement.textContent = titleText;
+            }
+            if (subtitleElement) {
+              const subtitleText = await Str.get_string('module_creation_subtitle', 'local_datacurso');
+              subtitleElement.textContent = subtitleText;
+            }
             progressIndicator.style.display = "block";
           }
         }
@@ -232,21 +238,6 @@ define([
     wrap.appendChild(row);
     scrollToBottom(wrap);
   };
-
-  const pushTyping = (wrap) => {
-    const row = document.createElement("div");
-    row.className = "local_datacurso_ai_msg ai local_datacurso_ai_typing";
-    const b = document.createElement("div");
-    b.className = "bubble";
-    b.innerHTML =
-      '<span class="dot"></span><span class="dot"></span><span class="dot"></span>';
-    row.appendChild(b);
-    wrap.appendChild(row);
-    scrollToBottom(wrap);
-    return row;
-  };
-
-  const removeTyping = (el) => el?.remove();
 
   const scrollToBottom = (wrap) => {
     wrap.scrollTop = wrap.scrollHeight;

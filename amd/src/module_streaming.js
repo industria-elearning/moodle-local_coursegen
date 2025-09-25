@@ -23,30 +23,8 @@
  */
 
 import { get_string } from "core/str";
+import { createMod } from "local_datacurso/repository/chatbot";
 
-/**
- * Helper to parse backend dict-like payloads
- * @param {string} raw - Raw data from event
- * @returns {Object|null} Parsed object or null
- */
-const parseBest = (raw) => {
-  if (!raw) return null;
-  const s = String(raw).trim();
-  try {
-    return JSON.parse(s);
-  } catch (_) {}
-  try {
-    // Best-effort convert Python dict repr to JSON
-    let t = s
-      .replace(/'/g, '"')
-      .replace(/\bNone\b/g, "null")
-      .replace(/\bTrue\b/g, "true")
-      .replace(/\bFalse\b/g, "false");
-    return JSON.parse(t);
-  } catch (_) {
-    return null;
-  }
-};
 
 /**
  * Add status message to the streaming container
@@ -81,8 +59,6 @@ export const startModuleStreaming = async (streamingUrl, container, params = {})
     "[data-region='local_datacurso/course_streaming/progress/icon']"
   );
 
-  console.log("Starting module streaming:", { streamingUrl, container, params });
-
   // Clear previous content
   if (eventList) {
     eventList.innerHTML = "";
@@ -93,71 +69,53 @@ export const startModuleStreaming = async (streamingUrl, container, params = {})
 
   const es = new EventSource(streamingUrl);
 
-  // Event handlers for module creation steps
+  // Essential event handlers for module creation
   const onResourceStart = async (e) => {
     console.log("onResourceStart", e);
-    const obj = parseBest(e.data) || {};
-    addStatus("Iniciando creación del módulo...", "info", eventList);
-  };
-
-  const onIntentContextStart = async (e) => {
-    console.log("onIntentContextStart", e);
-    addStatus("Analizando intención y contexto...", "info", eventList);
-  };
-
-  const onIntentContextDone = async (e) => {
-    console.log("onIntentContextDone", e);
-    addStatus("✓ Intención y contexto analizados", "success", eventList);
+    const message = await get_string('module_streaming_start', 'local_datacurso');
+    addStatus(message, "info", eventList);
   };
 
   const onSchemaStart = async (e) => {
     console.log("onSchemaStart", e);
-    addStatus("Generando esquema del módulo...", "info", eventList);
+    const message = await get_string('module_streaming_schema_start', 'local_datacurso');
+    addStatus(message, "info", eventList);
   };
 
   const onSchemaDone = async (e) => {
     console.log("onSchemaDone", e);
-    addStatus("✓ Esquema del módulo generado", "success", eventList);
-  };
-
-  const onDateStart = async (e) => {
-    console.log("onDateStart", e);
-    addStatus("Procesando fechas...", "info", eventList);
-  };
-
-  const onDateDone = async (e) => {
-    console.log("onDateDone", e);
-    addStatus("✓ Fechas procesadas", "success", eventList);
-  };
-
-  const onParametersStart = async (e) => {
-    console.log("onParametersStart", e);
-    addStatus("Configurando parámetros...", "info", eventList);
-  };
-
-  const onParametersDone = async (e) => {
-    console.log("onParametersDone", e);
-    addStatus("✓ Parámetros configurados", "success", eventList);
+    const message = await get_string('module_streaming_schema_done', 'local_datacurso');
+    addStatus(message, "success", eventList);
   };
 
   const onImagesStart = async (e) => {
     console.log("onImagesStart", e);
-    addStatus("Generando imágenes...", "info", eventList);
+    const message = await get_string('module_streaming_images_start', 'local_datacurso');
+    addStatus(message, "info", eventList);
   };
 
   const onImagesDone = async (e) => {
     console.log("onImagesDone", e);
-    addStatus("✓ Imágenes generadas", "success", eventList);
+    const message = await get_string('module_streaming_images_done', 'local_datacurso');
+    addStatus(message, "success", eventList);
+  };
+
+  const onParametersStart = async (e) => {
+    console.log("onParametersStart", e);
+    const message = await get_string('module_streaming_parameters_start', 'local_datacurso');
+    addStatus(message, "info", eventList);
+  };
+
+  const onParametersDone = async (e) => {
+    console.log("onParametersDone", e);
+    const message = await get_string('module_streaming_parameters_done', 'local_datacurso');
+    addStatus(message, "success", eventList);
   };
 
   const onOutputStart = async (e) => {
     console.log("onOutputStart", e);
-    addStatus("Preparando salida final...", "info", eventList);
-  };
-
-  const onOutputDone = async (e) => {
-    console.log("onOutputDone", e);
-    addStatus("✓ Salida preparada", "success", eventList);
+    const message = await get_string('module_streaming_output_start', 'local_datacurso');
+    addStatus(message, "info", eventList);
   };
 
   const onResourceComplete = async (e) => {
@@ -174,7 +132,8 @@ export const startModuleStreaming = async (streamingUrl, container, params = {})
       `;
     }
 
-    addStatus("✓ Generación del módulo completada", "success", eventList);
+    const completeMessage = await get_string('module_streaming_complete', 'local_datacurso');
+    addStatus(completeMessage, "success", eventList);
 
     try {
       const { createMod } = await import('local_datacurso/repository/chatbot');
@@ -182,42 +141,43 @@ export const startModuleStreaming = async (streamingUrl, container, params = {})
         courseid: params.courseid,
         sectionnum: params.sectionnum,
         beforemod: params.beforemod,
-        prompt: '', // No se usa cuando se envía jobid.
-        generateimages: 0,
         jobid: params.jobid,
       });
       if (response && response.ok) {
-        addStatus("✓ Módulo creado exitosamente", "success", eventList);
+        const successMessage = await get_string('module_streaming_added_success', 'local_datacurso');
+        addStatus(successMessage, "success", eventList);
       } else {
-        const msg = (response && response.message) ? response.message : 'No se pudo crear el módulo.';
-        addStatus(`❌ ${msg}`, "error", eventList);
+        const defaultError = await get_string('module_streaming_add_error', 'local_datacurso');
+        const msg = (response && response.message) ? response.message : defaultError;
+        addStatus(`⚠️ ${msg}`, "error", eventList);
       }
     } catch (err) {
-      console.error('Error al crear el módulo desde resource_complete:', err);
-      addStatus(`❌ Error creando el módulo: ${err?.message || err}`, "error", eventList);
+      console.error('Error al crear la actividad desde resource_complete:', err);
+      const errorMessage = await get_string('module_streaming_add_problem', 'local_datacurso', err?.message || err);
+      addStatus(`⚠️ ${errorMessage}`, "error", eventList);
     }
   };
 
   const onError = async (e) => {
     console.error("Streaming error:", e);
     es.close();
-    addStatus("❌ Error en la creación del módulo", "error", eventList);
+    const errorMessage = await get_string('module_streaming_creation_error', 'local_datacurso');
+    addStatus(errorMessage, "error", eventList);
   };
 
-  // Register event listeners for all module creation steps
+  const generateImages = Number(params.generateimages) || 0;
+
+  // Register only essential event listeners for better user experience
   es.addEventListener("resource_start", onResourceStart);
-  es.addEventListener("resource_intent_context_start", onIntentContextStart);
-  es.addEventListener("resource_intent_context_done", onIntentContextDone);
   es.addEventListener("resource_schema_start", onSchemaStart);
   es.addEventListener("resource_schema_done", onSchemaDone);
-  es.addEventListener("resource_date_start", onDateStart);
-  es.addEventListener("resource_date_done", onDateDone);
+  if (generateImages === 1) {
+    es.addEventListener("resource_images_start", onImagesStart);
+    es.addEventListener("resource_images_done", onImagesDone);
+  }
   es.addEventListener("resource_parameters_start", onParametersStart);
   es.addEventListener("resource_parameters_done", onParametersDone);
-  es.addEventListener("resource_images_start", onImagesStart);
-  es.addEventListener("resource_images_done", onImagesDone);
   es.addEventListener("resource_output_start", onOutputStart);
-  es.addEventListener("resource_output_done", onOutputDone);
   es.addEventListener("resource_complete", onResourceComplete);
   es.addEventListener("error", onError);
 };

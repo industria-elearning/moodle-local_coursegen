@@ -68,23 +68,18 @@ export async function planCourseMessage({courseid, text}) {
  *     courseid: number,
  *     sectionnum: number,
  *     beforemod: number,
- *     prompt: string,
- *     generateimages: number,
+ *     jobid: number,
  * }} payload - The payload to create module
  * - courseid: The ID of the course to create module for
  * - sectionnum: The number of the section to create module for
  * - beforemod: The ID of the module before which the new module will be created
- * - prompt: The message to create
- * - generateimages: 0 not generate images, 1 generate images
  * @return {Promise<Object>} response
  */
-export async function createMod({courseid, sectionnum, beforemod, prompt, generateimages, jobid}) {
+export async function createMod({courseid, sectionnum, beforemod, jobid}) {
     const args = {
         courseid: Number(courseid),
         sectionnum: Number(sectionnum),
         beforemod: beforemod ? Number(beforemod) : null,
-        prompt,
-        generateimages: generateimages ? Number(generateimages) : 0,
         jobid: jobid
     };
     return ajax.call([
