@@ -290,6 +290,12 @@ span.local_datacurso-sparkles-icon.white {
     padding: 1rem;
     display: flex;
     flex-direction: column;
+    position: relative;
+}
+
+.local_datacurso_course_ai_modal .modal-footer {
+    justify-content: center;
+    padding: 0;
 }
 
 .local_datacurso_course_ai_modal .local_datacurso_ai_chat {
@@ -298,7 +304,6 @@ span.local_datacurso-sparkles-icon.white {
     max-height: none;
     display: flex;
     flex-direction: column;
-    margin-top: auto;
 }
 
 .local_datacurso_course_ai_modal .local_datacurso_ai_messages {
@@ -309,6 +314,7 @@ span.local_datacurso-sparkles-icon.white {
     justify-content: flex-start;
     padding: 0.5rem;
 }
+
 .local_datacurso_course_chat {
     flex: 1;
     display: flex;
@@ -323,4 +329,22 @@ span.local_datacurso-sparkles-icon.white {
 .local_datacurso_course_ai_modal .local_datacurso_course_chat #course-chat-interface {
     margin-top: 1rem;
     margin-bottom: 1rem;
+}
+
+/* Activity AI Modal Styles - Consistent with Course AI Modal */
+.local_datacurso_course_ai_modal .local_datacurso_ai_chat #activity-streaming-section {
+    margin-bottom: 1rem;
+}
+
+/* Ensure streaming sections have consistent appearance */
+.local_datacurso_course_ai_modal [data-region="local_datacurso/course_streaming"] {
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+.local_datacurso_course_ai_modal [data-region="local_datacurso/course_streaming/progress"] {
+    background: var(--white);
+    border: 1px solid rgba(0, 0, 0, .08);
+    border-radius: .5rem;
 }

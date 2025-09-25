@@ -79,10 +79,10 @@ define([
         modal = null;
       }
 
-      const bodyHTML = await Templates.render(
-        "local_datacurso/add_activity_ai_modal",
-        {}
-      );
+      const [bodyHTML, footerHTML] = await Promise.all([
+        Templates.render("local_datacurso/add_activity_ai_modal", {}),
+        Templates.render("local_datacurso/activity_chat_footer", {})
+      ]);
 
       const title = await Str.get_string(
         "addactivityai_modaltitle",
@@ -92,6 +92,7 @@ define([
       modal = await Modal.create({
         title,
         body: bodyHTML,
+        footer: footerHTML,
         large: true,
         scrollable: true,
         removeOnClose: true,
@@ -112,22 +113,18 @@ define([
       });
       // Handlers del chat
       const bodyEl = modal.getBody()[0];
-      wireChatHandlers(bodyEl, payload);
+      const footerEl = modal.getFooter()[0];
+      wireChatHandlers(bodyEl, footerEl, payload);
     } catch (err) {
       Notification.exception(err);
     }
   };
 
-  const wireChatHandlers = (container, payload) => {
-    const messagesEl = container.querySelector(".local_datacurso_ai_messages");
-    const form = container.querySelector("form.local_datacurso_ai_input");
+  const wireChatHandlers = (container, footerContainer, payload) => {
+    const streamingSection = container.querySelector("#activity-streaming-section");
+    const form = footerContainer.querySelector("form.local_datacurso_ai_input");
     const textarea = form.querySelector("textarea");
     const sendBtn = form.querySelector(".local_datacurso_ai_send");
-
-    // Mensaje de bienvenida.
-    Str.get_string("addactivityai_welcome", "local_datacurso").then((s) => {
-      pushAI(messagesEl, s);
-    });
 
     // Enviar con submit.
     form.addEventListener("submit", async (e) => {
@@ -137,7 +134,6 @@ define([
 
       const generateImages = document.querySelector('input[name="generate_images"]:checked').value;
 
-      pushUser(messagesEl, prompt);
       textarea.value = "";
 
       // Disable form elements
@@ -161,33 +157,25 @@ define([
           throw new Error(response.message);
         }
 
-        // Clear messages and show streaming interface
-        messagesEl.innerHTML = "";
-        
-        // Create streaming container
-        const streamingContainer = document.createElement("div");
-        streamingContainer.innerHTML = `
-          <div data-region="local_datacurso/module_streaming/progress" style="display: block;">
-            <div class="d-flex align-items-center mb-3">
-              <div data-region="local_datacurso/module_streaming/progress/icon" class="me-2">
-                <div class="spinner-border spinner-border-sm text-primary" role="status">
-                  <span class="visually-hidden">Loading...</span>
-                </div>
-              </div>
-              <div>
-                <h6 class="mb-0">Creando módulo...</h6>
-                <small class="text-muted">Por favor espera mientras se genera el contenido</small>
-              </div>
-            </div>
-          </div>
-          <div data-region="local_datacurso/module_streaming" class="border rounded p-3" style="max-height: 300px; overflow-y: auto;"></div>
-        `;
-        messagesEl.appendChild(streamingContainer);
+        // Show and use the integrated streaming section
+        if (streamingSection) {
+          streamingSection.style.display = "block";
+          
+          // Update progress indicator text for activity creation
+          const progressIndicator = streamingSection.querySelector("[data-region='local_datacurso/course_streaming/progress']");
+          if (progressIndicator) {
+            const titleElement = progressIndicator.querySelector("h6, h5");
+            const subtitleElement = progressIndicator.querySelector("small");
+            if (titleElement) titleElement.textContent = "Creando módulo...";
+            if (subtitleElement) subtitleElement.textContent = "Por favor espera mientras se genera el contenido";
+            progressIndicator.style.display = "block";
+          }
+        }
 
-        // Start module streaming
+        // Start module streaming using the integrated container
         await moduleStreaming.startModuleStreaming(
           response.streamingurl, 
-          streamingContainer, 
+          streamingSection, 
           {
             courseid: payload.courseid,
             sectionnum: payload.sectionnum,
@@ -199,12 +187,17 @@ define([
       } catch (err) {
         console.error("Error starting module creation:", err);
         
-        // Show error message
-        if (err && err.message) {
-          pushAI(messagesEl, `❌ Error: ${err.message}`);
-        } else {
-          const errorMsg = await Str.get_string("addactivityai_error", "local_datacurso");
-          pushAI(messagesEl, `❌ ${errorMsg}`);
+        // Show error message in streaming section
+        if (streamingSection) {
+          streamingSection.style.display = "block";
+          const eventList = streamingSection.querySelector("[data-region='local_datacurso/course_streaming']");
+          if (eventList) {
+            const errorDiv = document.createElement("div");
+            errorDiv.className = "alert alert-danger mb-2";
+            const errorMsg = err.message || await Str.get_string("addactivityai_error", "local_datacurso");
+            errorDiv.innerHTML = `<small>❌ Error: ${errorMsg}</small>`;
+            eventList.appendChild(errorDiv);
+          }
         }
       } finally {
         // Re-enable form elements
@@ -214,7 +207,6 @@ define([
         textarea.disabled = false;
         sendBtn.disabled = false;
         setLoading(sendBtn, false);
-        scrollToBottom(messagesEl);
       }
     });
 

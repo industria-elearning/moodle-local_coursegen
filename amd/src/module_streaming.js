@@ -72,13 +72,13 @@ const addStatus = (message, type, container) => {
  */
 export const startModuleStreaming = async (streamingUrl, container, params = {}) => {
   const progressIndicator = container.querySelector(
-    "[data-region='local_datacurso/module_streaming/progress']"
+    "[data-region='local_datacurso/course_streaming/progress']"
   );
   const eventList = container.querySelector(
-    "[data-region='local_datacurso/module_streaming']"
+    "[data-region='local_datacurso/course_streaming']"
   );
   const progressIcon = container.querySelector(
-    "[data-region='local_datacurso/module_streaming/progress/icon']"
+    "[data-region='local_datacurso/course_streaming/progress/icon']"
   );
 
   console.log("Starting module streaming:", { streamingUrl, container, params });
