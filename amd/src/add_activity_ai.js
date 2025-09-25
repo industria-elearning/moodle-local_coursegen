@@ -177,6 +177,7 @@ define([
 
   const wireChatHandlers = (container, footerContainer, payload) => {
     const streamingSection = container.querySelector("#activity-streaming-section");
+    const userMessagesSection = container.querySelector("#activity-user-messages");
     const form = footerContainer.querySelector("form.local_datacurso_ai_input");
     const textarea = form.querySelector("textarea");
     const sendBtn = form.querySelector(".local_datacurso_ai_send");
@@ -187,7 +188,12 @@ define([
       const prompt = textarea.value.trim();
       if (!prompt) return;
 
-      pushUser(prompt);
+      pushUser(userMessagesSection, prompt);
+      
+      // Show user messages section
+      if (userMessagesSection) {
+        userMessagesSection.style.display = "block";
+      }
 
       const generateImages = document.querySelector('input[name="generate_images"]:checked').value;
 
