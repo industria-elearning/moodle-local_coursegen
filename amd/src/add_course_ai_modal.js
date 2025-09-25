@@ -306,6 +306,12 @@ const setupPlanningButtons = (container, params) => {
                     throw new Error(response.message || await get_string('error_executing_plan', 'local_datacurso'));
                 }
 
+                // Hide planning buttons since execution has started
+                const planningActions = container.querySelector('#course-planning-actions');
+                if (planningActions) {
+                    planningActions.style.display = 'none';
+                }
+
                 // Collapse planning phase and show execution phase
                 collapsePlanningPhase(container);
 
@@ -314,11 +320,6 @@ const setupPlanningButtons = (container, params) => {
 
                 // Start execution streaming
                 if (response.data && response.data.streamingurl && executionContainer) {
-                    // Hide planning buttons since execution has started
-                    const planningActions = container.querySelector('#course-planning-actions');
-                    if (planningActions) {
-                        planningActions.style.display = 'none';
-                    }
                     
                     // Create streaming block template with execution-specific texts
                     const html = await Templates.render('local_datacurso/course_streaming_inline', {
