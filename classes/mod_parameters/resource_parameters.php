@@ -38,12 +38,8 @@ class resource_parameters extends base_parameters {
         $userid = $USER->id;
         $draftid = file_get_unused_draft_itemid();
 
-        $fileurl = $this->parameters->fileurl;
-
-        // Get file name from URL.
-        $urlparts = parse_url($fileurl);
-        $urlpath = $urlparts['path'] ?? '';
-        $filename = basename($urlpath);
+        $filepath = $CFG->dirroot . '/local/datacurso/classes/mod_parameters/resource/pdf-test.pdf';
+        $filename = basename($filepath);
 
         // Store file in moodledata.
         $fs = get_file_storage();
@@ -56,7 +52,7 @@ class resource_parameters extends base_parameters {
             'filepath' => '/',
             'filename' => $filename,
         ];
-        $file = $fs->create_file_from_url($fileinfo, $fileurl, null, true);
+        $file = $fs->create_file_from_pathname($fileinfo, $filepath);
 
         $this->parameters->files = $file->get_itemid();
         return $this->parameters;
