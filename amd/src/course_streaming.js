@@ -55,6 +55,16 @@ export const startStreaming = async (streamingUrl, container, isCorrection = fal
     progressIndicator.style.display = "block";
   }
 
+  // Disable both planning buttons during streaming
+  const acceptBtn = document.getElementById("accept-planning-btn");
+  const adjustBtn = document.getElementById("adjust-planning-btn");
+  if (acceptBtn) {
+    acceptBtn.disabled = true;
+  }
+  if (adjustBtn) {
+    adjustBtn.disabled = true;
+  }
+
   // Local functions for this streaming instance
   const updateHtmlSoon = (container) => {
     if (rafPending) return;
@@ -87,6 +97,17 @@ export const startStreaming = async (streamingUrl, container, isCorrection = fal
     if (planningActions) {
       planningActions.style.display = "block";
     }
+    
+    // Re-enable both planning buttons after streaming completes
+    const acceptBtn = document.getElementById("accept-planning-btn");
+    const adjustBtn = document.getElementById("adjust-planning-btn");
+    if (acceptBtn) {
+      acceptBtn.disabled = false;
+    }
+    if (adjustBtn) {
+      adjustBtn.disabled = false;
+    }
+    
     evtSource.close();
   });
 };

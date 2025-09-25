@@ -242,6 +242,12 @@ const setupPlanningButtons = (container, params) => {
 
                 // Start execution streaming
                 if (response.data && response.data.streamingurl && executionContainer) {
+                    // Hide planning buttons since execution has started
+                    const planningActions = container.querySelector('#course-planning-actions');
+                    if (planningActions) {
+                        planningActions.style.display = 'none';
+                    }
+                    
                     // Create streaming block template with execution-specific texts
                     const html = await Templates.render('local_datacurso/course_streaming_inline', {
                         title: await get_string('course_creating_title', 'local_datacurso'),
