@@ -146,6 +146,9 @@ export const startModuleStreaming = async (streamingUrl, container, params = {})
       if (response && response.ok) {
         const successMessage = await get_string('module_streaming_added_success', 'local_datacurso');
         addStatus(successMessage, "success", eventList);
+        setTimeout(() => {
+          window.location.href = response.data.activityurl;
+        }, 100);
       } else {
         const defaultError = await get_string('module_streaming_add_error', 'local_datacurso');
         const msg = (response && response.message) ? response.message : defaultError;

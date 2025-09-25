@@ -195,12 +195,16 @@ class create_mod extends external_api {
                 }
             }
 
-            $url = new \moodle_url("/mod/$modname/view.php", ["id" => $newcm->id]);
+            $url = new \moodle_url("/mod/$modname/view.php", ["id" => $newcm->coursemodule]);
 
             return [
                 'ok' => true,
                 'message' => get_string('resource_created', 'local_datacurso', $modname),
-                'resourceurl' => $url->out(false),
+                'data' => [
+                    'activityurl' => $url->out(false),
+                    'cmid' => $newcm->id,
+                    'modname' => $modname,
+                ],
             ];
 
         } catch (\Exception $e) {
@@ -223,7 +227,11 @@ class create_mod extends external_api {
         return new external_single_structure([
             'ok' => new external_value(PARAM_BOOL, 'Response status from server'),
             'message' => new external_value(PARAM_TEXT, 'Response message from server', VALUE_OPTIONAL),
-            'resourceurl' => new external_value(PARAM_URL, 'Resource url from server', VALUE_OPTIONAL),
+            'data' => new external_single_structure([
+                'activityurl' => new external_value(PARAM_URL, 'Activity URL', VALUE_OPTIONAL),
+                'cmid' => new external_value(PARAM_INT, 'Course module ID', VALUE_OPTIONAL),
+                'modname' => new external_value(PARAM_TEXT, 'Module name', VALUE_OPTIONAL),
+            ], 'Activity data', VALUE_OPTIONAL),
             'log' => new external_value(PARAM_RAW, 'Log from server', VALUE_OPTIONAL),
         ]);
     }
