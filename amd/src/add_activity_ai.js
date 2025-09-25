@@ -35,6 +35,48 @@ define([
 
   let modal = null;
   let initialized = false;
+  
+  // Global state for scroll behavior
+  let userHasScrolled = false;
+  let scrollTimeout = null;
+  
+  /**
+   * Check if user is at the bottom of the scrollable container
+   * @param {Element} element - The scrollable element
+   * @returns {boolean} - True if user is at bottom
+   */
+  const isAtBottom = (element) => {
+    const threshold = 50; // 50px threshold
+    return element.scrollTop + element.clientHeight >= element.scrollHeight - threshold;
+  };
+  
+  /**
+   * Setup scroll detection to pause auto-scroll when user scrolls manually
+   * @param {Element} scrollContainer - The container to monitor for scroll
+   */
+  const setupScrollDetection = (scrollContainer) => {
+    if (!scrollContainer) return;
+    
+    const handleScroll = () => {
+      // Clear existing timeout
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+      }
+      
+      // Mark that user has scrolled
+      userHasScrolled = true;
+      
+      // Check if user scrolled back to bottom
+      if (isAtBottom(scrollContainer)) {
+        // Reset flag after a short delay to resume auto-scroll
+        scrollTimeout = setTimeout(() => {
+          userHasScrolled = false;
+        }, 1000);
+      }
+    };
+    
+    scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+  };
 
   const init = () => {
     if (initialized) {
@@ -111,6 +153,19 @@ define([
           modal = null;
         }
       });
+      // Reset scroll state and setup detection
+      userHasScrolled = false;
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = null;
+      }
+      
+      // Setup scroll detection on modal body
+      const modalBody = modal.getBody()[0];
+      if (modalBody) {
+        setupScrollDetection(modalBody);
+      }
+      
       // Handlers del chat
       const bodyEl = modal.getBody()[0];
       const footerEl = modal.getFooter()[0];
@@ -131,6 +186,8 @@ define([
       e.preventDefault();
       const prompt = textarea.value.trim();
       if (!prompt) return;
+
+      pushUser(prompt);
 
       const generateImages = document.querySelector('input[name="generate_images"]:checked').value;
 
@@ -203,6 +260,16 @@ define([
             const errorMsg = err.message || await Str.get_string("addactivityai_error", "local_datacurso");
             errorDiv.innerHTML = `<small>❌ Error: ${errorMsg}</small>`;
             eventList.appendChild(errorDiv);
+            
+            // Auto-scroll to show error message - only if user hasn't scrolled
+            if (!userHasScrolled) {
+              const modalBody = document.querySelector('.modal-body');
+              if (modalBody) {
+                modalBody.scrollTop = modalBody.scrollHeight;
+              } else {
+                eventList.scrollTop = eventList.scrollHeight;
+              }
+            }
           }
         }
       } finally {
@@ -240,7 +307,14 @@ define([
   };
 
   const scrollToBottom = (wrap) => {
-    wrap.scrollTop = wrap.scrollHeight;
+    if (!userHasScrolled) {
+      const modalBody = document.querySelector('.modal-body');
+      if (modalBody) {
+        modalBody.scrollTop = modalBody.scrollHeight;
+      } else {
+        wrap.scrollTop = wrap.scrollHeight;
+      }
+    }
   };
 
   const setLoading = (btn, isLoading) => {

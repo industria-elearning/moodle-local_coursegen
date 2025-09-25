@@ -31,6 +31,48 @@ import {planCourseMessage, planCourseExecute} from 'local_datacurso/repository/c
 
 let currentModal = null;
 
+// Global state for scroll behavior
+let userHasScrolled = false;
+let scrollTimeout = null;
+
+/**
+ * Check if user is at the bottom of the scrollable container
+ * @param {Element} element - The scrollable element
+ * @returns {boolean} - True if user is at bottom
+ */
+const isAtBottom = (element) => {
+  const threshold = 50; // 50px threshold
+  return element.scrollTop + element.clientHeight >= element.scrollHeight - threshold;
+};
+
+/**
+ * Setup scroll detection to pause auto-scroll when user scrolls manually
+ * @param {Element} scrollContainer - The container to monitor for scroll
+ */
+const setupScrollDetection = (scrollContainer) => {
+  if (!scrollContainer) return;
+  
+  const handleScroll = () => {
+    // Clear existing timeout
+    if (scrollTimeout) {
+      clearTimeout(scrollTimeout);
+    }
+    
+    // Mark that user has scrolled
+    userHasScrolled = true;
+    
+    // Check if user scrolled back to bottom
+    if (isAtBottom(scrollContainer)) {
+      // Reset flag after a short delay to resume auto-scroll
+      scrollTimeout = setTimeout(() => {
+        userHasScrolled = false;
+      }, 1000);
+    }
+  };
+  
+  scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+};
+
 /**
  * Initialize and show the course AI modal
  * @param {Object} params - Parameters object
@@ -65,6 +107,20 @@ export const init = async(params = {}) => {
         currentModal.show();
 
         const bodyEl = currentModal.getBody()[0];
+        
+        // Reset scroll state and setup detection
+        userHasScrolled = false;
+        if (scrollTimeout) {
+          clearTimeout(scrollTimeout);
+          scrollTimeout = null;
+        }
+        
+        // Setup scroll detection on modal body
+        const modalBody = currentModal.getBody()[0];
+        if (modalBody) {
+          setupScrollDetection(modalBody);
+        }
+        
         initializeChatInterface(bodyEl, params);
         setupPlanningButtons(bodyEl, params);
         setupPlanningToggle(bodyEl);
@@ -124,15 +180,22 @@ const addBubble = (wrap, text, role) => {
 };
 
 /**
- * Scroll messages to bottom
+ * Scroll messages to bottom smoothly - only if user hasn't scrolled
  * @param {Element} wrap - Messages container
  */
 const scrollToBottom = (wrap) => {
-  wrap.scrollTop = wrap.scrollHeight;
+  if (!userHasScrolled) {
+    const modalBody = document.querySelector('.modal-body');
+    if (modalBody) {
+      modalBody.scrollTop = modalBody.scrollHeight;
+    } else {
+      wrap.scrollTop = wrap.scrollHeight;
+    }
+  }
 };
 
 /**
- * Typewriter effect for streaming text into an element.
+ * Typewriter effect for streaming text into an element with auto-scroll.
  * @param {HTMLElement} element
  * @param {string} text
  * @param {number} speed
@@ -145,6 +208,15 @@ function typeWriter(element, text, speed) {
       if (i < text.length) {
         element.textContent += text.charAt(i);
         i++;
+        
+        // Auto-scroll during typewriter effect - only if user hasn't scrolled
+        if (!userHasScrolled) {
+          const modalBody = document.querySelector('.modal-body');
+          if (modalBody) {
+            modalBody.scrollTop = modalBody.scrollHeight;
+          }
+        }
+        
         setTimeout(typing, speed);
       } else {
         resolve();

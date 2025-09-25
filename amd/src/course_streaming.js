@@ -25,6 +25,48 @@
 import { createCourse } from "local_datacurso/repository/chatbot";
 import { get_string } from "core/str";
 
+// Global state for scroll behavior
+let userHasScrolled = false;
+let scrollTimeout = null;
+
+/**
+ * Check if user is at the bottom of the scrollable container
+ * @param {Element} element - The scrollable element
+ * @returns {boolean} - True if user is at bottom
+ */
+const isAtBottom = (element) => {
+  const threshold = 50; // 50px threshold
+  return element.scrollTop + element.clientHeight >= element.scrollHeight - threshold;
+};
+
+/**
+ * Setup scroll detection to pause auto-scroll when user scrolls manually
+ * @param {Element} scrollContainer - The container to monitor for scroll
+ */
+const setupScrollDetection = (scrollContainer) => {
+  if (!scrollContainer) return;
+  
+  const handleScroll = () => {
+    // Clear existing timeout
+    if (scrollTimeout) {
+      clearTimeout(scrollTimeout);
+    }
+    
+    // Mark that user has scrolled
+    userHasScrolled = true;
+    
+    // Check if user scrolled back to bottom
+    if (isAtBottom(scrollContainer)) {
+      // Reset flag after a short delay to resume auto-scroll
+      scrollTimeout = setTimeout(() => {
+        userHasScrolled = false;
+      }, 1000);
+    }
+  };
+  
+  scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+};
+
 /**
  * Start course streaming from the provided URL
  * @param {string} streamingUrl - The EventSource URL for streaming
@@ -55,6 +97,19 @@ export const startStreaming = async (streamingUrl, container, isCorrection = fal
     progressIndicator.style.display = "block";
   }
 
+  // Reset scroll state for new streaming session
+  userHasScrolled = false;
+  if (scrollTimeout) {
+    clearTimeout(scrollTimeout);
+    scrollTimeout = null;
+  }
+
+  // Setup scroll detection on modal body
+  const modalBody = document.querySelector('.modal-body');
+  if (modalBody) {
+    setupScrollDetection(modalBody);
+  }
+
   // Disable both planning buttons during streaming
   const acceptBtn = document.getElementById("accept-planning-btn");
   const adjustBtn = document.getElementById("adjust-planning-btn");
@@ -72,7 +127,15 @@ export const startStreaming = async (streamingUrl, container, isCorrection = fal
     requestAnimationFrame(() => {
       rafPending = false;
       container.innerHTML = htmlBuffer;
-      container.scrollTop = container.scrollHeight;
+      // Only auto-scroll if user hasn't manually scrolled
+      if (!userHasScrolled) {
+        const modalBody = document.querySelector('.modal-body');
+        if (modalBody) {
+          modalBody.scrollTop = modalBody.scrollHeight;
+        } else {
+          container.scrollTop = container.scrollHeight;
+        }
+      }
     });
   };
 
@@ -137,7 +200,7 @@ const parseBest = (raw) => {
 };
 
 /**
- * Add status message to the execution container
+ * Add status message to the execution container with proper scrolling
  * @param {string} message - Status message
  * @param {string} type - Status type (info, ok, error)
  * @param {Element} container - Container element
@@ -149,7 +212,16 @@ const addStatus = (message, type, container) => {
   } mb-2`;
   statusDiv.innerHTML = `<small>${message}</small>`;
   container.appendChild(statusDiv);
-  container.scrollTop = container.scrollHeight;
+  
+  // Only auto-scroll if user hasn't manually scrolled
+  if (!userHasScrolled) {
+    const modalBody = document.querySelector('.modal-body');
+    if (modalBody) {
+      modalBody.scrollTop = modalBody.scrollHeight;
+    } else {
+      container.scrollTop = container.scrollHeight;
+    }
+  }
 };
 
 /**
@@ -177,6 +249,19 @@ export const startExecutionStreaming = async (
   eventList.innerHTML = "";
   if (progressIndicator) {
     progressIndicator.style.display = "block";
+  }
+
+  // Reset scroll state for execution streaming
+  userHasScrolled = false;
+  if (scrollTimeout) {
+    clearTimeout(scrollTimeout);
+    scrollTimeout = null;
+  }
+
+  // Setup scroll detection on modal body
+  const modalBody = document.querySelector('.modal-body');
+  if (modalBody) {
+    setupScrollDetection(modalBody);
   }
 
   const es = new EventSource(streamingUrl);
