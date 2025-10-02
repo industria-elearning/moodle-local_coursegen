@@ -31,28 +31,18 @@ $callbacks = [
         'priority' => 100,
     ],
     [
-        'hook' => core_course\hook\before_form_validation::class,
-        'callback' => 'local_datacurso\hook\course_form_hook::before_form_validation',
+        'hook' => core_course\hook\after_form_definition_after_data::class,
+        'callback' => 'local_datacurso\hook\course_form_hook::after_form_definition_after_data',
         'priority' => 100,
     ],
     [
-        'hook' => core_course\hook\after_course_created::class,
-        'callback' => 'local_datacurso\hook\course_form_hook::after_course_created',
-        'priority' => 100,
-    ],
-    [
-        'hook' => core_course\hook\after_course_updated::class,
-        'callback' => 'local_datacurso\hook\course_form_hook::after_course_updated',
+        'hook' => core_course\hook\after_form_submission::class,
+        'callback' => 'local_datacurso\hook\course_form_hook::after_form_submission',
         'priority' => 100,
     ],
     [
         'hook' => core\hook\output\before_footer_html_generation::class,
         'callback' => 'local_datacurso\hook\chat_hook::before_footer_html_generation',
-        'priority' => 100,
-    ],
-    [
-        'hook' => core\hook\output\before_standard_head_html_generation::class,
-        'callback' => 'local_datacurso\hook\chat_hook::before_standard_head_html_generation',
-        'priority' => 100,
+        'priority' => 900,
     ],
 ];

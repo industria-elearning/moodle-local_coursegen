@@ -62,14 +62,21 @@ if ($hassiteconfig) {
         )
     );
 
+    // Add apitoken setting.
     $settings->add(
-        new admin_setting_configtext(
-            'local_datacurso/aiurl',
-            new lang_string('aiurl', 'local_datacurso'),
-            new lang_string('aiurl_desc', 'local_datacurso'),
+        new admin_setting_configpasswordunmask(
+            'local_datacurso/apitoken',
+            new lang_string('apitoken', 'local_datacurso'),
+            new lang_string('apitoken_desc', 'local_datacurso'),
             '',
         )
     );
 
     $ADMIN->add($pluginname, $settings);
+    // Add manage models page.
+    $ADMIN->add($pluginname, new admin_externalpage(
+        'local_datacurso_manage_models',
+        get_string('managemodels', 'local_datacurso'),
+        new moodle_url('/local/datacurso/manage_models.php')
+    ));
 }

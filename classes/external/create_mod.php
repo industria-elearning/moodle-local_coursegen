@@ -17,11 +17,12 @@
 namespace local_datacurso\external;
 
 use context_course;
-use core_course_external;
 use external_api;
 use external_function_parameters;
 use external_single_structure;
 use external_value;
+use local_datacurso\mod_settings\base_settings;
+use local_datacurso\utils\text_editor_parameter_cleaner;
 
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/externallib.php');
@@ -44,101 +45,178 @@ class create_mod extends external_api {
     public static function execute_parameters() {
         return new external_function_parameters([
             'courseid' => new external_value(PARAM_INT, 'Course id'),
-            'message' => new external_value(PARAM_TEXT, 'Message to create module'),
-            'section' => new external_value(PARAM_INT, 'Section number'),
+            'sectionnum' => new external_value(PARAM_INT, 'Section number'),
+            'jobid' => new external_value(PARAM_TEXT, 'Streaming job id to fetch result from AI service'),
+            'beforemod' => new external_value(PARAM_INT, 'Before module id', VALUE_OPTIONAL),
         ]);
     }
 
     /**
      * Create course context for ask question to chatbot based in that information.
      *
-     * @param string $courseid
-     * @param string $message
-     * @param int $section
+     * @param string $courseid Course id where the module will be created
+     * @param int $sectionnum Section number where the module will be created
+     * @param int $beforemod Before module id where the module will be created
+     * @param string $jobid Streaming job id to fetch result from AI service
      *
      * @return array
      */
-    public static function execute(int $courseid, string $message, int $section) {
-        global $CFG, $DB;
-        $params = self::validate_parameters(self::execute_parameters(), [
-            'courseid' => $courseid,
-            'message' => $message,
-            'section' => $section,
-        ]);
+    public static function execute(int $courseid, int $sectionnum, string $jobid, ?int $beforemod) {
+        global $CFG, $DB, $COURSE;
 
-        $courseid = $params['courseid'];
-        $message = $params['message'];
-        $section = $params['section'];
+        try {
+            $params = self::validate_parameters(self::execute_parameters(), [
+                'courseid' => $courseid,
+                'sectionnum' => $sectionnum,
+                'jobid' => $jobid,
+                'beforemod' => $beforemod,
+            ]);
 
-        $course = $DB->get_record('course', ['id' => $courseid], '*', MUST_EXIST);
+            $courseid = $params['courseid'];
+            $sectionnum = $params['sectionnum'];
+            $beforemod = $params['beforemod'];
+            $jobid = $params['jobid'];
 
-        $context = context_course::instance($course->id);
-        self::validate_context($context);
+            $course = $DB->get_record('course', ['id' => $courseid], '*', MUST_EXIST);
+            $context = context_course::instance($course->id);
+            self::validate_context($context);
 
-        // $modmoodleform = "$CFG->dirroot/mod/$modname/mod_form.php";
-        // if (file_exists($modmoodleform)) {
-        // require_once($modmoodleform);
-        // } else {
-        // throw new \moodle_exception('noformdesc');
-        // }
+            $apitoken = get_config('local_datacurso', 'apitoken');
+            $baseurl = get_config('local_datacurso', 'baseurl');
 
-        $lowermsg = strtolower($message);
+            $aicontext = $DB->get_record_sql(
+                'SELECT cc.context_type, m.name FROM {local_datacurso_course_context} cc
+                    LEFT JOIN {local_datacurso_model} m
+                ON cc.model_id = m.id
+                    WHERE cc.courseid = ?',
+                [$courseid]);
 
-        $modsdirectory = $CFG->dirroot . '/mod';
+            // This request may take a long time depending on the complexity of the prompt that the AI ​​has to resolve.
+            \core_php_time_limit::raise();
+            raise_memory_limit(MEMORY_EXTRA);
+            // Release the session so other tabs in the same session are not blocked.
+            \core\session\manager::write_close();
 
-        $modfolders = scandir($modsdirectory);
-
-        $modname = '';
-        foreach ($modfolders as $folder) {
-            if ($folder === '.' || $folder === '..') {
-                continue;
+            // This webservice is intended to be called after a streaming job completes.
+            if (empty($jobid)) {
+                return [
+                    'ok' => false,
+                    'message' => get_string('error_generating_resource', 'local_datacurso'),
+                    'log' => 'Missing jobid for result endpoint.',
+                ];
             }
 
-            $modmoodleform = $modsdirectory . '/' . $folder . '/mod_form.php';
+            $ch = curl_init();
+            $targeturl = rtrim($baseurl, '/') . '/resources/create-mod/result?job_id=' . urlencode($jobid);
+            curl_setopt($ch, CURLOPT_URL, $targeturl);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Authorization: Bearer ' . $apitoken]);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_FAILONERROR, true);
+            $result = curl_exec($ch);
 
-            if (strpos($lowermsg, strtolower($folder)) !== false && file_exists($modmoodleform)) {
-                require_once($modmoodleform);
-                $modname = $folder;
-                break;
+            if (!$result) {
+                $curlerror = curl_error($ch);
+                debugging("CURL request failed while creating resource. Error: {$curlerror}");
+                curl_close($ch);
+                return [
+                    'ok' => false,
+                    'message' => get_string('error_generating_resource', 'local_datacurso'),
+                    'log' => "CURL request failed while creating resource. Error: {$curlerror}",
+                ];
             }
-        }
-
-        list($module, $context, $cw, $cm, $data) = prepare_new_moduleinfo_data($course, $modname, $section);
-
-        $mformclassname = 'mod_'.$modname.'_mod_form';
-        $mform = new $mformclassname($data, $cw->section, $cm, $course);
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, 'http://server:3000/api/v1/moodle/generate/mod');
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json']);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FAILONERROR, true);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-            'courseId' => $courseid,
-            'message' => $message,
-            'section' => $section,
-        ]));
-        $result = curl_exec($ch);
-        if ($result === false) {
-            $curlerror = curl_error($ch);
-            $curlerrno = curl_errno($ch);
             curl_close($ch);
-            throw new \moodle_exception('error_curl', 'local_datacurso', '', null, "cURL error ($curlerrno): $curlerror");
+
+            $result = json_decode($result, true);
+            if (!isset($result['result']['resource_type'])) {
+                debugging("Invalid response from AI service (result). Response: " . json_encode($result));
+                return [
+                    'ok' => false,
+                    'message' => get_string('error_generating_resource', 'local_datacurso'),
+                    'log' => "Invalid response from AI service (result). Response: " . json_encode($result),
+                ];
+            }
+
+            $modname = $result['result']['resource_type'];
+
+            $modmoodleform = "$CFG->dirroot/mod/$modname/mod_form.php";
+            if (!file_exists($modmoodleform)) {
+                debugging("Form file not found for module: {$modname}");
+                return [
+                    'ok' => false,
+                    'message' => get_string('error_generating_resource', 'local_datacurso'),
+                    'log' => "Form file not found for module: {$modname}",
+                ];
+            }
+            require_once($modmoodleform);
+
+            list($module, $context, $cw, $cm, $data) = prepare_new_moduleinfo_data($course, $modname, $sectionnum);
+
+            $mformclassname = 'mod_'.$modname.'_mod_form';
+            $mform = new $mformclassname($data, $cw->section, $cm, $course);
+
+            if (!isset($result['result']['parameters'])) {
+                debugging("Missing parameters in service response: " . json_encode($result));
+                return [
+                    'ok' => false,
+                    'message' => get_string('error_generating_resource', 'local_datacurso'),
+                    'log' => "Missing parameters in service response: " . json_encode($result),
+                ];
+            }
+
+            // Clean text editor parameters before processing.
+            $cleanedparameters = text_editor_parameter_cleaner::clean_text_editor_objects($result['result']['parameters']);
+            $parameters = (object)$cleanedparameters;
+            $parameters->section = $sectionnum;
+            $parameters->beforemod = $beforemod;
+            $parameters->module = $module->id;
+
+            $paramclass = '\\local_datacurso\\mod_parameters\\' . $modname . '_parameters';
+            $classexists = class_exists($paramclass);
+            $issubclass = is_subclass_of($paramclass, \local_datacurso\mod_parameters\base_parameters::class);
+            if ($classexists && $issubclass) {
+                /** @var \local_datacurso\mod_parameters\base_parameters $paraminstance */
+                $paraminstance = new $paramclass($parameters);
+                $parameters = $paraminstance->get_parameters();
+            }
+
+            $newcm = add_moduleinfo($parameters, $course, $mform);
+
+            $modsettings = $parameters->mod_settings;
+
+            $classpath = '\\local_datacurso\\mod_settings\\' . $modname . '_settings';
+            if (!empty($modsettings) && class_exists($classpath)) {
+                if (is_subclass_of($classpath, base_settings::class)) {
+
+                    /** @var base_settings $modsettingsinstance */
+                    $modsettingsinstance = new $classpath($newcm, $modsettings);
+                    $modsettingsinstance->add_settings();
+                } else {
+                    debugging("{$classpath} is not a subclass of \local_datacurso\mod_settings\base_settings");
+                }
+            }
+
+            $url = new \moodle_url("/mod/$modname/view.php", ["id" => $newcm->coursemodule]);
+
+            return [
+                'ok' => true,
+                'message' => get_string('resource_created', 'local_datacurso', $modname),
+                'data' => [
+                    'activityurl' => $url->out(false),
+                    'cmid' => $newcm->id,
+                    'modname' => $modname,
+                ],
+            ];
+
+        } catch (\Exception $e) {
+            debugging("Unexpected error while creating resource: " . $e->getMessage());
+            return [
+                'ok' => false,
+                'message' => get_string('error_generating_resource', 'local_datacurso'),
+                'log' => $e->getMessage(),
+            ];
         }
-        curl_close($ch);
-        $result = json_decode($result, true);
-
-        add_moduleinfo((object)$result['response'], $course, $mform);
-
-        $url = course_get_url($course, $cw->section);
-
-        return [
-            'ok' => true,
-            'message' => 'Modulo '. $modname . ' creado correctamente',
-            'courseurl' => $url->out(false),
-        ];
     }
+
 
     /**
      * Returns description of method result values.
@@ -149,7 +227,12 @@ class create_mod extends external_api {
         return new external_single_structure([
             'ok' => new external_value(PARAM_BOOL, 'Response status from server'),
             'message' => new external_value(PARAM_TEXT, 'Response message from server', VALUE_OPTIONAL),
-            'courseurl' => new external_value(PARAM_URL, 'Course url from server', VALUE_OPTIONAL),
+            'data' => new external_single_structure([
+                'activityurl' => new external_value(PARAM_URL, 'Activity URL', VALUE_OPTIONAL),
+                'cmid' => new external_value(PARAM_INT, 'Course module ID', VALUE_OPTIONAL),
+                'modname' => new external_value(PARAM_TEXT, 'Module name', VALUE_OPTIONAL),
+            ], 'Activity data', VALUE_OPTIONAL),
+            'log' => new external_value(PARAM_RAW, 'Log from server', VALUE_OPTIONAL),
         ]);
     }
 }

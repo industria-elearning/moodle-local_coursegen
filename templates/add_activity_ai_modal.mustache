@@ -1,0 +1,50 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_datacurso/add_activity_ai_modal
+
+    Activity AI Modal Template
+
+    Template for the activity AI generation modal interface.
+    Contains chat interface for AI-powered activity creation with integrated streaming.
+}}
+<div class="local_datacurso_ai_chat pb-4 container" aria-label="{{#str}} addactivityai_arialabel, local_datacurso {{/str}}">
+    <!-- Welcome Message -->
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="activity-welcome-message p-3 mb-3 bg-light rounded">
+                <p class="mb-0">{{#str}} addactivityai_welcome, local_datacurso {{/str}}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Messages Section -->
+    <div class="row justify-content-center">
+        <div id="activity-user-messages" class="col-lg-10" style="display: none;">
+            <!-- User messages will be added here -->
+        </div>
+    </div>
+
+    <!-- Streaming Phase Section -->
+    <div class="row justify-content-center">
+        <div id="activity-streaming-section" class="col-lg-10" style="display: none;">
+            {{> local_datacurso/course_streaming_inline}}
+        </div>
+    </div>
+</div>
+
+
