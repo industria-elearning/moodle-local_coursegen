@@ -17,7 +17,8 @@
 namespace local_datacurso\hook;
 
 use core\hook\output\before_footer_html_generation;
-use core\hook\output\before_standard_head_html_generation;
+use local_datacurso\ai_course;
+use local_datacurso\local\streaming_helper;
 
 /**
  * Hook para cargar el chat flotante
@@ -34,45 +35,10 @@ class chat_hook {
      * @param before_footer_html_generation $hook El hook del evento.
      */
     public static function before_footer_html_generation(before_footer_html_generation $hook): void {
-        global $PAGE, $COURSE, $USER;
-
-        // Solo cargar en contextos de curso.
-        if (!self::is_course_context()) {
-            return;
-        }
-
-        // Cargar JavaScript del chat.
-        $PAGE->requires->js_call_amd('local_datacurso/chat', 'init');
-
-        // Agregar datos del contexto para JavaScript.
-        $chatdata = [
-            'courseid' => $COURSE->id ?? 0,
-            'userid' => $USER->id,
-            'userrole' => self::get_user_role_in_course(),
-            'contextlevel' => $PAGE->context->contextlevel ?? 0,
-        ];
-
-        $PAGE->requires->data_for_js('datacurso_chat_config', $chatdata);
-    }
-
-    /**
-     * Hook para agregar CSS y metadatos en el head.
-     *
-     * @param before_standard_head_html_generation $hook El hook del evento.
-     */
-    public static function before_standard_head_html_generation(before_standard_head_html_generation $hook): void {
-        global $PAGE, $CFG;
-
-        // Solo cargar en contextos de curso.
-        if (!self::is_course_context()) {
-            return;
-        }
-
-        // Cargar CSS del chat.
-        $PAGE->requires->css('/local/datacurso/styles/chat.css');
-
-        // Agregar metadatos para el chat.
-        $hook->add_html('<meta name="datacurso-chat-enabled" content="true">');
+        global $PAGE;
+        self::add_activity_ai_button();
+        self::add_course_ai_button();
+        self::check_ai_course_creation();
     }
 
     /**
@@ -108,31 +74,80 @@ class chat_hook {
     }
 
     /**
-     * Obtiene el rol del usuario en el curso actual
+     * Add activity AI button
      */
-    private static function get_user_role_in_course(): string {
-        global $PAGE, $COURSE, $USER;
+    private static function add_activity_ai_button(): void {
+        global $PAGE, $COURSE;
 
-        if (!isset($COURSE) || $COURSE->id <= 1) {
-            return 'Estudiante';
+        if (!self::is_course_context()) {
+            return;
         }
 
         $context = \context_course::instance($COURSE->id);
 
         // Verificar si es profesor o tiene permisos de edición.
-        if (has_capability('moodle/course:update', $context) ||
-            has_capability('moodle/course:manageactivities', $context)) {
-            return 'Profesor';
+        if (!has_capability('moodle/course:update', $context) ||
+            !has_capability('moodle/course:manageactivities', $context)) {
+            return;
         }
 
-        // Verificar roles específicos.
-        $roles = get_user_roles($context, $USER->id);
-        foreach ($roles as $role) {
-            if (in_array($role->shortname, ['teacher', 'editingteacher', 'manager', 'coursecreator'])) {
-                return 'Profesor';
-            }
+        $PAGE->requires->js_call_amd('local_datacurso/add_activity_ai_button', 'init', ['courseid' => $COURSE->id]);
+    }
+
+    /**
+     * Add course AI button
+     */
+    private static function add_course_ai_button(): void {
+        global $PAGE;
+        $iseditpage = $PAGE->url->get_path() === '/course/edit.php';
+
+        if (!$iseditpage) {
+            return;
         }
 
-        return 'Estudiante';
+        $courseid = $PAGE->url->get_param('id');
+        if ($courseid) {
+            return;
+        }
+
+        $PAGE->requires->js_call_amd('local_datacurso/add_course_ai_button', 'init', []);
+    }
+
+    /**
+     * Check if course is being created with AI and open modal if needed
+     */
+    private static function check_ai_course_creation(): void {
+        global $PAGE, $COURSE, $CFG;
+
+        // Check if we are on course/view.php page.
+        if ($PAGE->url->get_path() !== '/course/view.php') {
+            return;
+        }
+
+        // Check if we have a valid course ID.
+        if (!isset($COURSE) || $COURSE->id <= 1) {
+            return;
+        }
+
+        // Get course session from database.
+        $session = ai_course::get_course_session($COURSE->id);
+        // If no session exists, return.
+        if (!$session) {
+            return;
+        }
+
+        // Check if session is in planning or creating status (1 or 2).
+        if ($session->status == 1 || $session->status == 2) {
+            // Build streaming URL with session ID using helper.
+            $streamingurl = streaming_helper::get_streaming_url_for_session($session->session_id);
+
+            // Load the AI course modal with streaming URL.
+            $PAGE->requires->js_call_amd('local_datacurso/add_course_ai_modal', 'init', [
+                [
+                    'streamingurl' => $streamingurl,
+                    'courseid' => $COURSE->id,
+                ],
+            ]);
+        }
     }
 }

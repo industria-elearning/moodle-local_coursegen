@@ -28,14 +28,6 @@
 defined('MOODLE_INTERNAL') || die();
 
 $functions = [
-    'local_datacurso_create_course' => [
-        'classname' => 'local_datacurso\external\create_course',
-        'methodname' => 'execute',
-        'description' => 'Create a new course',
-        'type' => 'write',
-        'ajax' => true,
-        'capabilities' => 'moodle/course:create',
-    ],
     'local_datacurso_get_models_by_tenant' => [
         'classname' => 'local_datacurso\external\get_models_by_tenant',
         'methodname' => 'execute',
@@ -65,7 +57,40 @@ $functions = [
         'description' => 'Create module for ask question to chatbot based in that information',
         'type' => 'write',
         'ajax' => true,
-
+        'capabilities' => 'moodle/course:manageactivities,moodle/course:update',
+    ],
+    'local_datacurso_create_mod_stream' => [
+        'classname' => 'local_datacurso\external\create_mod_stream',
+        'methodname' => 'execute',
+        'description' => 'Start streaming job to create module with AI and store job_id',
+        'type' => 'write',
+        'ajax' => true,
+        'capabilities' => 'moodle/course:manageactivities,moodle/course:update',
+    ],
+    'local_datacurso_create_course' => [
+        'classname' => 'local_datacurso\external\create_course',
+        'methodname' => 'execute',
+        'description' => 'Create course with AI assistance',
+        'type' => 'write',
+        'ajax' => true,
+        'capabilities' => 'moodle/course:create',
+    ],
+    'local_datacurso_plan_course_message' => [
+        'classname' => 'local_datacurso\external\plan_course_message',
+        'methodname' => 'execute',
+        'description' => 'Send message to AI course planning session',
+        'type' => 'write',
+        'ajax' => true,
+        'capabilities' => 'moodle/course:update',
+    ],
+    'local_datacurso_plan_course_execute' => [
+        'classname' => 'local_datacurso\external\plan_course_execute',
+        'methodname' => 'execute',
+        'description' => 'Execute AI course planning session',
+        'type' => 'write',
+        'ajax' => true,
+        'capabilities' => 'moodle/course:update',
+    ],
     'local_datacurso_get_response_ia' => [
         'classname'   => 'local_datacurso\external\get_response_ia',
         'methodname'  => 'execute',
