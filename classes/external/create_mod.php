@@ -16,6 +16,7 @@
 
 namespace local_datacurso\external;
 
+use aiprovider_datacurso\httpclient\ai_course_api;
 use context_course;
 use external_api;
 use external_function_parameters;
@@ -81,9 +82,6 @@ class create_mod extends external_api {
             $context = context_course::instance($course->id);
             self::validate_context($context);
 
-            $apitoken = get_config('local_datacurso', 'apitoken');
-            $baseurl = get_config('local_datacurso', 'baseurl');
-
             $aicontext = $DB->get_record_sql(
                 'SELECT cc.context_type, m.name FROM {local_datacurso_course_context} cc
                     LEFT JOIN {local_datacurso_model} m
@@ -106,27 +104,9 @@ class create_mod extends external_api {
                 ];
             }
 
-            $ch = curl_init();
-            $targeturl = rtrim($baseurl, '/') . '/resources/create-mod/result?job_id=' . urlencode($jobid);
-            curl_setopt($ch, CURLOPT_URL, $targeturl);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Authorization: Bearer ' . $apitoken]);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_FAILONERROR, true);
-            $result = curl_exec($ch);
+            $client = new ai_course_api();
+            $result = $client->request('GET', '/resources/create-mod/result?job_id=' . urlencode($jobid));
 
-            if (!$result) {
-                $curlerror = curl_error($ch);
-                debugging("CURL request failed while creating resource. Error: {$curlerror}");
-                curl_close($ch);
-                return [
-                    'ok' => false,
-                    'message' => get_string('error_generating_resource', 'local_datacurso'),
-                    'log' => "CURL request failed while creating resource. Error: {$curlerror}",
-                ];
-            }
-            curl_close($ch);
-
-            $result = json_decode($result, true);
             if (!isset($result['result']['resource_type'])) {
                 debugging("Invalid response from AI service (result). Response: " . json_encode($result));
                 return [

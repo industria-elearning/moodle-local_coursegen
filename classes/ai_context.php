@@ -16,6 +16,8 @@
 
 namespace local_datacurso;
 
+use aiprovider_datacurso\httpclient\ai_course_api;
+
 /**
  * Class ai_context
  *
@@ -35,47 +37,19 @@ class ai_context {
         try {
             $siteid = md5($CFG->wwwroot);
 
-            // Preparar los datos del POST con el contenido del modelo.
             $postdata = [
                 'model_name' => $model->name,
                 'model_context' => $model->content,
                 'site_id' => $siteid,
             ];
 
-            $apitoken = get_config('local_datacurso', 'apitoken');
-            $baseurl = get_config('local_datacurso', 'baseurl');
-
-            // Realizar la petición HTTP con cURL.
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, rtrim($baseurl, '/') . '/context/upload-model-context');
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Authorization: Bearer ' . $apitoken,
-                'Content-Type: application/json',
-            ]);
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postdata));
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-            $response = curl_exec($ch);
-            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            $error = curl_error($ch);
-            curl_close($ch);
-
-            // Verificar la respuesta.
-            if ($error) {
-                \core\notification::error(get_string('error_upload_failed', 'local_datacurso', $error));
-                return;
-            }
-
-            if ($httpcode !== 200) {
-                \core\notification::error(get_string('error_upload_failed', 'local_datacurso', $httpcode));
-                return;
-            }
+            $client = new ai_course_api();
+            $client->request('POST', '/context/upload-model-context', $postdata);
 
         } catch (\Exception $e) {
 
             // Mostrar notificación de error al usuario.
-            \core\notification::error(get_string('error_upload_failed', 'local_datacurso', $e->getMessage()));
+            \core\notification::error(get_string('error_upload_failed_model', 'local_datacurso', $e->getMessage()));
         }
     }
 
@@ -105,45 +79,17 @@ class ai_context {
             $siteid = md5($CFG->wwwroot);
 
             // Guardar el archivo temporalmente.
-            $tempfile = $file->copy_content_to_temp();
+            $filepath = $file->copy_content_to_temp();
 
-            // Preparar el archivo como recurso CURL.
-            $cfile = new \CURLFile($tempfile, $file->get_mimetype(), $file->get_filename());
-
-            // Preparar los datos del POST.
             $postdata = [
                 'title' => $file->get_filename(),
-                'file' => $cfile,
                 'body' => $siteid,
                 'site_id' => $siteid,
                 'course_id' => $courseid,
             ];
 
-            $apitoken = get_config('local_datacurso', 'apitoken');
-            $baseurl = get_config('local_datacurso', 'baseurl');
-
-            // Realizar la petición HTTP con cURL.
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, rtrim($baseurl, '/') . '/context/upload');
-            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $apitoken]);
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-            $response = curl_exec($ch);
-            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            $error = curl_error($ch);
-            curl_close($ch);
-
-            // Verificar la respuesta.
-            if ($error) {
-                throw new \moodle_exception('error_upload_failed', 'local_datacurso', '', $error);
-            }
-
-            if ($httpcode !== 200) {
-                throw new \moodle_exception('error_upload_failed', 'local_datacurso', '',
-                    get_string('error_http_code', 'local_datacurso', $httpcode));
-            }
+            $client = new ai_course_api();
+            $client->upload_file('/context/upload', $filepath, $postdata);
 
         } catch (\Exception $e) {
 

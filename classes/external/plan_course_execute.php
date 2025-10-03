@@ -24,6 +24,8 @@
 
 namespace local_datacurso\external;
 
+use aiprovider_datacurso\httpclient\ai_course_api;
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/externallib.php');
@@ -107,52 +109,16 @@ class plan_course_execute extends external_api {
                 'session_id' => $session->session_id,
             ];
 
-            // Make the API request.
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, rtrim($baseurl, '/') . '/planning/plan-course/execute');
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Content-Type: application/json',
-                'Authorization: Bearer ' . $apitoken,
-            ]);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_FAILONERROR, true);
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($requestdata));
-            curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-
-            $result = curl_exec($ch);
-            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-            if ($result === false) {
-                $curlerror = curl_error($ch);
-                curl_close($ch);
-                debugging("CURL request failed while executing course plan. Error: {$curlerror}");
-                return [
-                    'success' => false,
-                    'message' => get_string('error_api_request_failed', 'local_datacurso'),
-                    'data' => null,
-                ];
-            }
-
-            curl_close($ch);
-
-            // Process API response.
-            $apiresponse = json_decode($result, true);
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                return [
-                    'success' => false,
-                    'message' => get_string('error_invalid_api_response', 'local_datacurso'),
-                    'data' => null,
-                ];
-            }
+            $client = new ai_course_api();
+            $result = $client->request('POST', '/planning/plan-course/execute', $requestdata);
 
             // Build streaming URL and return success response with API status.
             $streamingurl = streaming_helper::get_streaming_url_for_session($session->session_id);
             return [
                 'success' => true,
-                'message' => $apiresponse['message'] ?? 'La creación del curso ha comenzado.',
+                'message' => $result['message'],
                 'data' => [
-                    'status' => $apiresponse['status'] ?? 'execution_started',
+                    'status' => $result['status'],
                     'streamingurl' => $streamingurl,
                 ],
             ];
