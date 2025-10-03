@@ -17,6 +17,7 @@
 namespace local_datacurso\hook;
 
 use core\hook\output\before_footer_html_generation;
+use core\hook\output\before_standard_head_html_generation;
 use local_datacurso\ai_course;
 use local_datacurso\local\streaming_helper;
 
@@ -40,6 +41,26 @@ class chat_hook {
         self::add_course_ai_button();
         self::check_ai_course_creation();
         self::add_float_chat();
+    }
+
+    /**
+     * Hook to add CSS and metadata in the head.
+     *
+     * @param before_standard_head_html_generation $hook The hook event.
+     */
+    public static function before_standard_head_html_generation(before_standard_head_html_generation $hook): void {
+        global $PAGE;
+
+        // Only load in course contexts.
+        if (!self::is_course_context()) {
+            return;
+        }
+
+        // Load chat CSS.
+        $PAGE->requires->css('/local/datacurso/styles/chat.css');
+
+        // Add metadata for the chat.
+        $hook->add_html('<meta name="datacurso-chat-enabled" content="true">');
     }
 
     /**

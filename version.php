@@ -26,6 +26,6 @@ defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_datacurso';
 $plugin->release = '0.1.0';
-$plugin->version = 2025092403;
+$plugin->version = 2025100301;
 $plugin->requires = 2022112800;
 $plugin->maturity = MATURITY_ALPHA;
