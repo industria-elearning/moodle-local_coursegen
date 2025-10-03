@@ -72,6 +72,36 @@ if ($hassiteconfig) {
         )
     );
 
+    // Add Tutor-IA API URL setting.
+    $settings->add(
+        new admin_setting_configtext(
+            'local_datacurso/tutoraiapiurl',
+            new lang_string('tutoraiapiurl', 'local_datacurso'),
+            new lang_string('tutoraiapiurl_desc', 'local_datacurso'),
+            'https://plugins-ai-dev.datacurso.com',
+        )
+    );
+
+    // Add Tutor-IA token setting.
+    $settings->add(
+        new admin_setting_configpasswordunmask(
+            'local_datacurso/tutoraitoken',
+            new lang_string('tutoraitoken', 'local_datacurso'),
+            new lang_string('tutoraitoken_desc', 'local_datacurso'),
+            '',
+        )
+    );
+
+    // Add setting to enable/disable chat globally.
+    $settings->add(
+        new admin_setting_configcheckbox(
+            'local_datacurso/enablechat',
+            new lang_string('enablechat', 'local_datacurso'),
+            new lang_string('enablechat_desc', 'local_datacurso'),
+            1
+        )
+    );
+
     $ADMIN->add($pluginname, $settings);
     // Add manage models page.
     $ADMIN->add($pluginname, new admin_externalpage(

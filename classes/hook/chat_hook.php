@@ -144,6 +144,11 @@ class chat_hook {
     private static function add_float_chat(): void {
         global $PAGE, $COURSE, $USER;
 
+        // Check if chat is enabled globally.
+        if (!get_config('local_datacurso', 'enablechat')) {
+            return;
+        }
+
         if (!self::is_course_context()) {
             return;
         }

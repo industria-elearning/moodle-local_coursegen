@@ -104,7 +104,16 @@ $functions = [
     'local_datacurso_create_chat_message' => [
         'classname'   => 'local_datacurso\external\create_chat_message',
         'methodname'  => 'execute',
-        'description' => 'Create a chat message in a specified chat room',
+        'description' => 'Create a chat message and start Tutor-IA session',
+        'type'        => 'write',
+        'ajax'        => true,
+    ],
+
+    // Add function delete_chat_session
+    'local_datacurso_delete_chat_session' => [
+        'classname'   => 'local_datacurso\external\delete_chat_session',
+        'methodname'  => 'execute',
+        'description' => 'Delete a Tutor-IA chat session',
         'type'        => 'write',
         'ajax'        => true,
     ],

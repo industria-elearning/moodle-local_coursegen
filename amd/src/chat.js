@@ -40,6 +40,10 @@ define(['core/ajax', 'core/notification'], function (Ajax, notification) {
             this.currentEventSource = null;
             this.currentAIMessageEl = null;
             this.streaming = false;
+            this.currentSessionId = null;
+
+            // Cleanup session on page unload
+            window.addEventListener('beforeunload', () => this.cleanupSession());
 
             this.init();
         }
@@ -315,16 +319,23 @@ define(['core/ajax', 'core/notification'], function (Ajax, notification) {
                     methodname: "local_datacurso_create_chat_message",
                     args: {
                         courseid: parseInt(courseId, 10),
-                        lang: this._sanitizeString("es"),
                         message: this._sanitizeString(messageText.substring(0, 4000)),
+                        meta: JSON.stringify({
+                            user_role: this.userRole,
+                            timestamp: Math.floor(Date.now() / 1000)
+                        })
                     },
                 }]);
 
                 requests[0].then((data) => {
                     if (!data) throw new Error('Respuesta vacía del servidor');
-                    const streamUrl = data.stream_url || data.streamurl;
-                    const sessionId = data.session_id || data.sessionId;
+                    const streamUrl = data.stream_url;
+                    const sessionId = data.session_id;
                     if (!streamUrl) throw new Error('URL de stream ausente en la respuesta');
+
+                    // Save session ID for cleanup
+                    this.currentSessionId = sessionId;
+
                     this._startSSE(streamUrl, sessionId, sendBtn);
                 }).catch((err) => {
                     this.hideTypingIndicator();
@@ -408,30 +419,34 @@ define(['core/ajax', 'core/notification'], function (Ajax, notification) {
                 }, 30000);
 
                 es.addEventListener('open', () => {
-                    if (window.console) console.log('SSE connection opened');
+                    if (window.console) console.log('SSE connection opened to Tutor-IA');
                 });
 
-                es.addEventListener('meta', () => {});
+                es.addEventListener('meta', () => {
+                    // Metadata event - can be logged if needed
+                });
 
                 es.addEventListener('token', (ev) => {
                     try {
                         if (connectionTimeout) { clearTimeout(connectionTimeout); connectionTimeout = null; }
                         const payload = JSON.parse(ev.data);
-                        const t = payload.t || '';
+                        // Support both formats: 't' and 'content'
+                        const text = payload.t || payload.content || '';
+
                         if (firstToken) {
                             firstToken = false;
-                            // Convertir typing -> globo AI único
+                            // Convert typing indicator to AI message bubble
                             this._ensureAIMessageEl();
-                            // hideTypingIndicator ya no quita nada porque el id cambió
                             this.hideTypingIndicator();
                         }
-                        this._appendToAIMessage(t);
+                        this._appendToAIMessage(text);
                     } catch (e) {
                         if (window.console) console.warn('Invalid token data:', ev.data);
                     }
                 });
 
                 es.addEventListener('message_completed', () => {
+                    if (window.console) console.log('Message completed from Tutor-IA');
                     if (connectionTimeout) clearTimeout(connectionTimeout);
                     this._finalizeStream(sendBtn);
                 });
@@ -578,9 +593,37 @@ define(['core/ajax', 'core/notification'], function (Ajax, notification) {
         }
 
         /**
+         * Cleanup the current chat session when user leaves the page.
+         */
+        cleanupSession() {
+            if (!this.currentSessionId) {
+                return;
+            }
+
+            // Use sendBeacon to ensure request is sent even if page is closing
+            if (navigator.sendBeacon && window.M && window.M.cfg && window.M.cfg.wwwroot) {
+                const formData = new FormData();
+                formData.append('sesskey', window.M.cfg.sesskey || '');
+                formData.append('info', 'local_datacurso_delete_chat_session');
+
+                const params = [{
+                    index: 0,
+                    methodname: 'local_datacurso_delete_chat_session',
+                    args: {sessionid: this.currentSessionId}
+                }];
+
+                formData.append('args', JSON.stringify(params));
+                navigator.sendBeacon(window.M.cfg.wwwroot + '/lib/ajax/service.php', formData);
+            }
+
+            this.currentSessionId = null;
+        }
+
+        /**
          * Destroys the chat widget and closes any open streams.
          */
         destroy() {
+            this.cleanupSession();
             this._closeCurrentStream();
             if (this.chatWidget) {
                 this.chatWidget.remove();

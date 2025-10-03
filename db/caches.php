@@ -31,4 +31,8 @@ $definitions = [
     'apitoken' => [
         'mode' => cache_store::MODE_SESSION,
     ],
+    'tutoria_sessions' => [
+        'mode' => cache_store::MODE_SESSION,
+        'ttl' => 604800, // 7 días.
+    ],
 ];
