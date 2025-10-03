@@ -30,24 +30,28 @@ use local_datacurso\local\streaming_helper;
 class chat_hook {
 
     /**
-     * Hook para cargar el chat antes del footer.
+     * Hook to load the floating chat before the footer.
+     * Calls functions to add AI buttons and check AI course creation.
      *
-     * @param before_footer_html_generation $hook El hook del evento.
+     * @param before_footer_html_generation $hook The hook event.
      */
     public static function before_footer_html_generation(before_footer_html_generation $hook): void {
-        global $PAGE;
         self::add_activity_ai_button();
         self::add_course_ai_button();
         self::check_ai_course_creation();
+        self::add_float_chat();
     }
 
     /**
-     * Verifica si estamos en un contexto de curso
+     * Checks if we are in a course context.
+     * Returns true if the current page or context is related to a course or module.
+     *
+     * @return bool
      */
     private static function is_course_context(): bool {
         global $PAGE, $COURSE;
 
-        // Verificar si estamos en una página de curso.
+        // Check if we are on a course page.
         if ($PAGE->pagelayout === 'course' ||
             $PAGE->pagelayout === 'incourse' ||
             strpos($PAGE->pagetype, 'course-') === 0 ||
@@ -55,12 +59,12 @@ class chat_hook {
             return true;
         }
 
-        // Verificar si hay un curso válido.
+        // Check if there is a valid course.
         if (isset($COURSE) && $COURSE->id > 1) {
             return true;
         }
 
-        // Verificar contexto.
+        // Check context.
         $context = $PAGE->context;
         if(!$context) {
             return false;
@@ -74,7 +78,7 @@ class chat_hook {
     }
 
     /**
-     * Add activity AI button
+     * Adds the activity AI button to the course page for teachers/editors.
      */
     private static function add_activity_ai_button(): void {
         global $PAGE, $COURSE;
@@ -85,7 +89,7 @@ class chat_hook {
 
         $context = \context_course::instance($COURSE->id);
 
-        // Verificar si es profesor o tiene permisos de edición.
+        // Only show for users with editing capabilities.
         if (!has_capability('moodle/course:update', $context) ||
             !has_capability('moodle/course:manageactivities', $context)) {
             return;
@@ -95,7 +99,7 @@ class chat_hook {
     }
 
     /**
-     * Add course AI button
+     * Adds the course AI button on the course edit page.
      */
     private static function add_course_ai_button(): void {
         global $PAGE;
@@ -111,6 +115,56 @@ class chat_hook {
         }
 
         $PAGE->requires->js_call_amd('local_datacurso/add_course_ai_button', 'init', []);
+    }
+
+    /**
+     * Adds the floating chat to course pages for all users.
+     */
+    private static function add_float_chat(): void {
+        global $PAGE, $COURSE, $USER;
+
+        if (!self::is_course_context()) {
+            return;
+        }
+
+        $PAGE->requires->js_call_amd('local_datacurso/chat', 'init');
+
+        $chatdata = [
+            'courseid' => $COURSE->id ?? 0,
+            'userid' => $USER->id,
+            'userrole' => self::get_user_role_in_course(),
+            'contextlevel' => $PAGE->context->contextlevel ?? 0,
+        ];
+
+        $PAGE->requires->data_for_js('datacurso_chat_config', $chatdata);
+    }
+
+    /**
+     * Determines the user's role in the current course context.
+     */
+    private static function get_user_role_in_course(): string {
+        global $COURSE, $USER;
+
+        if (!isset($COURSE) || $COURSE->id <= 1) {
+            return 'student';
+        }
+
+        $context = \context_course::instance($COURSE->id);
+
+        if (has_capability('moodle/course:update', $context) ||
+            has_capability('moodle/course:manageactivities', $context)) {
+            return 'teacher';
+        }
+
+        // Verificar roles específicos.
+        $roles = get_user_roles($context, $USER->id);
+        foreach ($roles as $role) {
+            if (in_array($role->shortname, ['teacher', 'editingteacher', 'manager', 'coursecreator'])) {
+                return 'teacher';
+            }
+        }
+
+        return 'student';
     }
 
     /**

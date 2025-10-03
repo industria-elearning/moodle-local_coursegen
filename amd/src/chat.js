@@ -25,6 +25,10 @@ define(['core/ajax', 'core/notification'], function (Ajax, notification) {
     'use strict';
 
     class DatacursoChat {
+        /**
+         * Constructor for DatacursoChat class.
+         * Initializes chat widget state and starts initialization.
+         */
         constructor() {
             this.chatWidget = null;
             this.isMinimized = true;
@@ -40,6 +44,9 @@ define(['core/ajax', 'core/notification'], function (Ajax, notification) {
             this.init();
         }
 
+        /**
+         * Initializes the chat widget if in course context.
+         */
         init() {
             try {
                 if (!this.checkCourseContext()) return;
@@ -51,6 +58,10 @@ define(['core/ajax', 'core/notification'], function (Ajax, notification) {
             }
         }
 
+        /**
+         * Checks if the current page is in a course context.
+         * @returns {boolean}
+         */
         checkCourseContext() {
             try {
                 if (window.datacurso_chat_config && window.datacurso_chat_config.courseid > 0) {
@@ -101,6 +112,9 @@ define(['core/ajax', 'core/notification'], function (Ajax, notification) {
             }
         }
 
+        /**
+         * Detects the user's role (Teacher or Student).
+         */
         detectUserRole() {
             try {
                 if (window.datacurso_chat_config && window.datacurso_chat_config.userrole) {
@@ -148,6 +162,9 @@ define(['core/ajax', 'core/notification'], function (Ajax, notification) {
             }
         }
 
+        /**
+         * Creates the chat widget and appends it to the DOM.
+         */
         createChatWidget() {
             const chatHTML = `
                 <div class="datacurso-chat-widget" id="datacursoChat">
@@ -217,6 +234,9 @@ define(['core/ajax', 'core/notification'], function (Ajax, notification) {
             });
         }
 
+        /**
+         * Adds event listeners to chat widget elements.
+         */
         addEventListeners() {
             const header = this.chatWidget.querySelector('#chatHeader');
             const sendBtn = this.chatWidget.querySelector('#sendBtn');
@@ -240,6 +260,9 @@ define(['core/ajax', 'core/notification'], function (Ajax, notification) {
             this.chatWidget.addEventListener('click', (e) => e.stopPropagation());
         }
 
+        /**
+         * Toggles the chat widget between minimized and maximized states.
+         */
         toggleChat() {
             const body = this.chatWidget.querySelector('#chatBody');
             const toggleBtn = this.chatWidget.querySelector('#toggleBtn');
@@ -259,6 +282,9 @@ define(['core/ajax', 'core/notification'], function (Ajax, notification) {
             }
         }
 
+        /**
+         * Handles sending a message from the user to the AI assistant.
+         */
         sendMessage() {
             const input = this.chatWidget.querySelector('#chatInput');
             const sendBtn = this.chatWidget.querySelector('#sendBtn');
@@ -315,14 +341,19 @@ define(['core/ajax', 'core/notification'], function (Ajax, notification) {
             }
         }
 
+        /**
+         * Sanitizes a string by removing angle brackets.
+         * @param {string} str
+         * @returns {string}
+         */
         _sanitizeString(str) {
             if (typeof str !== 'string') return '';
             return str.replace(/[<>]/g, '');
         }
 
         /**
-         * Crea o reutiliza el globo AI a partir del typing indicator.
-         * Evita doble globo antes del primer token.
+         * Ensures there is a single AI message bubble, converting typing indicator if needed.
+         * @returns {HTMLElement}
          */
         _ensureAIMessageEl() {
             if (this.currentAIMessageEl) return this.currentAIMessageEl;
@@ -346,8 +377,10 @@ define(['core/ajax', 'core/notification'], function (Ajax, notification) {
         }
 
         /**
-         * Abre EventSource y pinta tokens.
-         * No crea globo AI hasta recibir el primer token.
+         * Starts SSE connection and handles incoming tokens for AI response.
+         * @param {string} streamUrl
+         * @param {string} sessionId
+         * @param {HTMLElement} sendBtn
          */
         _startSSE(streamUrl, sessionId, sendBtn) {
             if (!streamUrl) {
@@ -422,6 +455,10 @@ define(['core/ajax', 'core/notification'], function (Ajax, notification) {
             }
         }
 
+        /**
+         * Appends text to the current AI message bubble.
+         * @param {string} text
+         */
         _appendToAIMessage(text) {
             // Asegura que existe un único globo AI
             if (!this.currentAIMessageEl) this._ensureAIMessageEl();
@@ -440,6 +477,9 @@ define(['core/ajax', 'core/notification'], function (Ajax, notification) {
             this.scrollToBottom();
         }
 
+        /**
+         * Closes the current SSE stream and resets state.
+         */
         _closeCurrentStream() {
             if (this.currentEventSource) {
                 try { this.currentEventSource.close(); } catch (e) {
@@ -452,11 +492,20 @@ define(['core/ajax', 'core/notification'], function (Ajax, notification) {
             this.hideTypingIndicator();
         }
 
+        /**
+         * Finalizes the SSE stream and re-enables the send button.
+         * @param {HTMLElement} sendBtn
+         */
         _finalizeStream(sendBtn) {
             this._closeCurrentStream();
             if (sendBtn) sendBtn.disabled = false;
         }
 
+        /**
+         * Adds a message to the chat window.
+         * @param {string} text
+         * @param {string} type
+         */
         addMessage(text, type) {
             if (!text || typeof text !== 'string') return;
 
@@ -480,6 +529,9 @@ define(['core/ajax', 'core/notification'], function (Ajax, notification) {
             this.scrollToBottom();
         }
 
+        /**
+         * Shows the typing indicator in the chat window.
+         */
         showTypingIndicator() {
             try {
                 const messages = this.chatWidget && this.chatWidget.querySelector('#chatMessages');
@@ -499,6 +551,9 @@ define(['core/ajax', 'core/notification'], function (Ajax, notification) {
             }
         }
 
+        /**
+         * Hides the typing indicator from the chat window.
+         */
         hideTypingIndicator() {
             try {
                 const typingIndicator = this.chatWidget && this.chatWidget.querySelector('#typingIndicator');
@@ -508,6 +563,9 @@ define(['core/ajax', 'core/notification'], function (Ajax, notification) {
             }
         }
 
+        /**
+         * Scrolls the chat messages container to the bottom.
+         */
         scrollToBottom() {
             try {
                 const messages = this.chatWidget && this.chatWidget.querySelector('#chatMessages');
@@ -519,6 +577,9 @@ define(['core/ajax', 'core/notification'], function (Ajax, notification) {
             }
         }
 
+        /**
+         * Destroys the chat widget and closes any open streams.
+         */
         destroy() {
             this._closeCurrentStream();
             if (this.chatWidget) {
