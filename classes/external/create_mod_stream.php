@@ -16,6 +16,7 @@
 
 namespace local_datacurso\external;
 
+use aiprovider_datacurso\httpclient\ai_course_api;
 use context_course;
 use external_api;
 use external_function_parameters;
@@ -118,37 +119,15 @@ class create_mod_stream extends external_api {
                 'model_name' => $aicontext ? $aicontext->name : null,
             ];
 
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, rtrim($baseurl, '/') . '/resources/create-mod?stream=true');
-            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Authorization: Bearer ' . $apitoken]);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_FAILONERROR, true);
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
-            $result = curl_exec($ch);
+            $client = new ai_course_api();
+            $result = $client->request('POST', '/resources/create-mod?stream=true', $payload);
 
-            if (!$result) {
-                $curlerror = curl_error($ch);
-                debugging("CURL request failed while starting resource generation (stream). Error: {$curlerror}");
-                curl_close($ch);
+            if (!isset($result['job_id'])) {
+                debugging("Invalid response from AI service (stream). Response: " . json_encode($result));
                 return [
                     'ok' => false,
                     'message' => get_string('error_generating_resource', 'local_datacurso'),
-                    'log' => "CURL request failed while starting resource generation (stream). Error: {$curlerror}",
-                ];
-            }
-
-            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
-
-            $result = json_decode($result, true);
-
-            if ($httpcode !== 200 || !isset($result['job_id'])) {
-                debugging("Invalid response from AI service (stream). HTTP Code: {$httpcode}, Response: " . json_encode($result));
-                return [
-                    'ok' => false,
-                    'message' => get_string('error_generating_resource', 'local_datacurso'),
-                    'log' => "Invalid response from AI service (stream). HTTP Code: {$httpcode}, Response: " . json_encode($result),
+                    'log' => "Invalid response from AI service (stream). Response: " . json_encode($result),
                 ];
             }
 
@@ -171,7 +150,7 @@ class create_mod_stream extends external_api {
                 ];
             }
 
-            $streamingurl = streaming_helper::get_mod_streaming_url_for_job($jobid);
+            $streamingurl = $client->get_mod_streaming_url_for_job($jobid);
 
             return [
                 'ok' => true,

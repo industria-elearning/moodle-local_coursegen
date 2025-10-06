@@ -16,6 +16,8 @@
 
 namespace local_datacurso;
 
+use aiprovider_datacurso\httpclient\ai_course_api;
+
 
 /**
  * AI Course class for managing AI-generated course planning sessions.
@@ -66,42 +68,14 @@ class ai_course {
             // Release the session so other tabs in the same session are not blocked.
             \core\session\manager::write_close();
 
-            // Initialize cURL.
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, rtrim($baseurl, '/') . '/planning/plan-course/start');
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Content-Type: application/json',
-                'Authorization: Bearer ' . $apitoken,
-            ]);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_FAILONERROR, true);
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($requestdata));
+            $client = new ai_course_api();
+            $result = $client->request('POST', '/planning/plan-course/start', $requestdata);
 
-            $result = curl_exec($ch);
-
-            if (!$result) {
-                $curlerror = curl_error($ch);
-                debugging("CURL request failed while starting course planning. Error: {$curlerror}");
-                curl_close($ch);
+            if (!isset($result['session_id'])) {
                 return [
                     'ok' => false,
                     'message' => get_string('error_starting_course_planning', 'local_datacurso'),
-                    'log' => "CURL request failed while starting course planning. Error: {$curlerror}",
-                ];
-            }
-
-            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
-
-            $result = json_decode($result, true);
-
-            if ($httpcode !== 200 || !isset($result['session_id'])) {
-                debugging("Invalid response from AI service. HTTP Code: {$httpcode}, Response: " . json_encode($result));
-                return [
-                    'ok' => false,
-                    'message' => get_string('error_starting_course_planning', 'local_datacurso'),
-                    'log' => "Invalid response from AI service. HTTP Code: {$httpcode}, Response: " . json_encode($result),
+                    'log' => "Invalid response from AI service. Response: " . json_encode($result),
                 ];
             }
 

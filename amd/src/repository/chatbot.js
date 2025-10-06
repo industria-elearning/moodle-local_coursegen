@@ -24,21 +24,6 @@
 import ajax from "core/ajax";
 
 /**
- * Create course context for ask question to chatbot based in that information.
- *
- * @param {number} courseId - The ID of the course to create context for
- * @return {Promise<Object>} response
- */
-export async function createCourseContext(courseId) {
-    return ajax.call([
-        {
-            methodname: "local_datacurso_create_course_context",
-            args: {courseid: courseId},
-        },
-    ])[0];
-}
-
-/**
  * Send a planning message for the course AI conversation.
  * The backend should also return a streaming URL to reconnect to the stream.
  *

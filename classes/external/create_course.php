@@ -24,6 +24,8 @@
 
 namespace local_datacurso\external;
 
+use aiprovider_datacurso\httpclient\ai_course_api;
+
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -92,61 +94,17 @@ class create_course extends external_api {
                 ];
             }
 
-            $apitoken = get_config('local_datacurso', 'apitoken');
-            $baseurl = get_config('local_datacurso', 'baseurl');
-
             // This request may take a long time depending on the complexity of the prompt that the AI ​​has to resolve.
             \core_php_time_limit::raise();
             raise_memory_limit(MEMORY_EXTRA);
             // Release the session so other tabs in the same session are not blocked.
             \core\session\manager::write_close();
 
-            $headers = [
-                'Content-Type:application/json',
-                'Authorization: Bearer ' . $apitoken,
-            ];
-
-            if ($DB->record_exists('config_plugins', ['plugin' => 'tool_wp', 'name' => 'version'])) {
-                $headers[] = 'X-Workplace: true';
-            }
-
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, rtrim($baseurl, '/') . '/planning/plan-course/result?session_id=' . urlencode($session->session_id));
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_FAILONERROR, true);
-            curl_setopt($ch, CURLOPT_HTTPGET, true);
-            $result = curl_exec($ch);
-
-            if (!$result) {
-                $curlerror = curl_error($ch);
-                debugging("CURL request failed while getting plan course result. Error: {$curlerror}");
-                curl_close($ch);
-
-                // Update session status to failed (4).
-                self::update_session_status($session->id, 4);
-                return [
-                    'success' => false,
-                    'message' => get_string('error_generating_resource', 'local_datacurso'),
-                    'log' => "CURL request failed while getting plan course result. Error: {$curlerror}",
-                ];
-            }
-            curl_close($ch);
-
-            // Process API response.
-            $apiresponse = json_decode($result, true);
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                // Update session status to failed (4).
-                self::update_session_status($session->id, 4);
-
-                return [
-                    'success' => false,
-                    'message' => 'Invalid JSON response from API',
-                ];
-            }
+            $client = new ai_course_api();
+            $result = $client->request('GET', '/planning/plan-course/result?session_id=' . urlencode($session->session_id));
 
             // Check if the plan is completed.
-            if (empty($apiresponse['status']) || $apiresponse['status'] !== 'completed') {
+            if (empty($result['status']) || $result['status'] !== 'completed') {
                 // Update session status to failed (4).
                 self::update_session_status($session->id, 4);
 
@@ -157,7 +115,7 @@ class create_course extends external_api {
             }
 
             // Extract result data.
-            $resultdata = $apiresponse['result'] ?? [];
+            $resultdata = $result['result'] ?? [];
 
             // Process sections if provided in the response.
             if (!empty($resultdata['sections_info'])) {

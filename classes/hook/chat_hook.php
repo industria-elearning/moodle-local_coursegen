@@ -16,9 +16,9 @@
 
 namespace local_datacurso\hook;
 
+use aiprovider_datacurso\httpclient\ai_course_api;
 use core\hook\output\before_footer_html_generation;
 use local_datacurso\ai_course;
-use local_datacurso\local\streaming_helper;
 
 /**
  * Hook para cargar el chat flotante
@@ -62,7 +62,7 @@ class chat_hook {
 
         // Verificar contexto.
         $context = $PAGE->context;
-        if(!$context) {
+        if (!$context) {
             return false;
         }
         if ($context->contextlevel == CONTEXT_COURSE ||
@@ -138,8 +138,9 @@ class chat_hook {
 
         // Check if session is in planning or creating status (1 or 2).
         if ($session->status == 1 || $session->status == 2) {
+            $client = new ai_course_api();
             // Build streaming URL with session ID using helper.
-            $streamingurl = streaming_helper::get_streaming_url_for_session($session->session_id);
+            $streamingurl = $client->get_streaming_url_for_session($session->session_id);
 
             // Load the AI course modal with streaming URL.
             $PAGE->requires->js_call_amd('local_datacurso/add_course_ai_modal', 'init', [
