@@ -150,7 +150,7 @@ class create_mod_stream extends external_api {
                 ];
             }
 
-            $streamingurl = streaming_helper::get_mod_streaming_url_for_job($jobid);
+            $streamingurl = $client->get_mod_streaming_url_for_job($jobid);
 
             return [
                 'ok' => true,

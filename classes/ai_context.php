@@ -83,13 +83,12 @@ class ai_context {
 
             $postdata = [
                 'title' => $file->get_filename(),
-                'body' => $siteid,
                 'site_id' => $siteid,
                 'course_id' => $courseid,
             ];
 
             $client = new ai_course_api();
-            $client->upload_file('/context/upload', $filepath, $postdata);
+            $client->upload_file('/context/upload', $filepath, $file->get_mimetype(), $file->get_filename(), $postdata);
 
         } catch (\Exception $e) {
 

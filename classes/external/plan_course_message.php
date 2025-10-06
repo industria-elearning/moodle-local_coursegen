@@ -118,7 +118,7 @@ class plan_course_message extends external_api {
             $result = $client->request('POST', '/planning/plan-course/message', $requestdata);
 
             // Build streaming URL and return success response with API status.
-            $streamingurl = streaming_helper::get_streaming_url_for_session($session->session_id);
+            $streamingurl = $client->get_streaming_url_for_session($session->session_id);
             return [
                 'success' => true,
                 'message' => get_string('message_sent_successfully', 'local_datacurso'),
