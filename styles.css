@@ -669,6 +669,33 @@ body.tutor-ia-drawer-open .tutor-ia-trigger-button {
     visibility: visible;
 }
 
+/* ============================================
+   Footer Popover Positioning
+   Mover footer-popover cuando el drawer del Tutor-IA está abierto
+   ============================================ */
+
+/* Cuando el drawer del Tutor-IA está abierto a la DERECHA */
+body.tutor-ia-drawer-open-right .btn-footer-popover,
+body.tutor-ia-drawer-open-right .btn-footer-communication,
+body.tutor-ia-drawer-open-right .popover-process-monitor {
+    /* Drawer width: 380px + spacing: 2rem */
+    right: calc(380px + 2rem) !important;
+    transition: right 0.2s ease;
+}
+
+body.tutor-ia-drawer-open-right .maintenancewarning {
+    right: calc(380px + 5rem) !important;
+    transition: right 0.2s ease;
+}
+
+/* Cuando el drawer del Tutor-IA está abierto a la IZQUIERDA */
+body.tutor-ia-drawer-open-left .btn-footer-popover,
+body.tutor-ia-drawer-open-left .btn-footer-communication,
+body.tutor-ia-drawer-open-left .popover-process-monitor {
+    /* Mantener posición derecha normal, no se mueven */
+    right: 2rem !important;
+}
+
 /* Drawer Header */
 .tutor-ia-drawer-header {
     padding: 1rem;

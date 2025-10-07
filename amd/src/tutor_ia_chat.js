@@ -42,7 +42,8 @@ define([
         INPUT: '[data-region="tutor-ia-input"]',
         SEND_BTN: '[data-action="send-message"]',
         PAGE: '#page',
-        JUMP_TO: '#jump-to'
+        JUMP_TO: '#jump-to',
+        BODY: 'body'
     };
 
     class TutorIAChat {
@@ -58,6 +59,7 @@ define([
 
             this.drawerElement = document.querySelector(SELECTORS.DRAWER);
             this.pageElement = document.querySelector(SELECTORS.PAGE);
+            this.bodyElement = document.querySelector(SELECTORS.BODY);
             this.toggleButton = document.querySelector(SELECTORS.TOGGLE_BTN);
             this.closeButton = document.querySelector(SELECTORS.CLOSE_BTN);
             this.jumpTo = document.querySelector(SELECTORS.JUMP_TO);
@@ -65,6 +67,8 @@ define([
             // Detectar posición del drawer (right/left) desde data-position.
             this.position = this.drawerElement ? this.drawerElement.getAttribute('data-position') || 'right' : 'right';
             this.pageClass = this.position === 'left' ? 'show-drawer-left' : 'show-drawer-right';
+            // Clase para identificar que el drawer del Tutor-IA está abierto (para mover footer-popover).
+            this.bodyClass = this.position === 'left' ? 'tutor-ia-drawer-open-left' : 'tutor-ia-drawer-open-right';
 
             this.init();
         }
@@ -155,6 +159,11 @@ define([
                 this.pageElement.classList.add(this.pageClass);
             }
 
+            // Add class to body to identify Tutor-IA drawer is open (for footer-popover positioning)
+            if (this.bodyElement && !this.bodyElement.classList.contains(this.bodyClass)) {
+                this.bodyElement.classList.add(this.bodyClass);
+            }
+
             // Focus management
             if (this.jumpTo) {
                 this.jumpTo.setAttribute('tabindex', 0);
@@ -173,6 +182,11 @@ define([
             // Remove padding from page - usa this.pageClass
             if (this.pageElement && this.pageElement.classList.contains(this.pageClass)) {
                 this.pageElement.classList.remove(this.pageClass);
+            }
+
+            // Remove class from body
+            if (this.bodyElement && this.bodyElement.classList.contains(this.bodyClass)) {
+                this.bodyElement.classList.remove(this.bodyClass);
             }
 
             // Focus management
@@ -256,6 +270,7 @@ define([
                 this.currentEventSource = es;
                 this.streaming = true;
                 let firstToken = true;
+                let messageCompleted = false; // Flag para saber si el mensaje se completó correctamente
 
                 es.addEventListener('token', (ev) => {
                     try {
@@ -273,13 +288,26 @@ define([
                     }
                 });
 
-                es.addEventListener('message_completed', () => {
+                // Escuchar evento 'done' (el servidor envía 'done', no 'message_completed')
+                es.addEventListener('done', () => {
+                    messageCompleted = true; // Marcar que el mensaje se completó correctamente
                     this.finalizeStream(sendBtn);
                 });
 
-                es.addEventListener('error', () => {
-                    this.appendToAIMessage('\n[Conexión interrumpida]');
+                // Mantener compatibilidad con 'message_completed' por si cambia el servidor
+                es.addEventListener('message_completed', () => {
+                    messageCompleted = true;
                     this.finalizeStream(sendBtn);
+                });
+
+                es.addEventListener('error', (e) => {
+                    // Solo mostrar error si el mensaje NO se completó correctamente
+                    if (!messageCompleted) {
+                        window.console.error('SSE error:', e);
+                        this.appendToAIMessage('\n[Conexión interrumpida]');
+                        this.finalizeStream(sendBtn);
+                    }
+                    // Si messageCompleted=true, el error es esperado (cierre normal después de completar)
                 });
             } catch (error) {
                 window.console.error('Error starting SSE:', error);
