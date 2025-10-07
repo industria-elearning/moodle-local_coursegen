@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * External API for getting response ia
+ * External API for Tutor-IA chat message creation
  *
  * @package    local_datacurso
  * @copyright  2025 Industria Elearning <info@industriaelearning.com>
@@ -24,12 +24,11 @@
 
 namespace local_datacurso\external;
 
-use core_date;
 use external_api;
 use core_external\external_function_parameters;
 use core_external\external_single_structure;
 use core_external\external_value;
-use local_datacurso\httpclient\datacurso_ai_api;
+use local_datacurso\httpclient\tutoria_api;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -38,119 +37,114 @@ require_once($CFG->libdir . '/externallib.php');
 /**
  * Class create_chat_message
  *
+ * Creates a chat message and returns streaming URL for Tutor-IA responses.
+ *
  * @package    local_datacurso
  * @copyright  2025 Industria Elearning <info@industriaelearning.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+class create_chat_message extends external_api {
 
-class create_chat_message extends external_api
-{
     /**
      * Returns description of method parameters.
      *
-     * @return \external_function_parameters
+     * @return external_function_parameters
      */
-    public static function execute_parameters(): external_function_parameters
-    {
+    public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
-            'courseid' => new external_value(PARAM_INT, 'Course id', VALUE_DEFAULT, 1),
-            'lang' => new external_value(PARAM_TEXT, 'Language code', VALUE_DEFAULT, 'es'),
-            'message' => new external_value(PARAM_RAW, 'Message or field id', VALUE_DEFAULT, 't63'),
+            'courseid' => new external_value(PARAM_INT, 'Course ID', VALUE_REQUIRED),
+            'message' => new external_value(PARAM_RAW, 'User message', VALUE_REQUIRED),
+            'meta' => new external_value(PARAM_RAW, 'Optional metadata (JSON)', VALUE_DEFAULT, '{}'),
         ]);
     }
 
     /**
-     * Make request to DataCurso backend to get AI response for the given course/module/message.
+     * Create chat message and initialize Tutor-IA session.
      *
      * @param int $courseid Course ID.
-     * @param string $lang Language code (e.g. 'es', 'en').
-     * @param string $message Message text or field identifier.
-     * @return array Associative array containing the AI response HTML.
+     * @param string $message User message text.
+     * @param string $meta Optional metadata as JSON string.
+     * @return array Session data with streaming URL.
      * @throws \invalid_parameter_exception
+     * @throws \moodle_exception
      */
-    public static function execute($courseid, $lang, $message): array {
-        GLOBAL $USER, $COURSE;
+    public static function execute($courseid, $message, $meta = '{}'): array {
+        global $CFG, $SITE;
+
         // Validate parameters.
         $params = self::validate_parameters(self::execute_parameters(), [
             'courseid' => $courseid,
-            'lang' => $lang,
             'message' => $message,
+            'meta' => $meta,
         ]);
 
-        $datacursoaiapi = new datacurso_ai_api();
+        // Check if chat is enabled globally.
+        if (!get_config('local_datacurso', 'enablechat')) {
+            throw new \moodle_exception('error_api_not_configured', 'local_datacurso');
+        }
 
-        $user = [
-            'email' => $USER->email,
-            'username' => $USER->username,
-            'fullName' => $USER->firstname . ' ' . $USER->lastname,
-            'tenantId' => get_config('local_datacurso', 'tenantid'),
-            'token' => get_config('local_datacurso', 'tenanttoken'),
-        ];
+        // Validate course access permissions.
+        $context = \context_course::instance($params['courseid']);
+        require_capability('moodle/course:view', $context);
 
-        $tenantId = get_config('local_datacurso', 'tenantid');
-        $token = get_config('local_datacurso', 'token');
-        $role = (new create_chat_message)->get_user_role_in_course($USER->id, $COURSE->id ?? 0);
+        // Initialize Tutor-IA API client.
+        $tutoriaapi = new tutoria_api();
 
-        $payload = [
-            'message' => $params['message'],
-            'user' => $user,
-            'context' => [
-                'tenant' => $tenantId,
-                'course_id' => $params['courseid'],
-                'role' => $role,
-                'activity' => [
-                    'cmid' => 0,
-                    'type' => 0,
-                    'name' => 0
-                ],
-                'locale' => current_language(),
-                'timezone' => core_date::get_user_timezone($USER)
-            ],
-            'trace_id' => \core\uuid::generate()
-        ];
+        // Get or create session using site identifier.
+        $siteid = self::get_site_identifier();
+        $session = $tutoriaapi->start_session($siteid, $params['courseid']);
 
-        $response = $datacursoaiapi->post('/v1/chats', $payload, 'http://docker.for.mac.host.internal:1337/api');
+        if (!isset($session['ready']) || !$session['ready']) {
+            throw new \moodle_exception('sessionnotready', 'local_datacurso');
+        }
+
+        // Parse metadata.
+        $metaarray = json_decode($params['meta'], true);
+        if ($metaarray === null) {
+            $metaarray = [];
+        }
+
+        // Send message to Tutor-IA.
+        $tutoriaapi->send_message($session['session_id'], $params['message'], $metaarray);
+
+        // Build streaming URL with authentication.
+        $streamurl = $tutoriaapi->get_stream_url($session['session_id']);
+        $token = get_config('local_datacurso', 'tutoraitoken');
+
+        // Add token as query parameter for SSE authentication.
+        if (!empty($token)) {
+            $streamurl .= '&token=' . urlencode($token);
+        }
 
         return [
-            'sessionid' => $response['session_id'] ?? '',
-            'streamurl' => $response['stream_url'] ?? '',
-            'expiresat' => $response['expires_at'] ?? ''
+            'session_id' => $session['session_id'],
+            'stream_url' => $streamurl,
+            'expires_at' => time() + ($session['session_ttl_seconds'] ?? 604800),
         ];
-
     }
 
     /**
      * Returns description of method result value.
      *
-     * @return \external_description
+     * @return external_single_structure
      */
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
-            'sessionid' => new external_value(PARAM_TEXT, 'Chat session ID'),
-            'streamurl' => new external_value(PARAM_TEXT, 'Streaming URL for chat responses'),
-            'expiresat' => new external_value(PARAM_TEXT, 'Expiration timestamp for the chat session'),
+            'session_id' => new external_value(PARAM_TEXT, 'Tutor-IA session ID'),
+            'stream_url' => new external_value(PARAM_URL, 'SSE streaming URL with authentication'),
+            'expires_at' => new external_value(PARAM_INT, 'Session expiration timestamp'),
         ]);
     }
 
     /**
-     * Obtiene el rol principal del usuario en el contexto de un curso.
+     * Generate a unique identifier for this Moodle site.
      *
-     * @param int $userid
-     * @param int $courseid
-     * @return string 'teacher', 'student' o 'guest'
+     * @return string Site identifier hash.
      */
-    private function get_user_role_in_course($userid, $courseid): string {
-        $context = \context_course::instance($courseid);
-        $roles = get_user_roles($context, $userid);
+    private static function get_site_identifier(): string {
+        global $CFG, $SITE;
 
-        foreach ($roles as $userrole) {
-            if ($userrole->shortname === 'editingteacher' || $userrole->shortname === 'teacher') {
-                return 'teacher';
-            } else if ($userrole->shortname === 'student') {
-                return 'student';
-            }
-        }
-        return 'guest';
+        // Use hash of wwwroot + site ID for unique identification.
+        return md5($CFG->wwwroot . '_' . $SITE->id);
     }
-
 }

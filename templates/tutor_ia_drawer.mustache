@@ -1,0 +1,88 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_datacurso/tutor_ia_drawer
+
+    Drawer lateral para el chat Tutor-IA (basado en aiplacement_courseassist).
+
+    Context variables required for this template:
+    * uniqid - Unique identifier
+    * courseid - ID del curso
+    * userid - ID del usuario
+    * userrole - Rol del usuario (Profesor/Estudiante)
+    * avatarurl - URL del avatar seleccionado
+    * position - Posición del drawer (right/left)
+
+    Example context (json):
+    {
+        "uniqid": "tia_123456",
+        "courseid": 2,
+        "userid": 5,
+        "userrole": "Estudiante",
+        "avatarurl": "/local/datacurso/pix/avatars/avatar_profesor_01.png",
+        "position": "right"
+    }
+}}
+<div class="tutor-ia-drawer tutor-ia-drawer-{{position}}" id="tutor-ia-drawer-{{uniqid}}" data-position="{{position}}" aria-label="{{#str}}tutoruia, local_datacurso{{/str}}" tabindex="-1" role="region">
+    <div class="tutor-ia-drawer-header">
+        <div class="tutor-ia-header-content">
+            <img src="{{avatarurl}}" alt="{{#str}}tutoruia, local_datacurso{{/str}}" class="tutor-ia-avatar-small">
+            <div class="tutor-ia-title">
+                <h3>{{#str}}tutoruia, local_datacurso{{/str}}</h3>
+                <span class="tutor-ia-role">{{userrole}}</span>
+            </div>
+        </div>
+        <button id="tutor-ia-drawer-close-{{uniqid}}" class="btn tutor-ia-close-button" type="button">
+            {{#pix}}e/cancel, core{{/pix}}
+            <span class="sr-only">{{#str}}closetutoria, local_datacurso{{/str}}</span>
+        </button>
+    </div>
+    <div class="tutor-ia-drawer-body" id="tutor-ia-drawer-content-{{uniqid}}" data-courseid="{{courseid}}" data-userid="{{userid}}">
+        <h2 class="sr-only">{{#str}}tutoruia, local_datacurso{{/str}}</h2>
+
+        {{! Contenedor de mensajes }}
+        <div class="tutor-ia-messages-container" data-region="tutor-ia-messages">
+            <div class="tutor-ia-message ai">{{#str}}welcomemessage, local_datacurso{{/str}}</div>
+        </div>
+
+        {{! Footer con input }}
+        <div class="tutor-ia-footer" data-region="tutor-ia-footer">
+            <div class="tutor-ia-input-wrapper">
+                <textarea
+                    class="form-control tutor-ia-input"
+                    data-region="tutor-ia-input"
+                    placeholder="{{#str}}typemessage, local_datacurso{{/str}}"
+                    rows="1"
+                    aria-label="{{#str}}typemessage, local_datacurso{{/str}}"></textarea>
+                <button class="btn btn-primary tutor-ia-send" data-action="send-message" aria-label="{{#str}}sendmessage, local_datacurso{{/str}}">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22,2 15,22 11,13 2,9"></polygon>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{{#js}}
+require(['local_datacurso/tutor_ia_chat'], function(TutorIAChat) {
+    var root = document.getElementById('tutor-ia-drawer-content-{{uniqid}}');
+    if (root) {
+        TutorIAChat.init(root, '{{uniqid}}', {{courseid}}, {{userid}});
+    }
+});
+{{/js}}
