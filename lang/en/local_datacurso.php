@@ -177,6 +177,17 @@ $string['plan_correction'] = 'Plan correction:';
 $string['planning_chat_placeholder'] = 'Describe the adjustments you want to make to the course planning...';
 $string['planning_completed'] = 'Planning completed';
 $string['pluginname'] = 'DataCurso';
+
+// Tutor-IA Drawer strings.
+$string['tutoruia'] = 'AI Tutor';
+$string['opentutoria'] = 'Open AI Tutor';
+$string['closetutoria'] = 'Close AI Tutor';
+$string['sendmessage'] = 'Send message';
+$string['typemessage'] = 'Type your message...';
+$string['welcomemessage'] = 'Hello! I\'m your AI assistant. How can I help you today?';
+$string['tutoria_avatar'] = 'Tutor-IA Avatar';
+$string['tutoria_avatar_desc'] = 'Select the avatar to display on the Tutor-IA floating chat button. If none is selected or the file does not exist, Avatar 1 will be used as default.';
+$string['avatar'] = 'Avatar';
 $string['resource_created'] = 'Resource {$a} created successfully.';
 $string['resourcecreatedsuccess'] = 'Resource created successfully.';
 $string['semester_option1'] = 'I';
@@ -208,3 +219,7 @@ $string['sessionnotready'] = 'The Tutor-IA session is not ready. Please try agai
 $string['cachedef_tutoria_sessions'] = 'Cache for Tutor-IA chat sessions';
 $string['unauthorized'] = 'Unauthorized access';
 $string['yesimages'] = 'Generate images';
+$string['tutoria_avatar_position'] = 'Tutor-AI avatar position';
+$string['tutoria_avatar_position_desc'] = 'Select the corner where the floating Tutor-AI chat button will be displayed. Default is bottom right corner.';
+$string['position_right'] = 'Bottom right corner';
+$string['position_left'] = 'Bottom left corner';

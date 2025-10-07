@@ -1,0 +1,41 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_datacurso/tutor_ia_trigger
+
+    Botón flotante para abrir el drawer del Tutor-IA.
+
+    Context variables required for this template:
+    * uniqid - Unique identifier
+    * avatarurl - URL del avatar seleccionado
+
+    Example context (json):
+    {
+        "uniqid": "tia_123456",
+        "avatarurl": "/local/datacurso/pix/avatars/avatar_profesor_01.png"
+    }
+}}
+<button
+    id="tutor-ia-trigger-{{uniqid}}"
+    class="tutor-ia-trigger-button"
+    data-action="toggle-tutor-ia-drawer"
+    aria-label="{{#str}}opentutoria, local_datacurso{{/str}}"
+    aria-expanded="false"
+    title="{{#str}}opentutoria, local_datacurso{{/str}}">
+    <img src="{{avatarurl}}" alt="{{#str}}tutoruia, local_datacurso{{/str}}" class="tutor-ia-avatar">
+    <span class="tutor-ia-badge" data-region="tutor-ia-badge" style="display: none;">0</span>
+</button>

@@ -102,6 +102,49 @@ if ($hassiteconfig) {
         )
     );
 
+    // Selector de avatar para Tutor-IA.
+    $avatars = [];
+    $avatar_dir = $CFG->dirroot . '/local/datacurso/pix/avatars/';
+
+    // Lista de avatares disponibles.
+    $available_avatars = ['01', '03', '04', '05', '06', '07', '08', '09', '10'];
+
+    foreach ($available_avatars as $num) {
+        $avatar_file = $avatar_dir . 'avatar_profesor_' . $num . '.png';
+        if (file_exists($avatar_file)) {
+            $avatars[$num] = get_string('avatar', 'local_datacurso') . ' ' . ltrim($num, '0');
+        }
+    }
+
+    // Si no hay avatares disponibles, al menos agregar el por defecto.
+    if (empty($avatars)) {
+        $avatars['01'] = get_string('avatar', 'local_datacurso') . ' 1 (' . get_string('default', 'core') . ')';
+    }
+
+    $settings->add(
+        new admin_setting_configselect(
+            'local_datacurso/tutoria_avatar',
+            get_string('tutoria_avatar', 'local_datacurso'),
+            get_string('tutoria_avatar_desc', 'local_datacurso'),
+            '01', // Avatar por defecto.
+            $avatars
+        )
+    );
+
+    // Selector de posición del avatar (derecha/izquierda).
+    $settings->add(
+        new admin_setting_configselect(
+            'local_datacurso/tutoria_avatar_position',
+            get_string('tutoria_avatar_position', 'local_datacurso'),
+            get_string('tutoria_avatar_position_desc', 'local_datacurso'),
+            'right', // Posición por defecto.
+            [
+                'right' => get_string('position_right', 'local_datacurso'),
+                'left' => get_string('position_left', 'local_datacurso'),
+            ]
+        )
+    );
+
     $ADMIN->add($pluginname, $settings);
     // Add manage models page.
     $ADMIN->add($pluginname, new admin_externalpage(

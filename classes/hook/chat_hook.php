@@ -40,7 +40,7 @@ class chat_hook {
         self::add_activity_ai_button();
         self::add_course_ai_button();
         self::check_ai_course_creation();
-        self::add_float_chat();
+        self::add_float_chat($hook);
     }
 
     /**
@@ -139,10 +139,12 @@ class chat_hook {
     }
 
     /**
-     * Adds the floating chat to course pages for all users.
+     * Adds the Tutor-IA drawer to course pages for all users.
+     *
+     * @param before_footer_html_generation $hook The hook event.
      */
-    private static function add_float_chat(): void {
-        global $PAGE, $COURSE, $USER;
+    private static function add_float_chat(before_footer_html_generation $hook): void {
+        global $PAGE, $COURSE, $USER, $OUTPUT;
 
         // Check if chat is enabled globally.
         if (!get_config('local_datacurso', 'enablechat')) {
@@ -153,16 +155,87 @@ class chat_hook {
             return;
         }
 
-        $PAGE->requires->js_call_amd('local_datacurso/chat', 'init');
+        $courseid = $COURSE->id ?? 0;
+        if ($courseid <= 1) {
+            return; // No mostrar en frontpage.
+        }
 
-        $chatdata = [
-            'courseid' => $COURSE->id ?? 0,
-            'userid' => $USER->id,
-            'userrole' => self::get_user_role_in_course(),
-            'contextlevel' => $PAGE->context->contextlevel ?? 0,
+        // Detectar rol del usuario.
+        $userrole = self::get_user_role_in_course();
+        $userroledisplay = ($userrole === 'teacher') ? 'Profesor' : 'Estudiante';
+
+        // Obtener avatar configurado con sistema de fallback.
+        $avatarurl = self::get_avatar_url();
+
+        // Obtener posición del avatar (derecha/izquierda).
+        $position = get_config('local_datacurso', 'tutoria_avatar_position');
+        if (empty($position)) {
+            $position = 'right'; // Por defecto: derecha.
+        }
+
+        // Calcular bottom position dinámicamente según el footer-popover de Moodle.
+        // El footer-popover está en bottom: 2rem, y el communication en 4rem.
+        // Colocamos el avatar en 6rem para estar por encima de ambos.
+        $bottomposition = '6rem';
+
+        // Generar unique ID.
+        $uniqid = uniqid('tia_');
+
+        // Preparar datos para templates.
+        $toggledata = [
+            'uniqid' => $uniqid,
+            'avatarurl' => $avatarurl->out(false),
+            'position' => $position,
+            'bottomposition' => $bottomposition
         ];
 
-        $PAGE->requires->data_for_js('datacurso_chat_config', $chatdata);
+        $drawerdata = [
+            'uniqid' => $uniqid,
+            'courseid' => $courseid,
+            'userid' => $USER->id,
+            'userrole' => $userroledisplay,
+            'avatarurl' => $avatarurl->out(false),
+            'position' => $position
+        ];
+
+        // Renderizar templates.
+        $toggle = $OUTPUT->render_from_template('local_datacurso/tutor_ia_toggle', $toggledata);
+        $drawer = $OUTPUT->render_from_template('local_datacurso/tutor_ia_drawer', $drawerdata);
+
+        // Agregar HTML directamente al footer usando el hook.
+        $hook->add_html($toggle . $drawer);
+    }
+
+    /**
+     * Obtiene la URL del avatar configurado con sistema de fallback.
+     *
+     * @return \moodle_url URL del avatar a usar
+     */
+    private static function get_avatar_url(): \moodle_url {
+        global $CFG;
+
+        // Obtener configuración.
+        $avatarnum = get_config('local_datacurso', 'tutoria_avatar');
+
+        // Primer fallback: Si no hay configuración, usar '01'.
+        if (empty($avatarnum)) {
+            $avatarnum = '01';
+        }
+
+        // Segundo fallback: Si el archivo no existe, usar '01'.
+        $avatarpath = $CFG->dirroot . '/local/datacurso/pix/avatars/avatar_profesor_' . $avatarnum . '.png';
+        if (!file_exists($avatarpath)) {
+            $avatarnum = '01';
+
+            // Último fallback: Si ni siquiera el '01' existe, usar un icono genérico de Moodle.
+            $defaultpath = $CFG->dirroot . '/local/datacurso/pix/avatars/avatar_profesor_01.png';
+            if (!file_exists($defaultpath)) {
+                // Usar icono de usuario genérico de Moodle.
+                return new \moodle_url('/pix/u/f1.png');
+            }
+        }
+
+        return new \moodle_url('/local/datacurso/pix/avatars/avatar_profesor_' . $avatarnum . '.png');
     }
 
     /**

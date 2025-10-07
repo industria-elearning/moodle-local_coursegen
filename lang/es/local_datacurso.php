@@ -161,6 +161,17 @@ $string['plan_correction'] = 'Corrección del plan:';
 $string['planning_chat_placeholder'] = 'Describe los ajustes que deseas realizar a la planificación del curso...';
 $string['planning_completed'] = 'Planificación completada';
 $string['pluginname'] = 'DataCurso';
+
+// Tutor-IA Drawer strings.
+$string['tutoruia'] = 'Tutor IA';
+$string['opentutoria'] = 'Abrir Tutor IA';
+$string['closetutoria'] = 'Cerrar Tutor IA';
+$string['sendmessage'] = 'Enviar mensaje';
+$string['typemessage'] = 'Escribe tu mensaje...';
+$string['welcomemessage'] = '¡Hola! Soy tu asistente de IA. ¿En qué puedo ayudarte hoy?';
+$string['tutoria_avatar'] = 'Avatar del Tutor-IA';
+$string['tutoria_avatar_desc'] = 'Selecciona el avatar que se mostrará en el botón flotante del chat Tutor-IA. Si no se selecciona ninguno o el archivo no existe, se usará el Avatar 1 por defecto.';
+$string['avatar'] = 'Avatar';
 $string['resource_created'] = 'Recurso {$a} creado correctamente.';
 $string['resourcecreatedsuccess'] = 'Recurso creado correctamente.';
 $string['semester_option1'] = 'I';
@@ -207,3 +218,7 @@ $string['module_streaming_start'] = '🚀 Comenzando la creación de la activida
 $string['module_creation_title'] = 'Creando módulo...';
 $string['module_creation_subtitle'] = 'Por favor espera mientras se genera el contenido';
 $string['yesimages'] = 'Generar imágenes';
+$string['tutoria_avatar_position'] = 'Posición del avatar del Tutor-IA';
+$string['tutoria_avatar_position_desc'] = 'Selecciona la esquina donde se mostrará el botón flotante del chat Tutor-IA. Por defecto aparece en la esquina inferior derecha.';
+$string['position_right'] = 'Esquina inferior derecha';
+$string['position_left'] = 'Esquina inferior izquierda';
