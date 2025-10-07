@@ -41,17 +41,6 @@ class ai_course {
         global $CFG, $DB;
 
         try {
-            // Get API configuration.
-            $apitoken = get_config('local_datacurso', 'apitoken');
-            $baseurl = get_config('local_datacurso', 'baseurl');
-
-            if (empty($apitoken) || empty($baseurl)) {
-                return [
-                    'ok' => false,
-                    'message' => get_string('error_api_config', 'local_datacurso'),
-                    'log' => 'API token or base URL not configured',
-                ];
-            }
 
             // Prepare request data.
             $requestdata = [

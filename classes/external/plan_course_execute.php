@@ -92,18 +92,6 @@ class plan_course_execute extends external_api {
                 ];
             }
 
-            // Get API configuration.
-            $apitoken = get_config('local_datacurso', 'apitoken');
-            $baseurl = get_config('local_datacurso', 'baseurl');
-
-            if (empty($apitoken) || empty($baseurl)) {
-                return [
-                    'success' => false,
-                    'message' => get_string('error_api_not_configured', 'local_datacurso'),
-                    'data' => null,
-                ];
-            }
-
             // Prepare the request data.
             $requestdata = [
                 'session_id' => $session->session_id,
@@ -124,6 +112,7 @@ class plan_course_execute extends external_api {
             ];
 
         } catch (\Exception $e) {
+            debugging("Unexpected error while executing course planning: " . $e->getMessage(), DEBUG_DEVELOPER, $e->getTrace());
             return [
                 'success' => false,
                 'message' => $e->getMessage(),
@@ -144,7 +133,7 @@ class plan_course_execute extends external_api {
             'data' => new external_single_structure([
                 'status' => new external_value(PARAM_TEXT, 'API status response', VALUE_OPTIONAL),
                 'streamingurl' => new external_value(PARAM_URL, 'Streaming URL to reconnect', VALUE_OPTIONAL),
-            ], 'Api response data', VALUE_OPTIONAL),
+            ], 'Api response data', VALUE_OPTIONAL, null, NULL_ALLOWED),
         ]);
     }
 }

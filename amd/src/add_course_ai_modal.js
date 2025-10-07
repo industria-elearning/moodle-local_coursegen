@@ -334,29 +334,16 @@ const setupPlanningButtons = (container, params) => {
                 }
 
                 // Show success notification after execution completes
-                get_string('addcourseai_done', 'local_datacurso').then((msg) => {
-                    Notification.addNotification({
-                        message: msg,
-                        type: 'success'
-                    });
-                    return null;
-                }).catch(() => {
-                    return get_string('course_created_success', 'local_datacurso');
-                }).then((msg) => {
-                    if (msg) {
-                        Notification.addNotification({
-                            message: msg,
-                            type: 'success'
-                        });
-                    }
+                const message = await get_string('addcourseai_done', 'local_datacurso')
+                Notification.addNotification({
+                    message: message,
+                    type: 'success'
                 });
                 
             } catch (error) {
                 console.error('Error creating course:', error);
                 acceptBtn.disabled = false;
-                get_string('accept_planning_create_course', 'local_datacurso').then((msg) => {
-                    acceptBtn.textContent = msg;
-                });
+                acceptBtn.textContent = await get_string('accept_planning_create_course', 'local_datacurso');
                 Notification.exception(error);
             }
         });

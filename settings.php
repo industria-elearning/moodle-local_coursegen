@@ -52,26 +52,6 @@ if ($hassiteconfig) {
         )
     );
 
-    // Add baseurl setting.
-    $settings->add(
-        new admin_setting_configtext(
-            'local_datacurso/baseurl',
-            new lang_string('baseurl', 'local_datacurso'),
-            new lang_string('baseurl_desc', 'local_datacurso'),
-            '',
-        )
-    );
-
-    // Add apitoken setting.
-    $settings->add(
-        new admin_setting_configpasswordunmask(
-            'local_datacurso/apitoken',
-            new lang_string('apitoken', 'local_datacurso'),
-            new lang_string('apitoken_desc', 'local_datacurso'),
-            '',
-        )
-    );
-
     $ADMIN->add($pluginname, $settings);
     // Add manage models page.
     $ADMIN->add($pluginname, new admin_externalpage(

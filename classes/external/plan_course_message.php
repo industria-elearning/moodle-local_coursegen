@@ -96,18 +96,6 @@ class plan_course_message extends external_api {
                 ];
             }
 
-            // Get API configuration.
-            $apitoken = get_config('local_datacurso', 'apitoken');
-            $baseurl = get_config('local_datacurso', 'baseurl');
-
-            if (empty($apitoken) || empty($baseurl)) {
-                return [
-                    'success' => false,
-                    'message' => get_string('error_api_not_configured', 'local_datacurso'),
-                    'status' => null,
-                ];
-            }
-
             // Prepare the request data.
             $requestdata = [
                 'session_id' => $session->session_id,

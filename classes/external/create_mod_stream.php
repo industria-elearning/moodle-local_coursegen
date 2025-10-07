@@ -84,17 +84,6 @@ class create_mod_stream extends external_api {
             $context = context_course::instance($course->id);
             self::validate_context($context);
 
-            $apitoken = get_config('local_datacurso', 'apitoken');
-            $baseurl = get_config('local_datacurso', 'baseurl');
-
-            if (empty($apitoken) || empty($baseurl)) {
-                return [
-                    'ok' => false,
-                    'message' => get_string('error_api_config', 'local_datacurso'),
-                    'log' => 'API token or base URL not configured',
-                ];
-            }
-
             $aicontext = $DB->get_record_sql(
                 'SELECT cc.context_type, m.name FROM {local_datacurso_course_context} cc
                     LEFT JOIN {local_datacurso_model} m
