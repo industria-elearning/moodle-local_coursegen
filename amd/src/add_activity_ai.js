@@ -18,7 +18,7 @@
  * TODO describe module add_activity_ai
  *
  * @module     local_datacurso/add_activity_ai
- * @copyright  2025 Buendata <soluciones@buendata.com>
+ * @copyright  2025 Wilber Narvaez <soluciones@buendata.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

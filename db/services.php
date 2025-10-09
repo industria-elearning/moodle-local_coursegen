@@ -28,22 +28,6 @@
 defined('MOODLE_INTERNAL') || die();
 
 $functions = [
-    'local_datacurso_get_models_by_tenant' => [
-        'classname' => 'local_datacurso\external\get_models_by_tenant',
-        'methodname' => 'execute',
-        'description' => 'Get models by tenant',
-        'type' => 'read',
-        'ajax' => true,
-    ],
-    'local_datacurso_get_courses_by_model' => [
-        'classname'   => 'local_datacurso\external\get_courses_by_model',
-        'methodname'  => 'execute',
-        'classpath'   => 'local/datacurso/externallib.php',
-        'description' => 'Get courses by model ID',
-        'type'        => 'read',
-        'ajax'        => true,
-        'capabilities' => '',
-    ],
     'local_datacurso_create_mod' => [
         'classname' => 'local_datacurso\external\create_mod',
         'methodname' => 'execute',
@@ -83,22 +67,5 @@ $functions = [
         'type' => 'write',
         'ajax' => true,
         'capabilities' => 'moodle/course:update',
-    ],
-    'local_datacurso_get_response_ia' => [
-        'classname'   => 'local_datacurso\external\get_response_ia',
-        'methodname'  => 'execute',
-        'description' => 'Request IA response and return assembled HTML',
-        'type'        => 'write',
-        'ajax'        => true,
-
-    ],
-
-    // Add function create_chat_message
-    'local_datacurso_create_chat_message' => [
-        'classname'   => 'local_datacurso\external\create_chat_message',
-        'methodname'  => 'execute',
-        'description' => 'Create a chat message in a specified chat room',
-        'type'        => 'write',
-        'ajax'        => true,
     ],
 ];

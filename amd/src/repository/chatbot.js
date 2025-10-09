@@ -18,7 +18,7 @@
  * TODO describe module chatbot
  *
  * @module     local_datacurso/repository/chatbot
- * @copyright  2025 Buendata <soluciones@buendata.com>
+ * @copyright  2025 Wilber Narvaez <soluciones@buendata.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 import ajax from "core/ajax";

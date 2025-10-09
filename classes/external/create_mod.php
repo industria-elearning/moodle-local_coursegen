@@ -34,7 +34,7 @@ require_once($CFG->dirroot . '/course/modlib.php');
  * Class create_mod
  *
  * @package    local_datacurso
- * @copyright  2025 Buendata <soluciones@buendata.com>
+ * @copyright  2025 Wilber Narvaez <soluciones@buendata.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class create_mod extends external_api {
