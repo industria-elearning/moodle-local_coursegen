@@ -1,4 +1,3 @@
-/* eslint-disable */
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -18,12 +17,11 @@
  * Module Streaming Module for handling real-time module generation
  *
  * @module     local_datacurso/module_streaming
- * @copyright  2025 Buendata <soluciones@buendata.com>
+ * @copyright  2025 Wilber Narvaez <soluciones@buendata.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import { get_string } from "core/str";
-import { createMod } from "local_datacurso/repository/chatbot";
+import {get_string} from "core/str";
 
 // Global state for scroll behavior
 let userHasScrolled = false;
@@ -36,7 +34,9 @@ let scrollTimeout = null;
  */
 const isAtBottom = (element) => {
   const threshold = 50; // 50px threshold
-  return element.scrollTop + element.clientHeight >= element.scrollHeight - threshold;
+  return (
+    element.scrollTop + element.clientHeight >= element.scrollHeight - threshold
+  );
 };
 
 /**
@@ -44,17 +44,19 @@ const isAtBottom = (element) => {
  * @param {Element} scrollContainer - The container to monitor for scroll
  */
 const setupScrollDetection = (scrollContainer) => {
-  if (!scrollContainer) return;
-  
+  if (!scrollContainer) {
+    return;
+  }
+
   const handleScroll = () => {
     // Clear existing timeout
     if (scrollTimeout) {
       clearTimeout(scrollTimeout);
     }
-    
+
     // Mark that user has scrolled
     userHasScrolled = true;
-    
+
     // Check if user scrolled back to bottom
     if (isAtBottom(scrollContainer)) {
       // Reset flag after a short delay to resume auto-scroll
@@ -63,8 +65,8 @@ const setupScrollDetection = (scrollContainer) => {
       }, 1000);
     }
   };
-  
-  scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+
+  scrollContainer.addEventListener("scroll", handleScroll, { passive: true });
 };
 
 /**
@@ -75,15 +77,21 @@ const setupScrollDetection = (scrollContainer) => {
  */
 const addStatus = (message, type, container) => {
   const statusDiv = document.createElement("div");
-  statusDiv.className = `alert alert-${
-    type === "success" ? "success" : type === "error" ? "danger" : type === "warning" ? "warning" : "info"
-  } mb-2`;
+  // Map status types to Bootstrap alert classes
+  const alertClassMap = {
+    success: "success",
+    error: "danger",
+    warning: "warning",
+    info: "info"
+  };
+
+  statusDiv.className = `alert alert-${alertClassMap[type] || "info"} mb-2`;
   statusDiv.innerHTML = `<small>${message}</small>`;
   container.appendChild(statusDiv);
-  
+
   // Only auto-scroll if user hasn't manually scrolled
   if (!userHasScrolled) {
-    const modalBody = document.querySelector('.modal-body');
+    const modalBody = document.querySelector(".modal-body");
     if (modalBody) {
       modalBody.scrollTop = modalBody.scrollHeight;
     } else {
@@ -98,7 +106,11 @@ const addStatus = (message, type, container) => {
  * @param {Element} container - Container element for displaying results
  * @param {Object} params - Additional parameters (courseid, sectionnum, beforemod)
  */
-export const startModuleStreaming = async (streamingUrl, container, params = {}) => {
+export const startModuleStreaming = async (
+  streamingUrl,
+  container,
+  params = {}
+) => {
   const progressIndicator = container.querySelector(
     "[data-region='local_datacurso/course_streaming/progress']"
   );
@@ -125,7 +137,7 @@ export const startModuleStreaming = async (streamingUrl, container, params = {})
   }
 
   // Setup scroll detection on modal body
-  const modalBody = document.querySelector('.modal-body');
+  const modalBody = document.querySelector(".modal-body");
   if (modalBody) {
     setupScrollDetection(modalBody);
   }
@@ -133,73 +145,91 @@ export const startModuleStreaming = async (streamingUrl, container, params = {})
   const es = new EventSource(streamingUrl);
 
   // Essential event handlers for module creation
-  const onResourceStart = async (e) => {
-    console.log("onResourceStart", e);
-    const message = await get_string('module_streaming_start', 'local_datacurso');
+  const onResourceStart = async () => {
+    const message = await get_string(
+      "module_streaming_start",
+      "local_datacurso"
+    );
     addStatus(message, "info", eventList);
   };
 
-  const onSchemaStart = async (e) => {
-    console.log("onSchemaStart", e);
-    const message = await get_string('module_streaming_schema_start', 'local_datacurso');
+  const onSchemaStart = async () => {
+    const message = await get_string(
+      "module_streaming_schema_start",
+      "local_datacurso"
+    );
     addStatus(message, "info", eventList);
   };
 
-  const onSchemaDone = async (e) => {
-    console.log("onSchemaDone", e);
-    const message = await get_string('module_streaming_schema_done', 'local_datacurso');
+  const onSchemaDone = async () => {
+    const message = await get_string(
+      "module_streaming_schema_done",
+      "local_datacurso"
+    );
     addStatus(message, "success", eventList);
   };
 
-  const onImagesStart = async (e) => {
-    console.log("onImagesStart", e);
-    const message = await get_string('module_streaming_images_start', 'local_datacurso');
+  const onImagesStart = async () => {
+    const message = await get_string(
+      "module_streaming_images_start",
+      "local_datacurso"
+    );
     addStatus(message, "info", eventList);
   };
 
-  const onImagesDone = async (e) => {
-    console.log("onImagesDone", e);
-    const message = await get_string('module_streaming_images_done', 'local_datacurso');
+  const onImagesDone = async () => {
+    const message = await get_string(
+      "module_streaming_images_done",
+      "local_datacurso"
+    );
     addStatus(message, "success", eventList);
   };
 
-  const onParametersStart = async (e) => {
-    console.log("onParametersStart", e);
-    const message = await get_string('module_streaming_parameters_start', 'local_datacurso');
+  const onParametersStart = async () => {
+    const message = await get_string(
+      "module_streaming_parameters_start",
+      "local_datacurso"
+    );
     addStatus(message, "info", eventList);
   };
 
-  const onParametersDone = async (e) => {
-    console.log("onParametersDone", e);
-    const message = await get_string('module_streaming_parameters_done', 'local_datacurso');
+  const onParametersDone = async () => {
+    const message = await get_string(
+      "module_streaming_parameters_done",
+      "local_datacurso"
+    );
     addStatus(message, "success", eventList);
   };
 
-  const onOutputStart = async (e) => {
-    console.log("onOutputStart", e);
-    const message = await get_string('module_streaming_output_start', 'local_datacurso');
+  const onOutputStart = async () => {
+    const message = await get_string(
+      "module_streaming_output_start",
+      "local_datacurso"
+    );
     addStatus(message, "info", eventList);
   };
 
-  const onResourceComplete = async (e) => {
-    console.log("onResourceComplete", e);
-
+  const onResourceComplete = async () => {
     // Close the EventSource connection first
     es.close();
-    
+
     if (progressIcon) {
       progressIcon.innerHTML = `
-        <div class="bg-success rounded-circle d-flex align-items-center justify-content-center" style="width: 1.5rem; height: 1.5rem;">
+        <div class="bg-success rounded-circle d-flex align-items-center justify-content-center"
+             style="width: 1.5rem; height: 1.5rem;">
           <i class="text-white" style="font-size: 0.8rem;">✓</i>
         </div>
       `;
     }
 
-    const completeMessage = await get_string('module_streaming_complete', 'local_datacurso');
+    const completeMessage = await get_string(
+      "module_streaming_complete",
+      "local_datacurso"
+    );
     addStatus(completeMessage, "success", eventList);
 
     try {
-      const { createMod } = await import('local_datacurso/repository/chatbot');
+      const { createMod } = await import("local_datacurso/repository/chatbot");
       const response = await createMod({
         courseid: params.courseid,
         sectionnum: params.sectionnum,
@@ -207,27 +237,39 @@ export const startModuleStreaming = async (streamingUrl, container, params = {})
         jobid: params.jobid,
       });
       if (response && response.ok) {
-        const successMessage = await get_string('module_streaming_added_success', 'local_datacurso');
+        const successMessage = await get_string(
+          "module_streaming_added_success",
+          "local_datacurso"
+        );
         addStatus(successMessage, "success", eventList);
         setTimeout(() => {
           window.location.href = response.data.activityurl;
         }, 1000);
       } else {
-        const defaultError = await get_string('module_streaming_add_error', 'local_datacurso');
-        const msg = (response && response.message) ? response.message : defaultError;
+        const defaultError = await get_string(
+          "module_streaming_add_error",
+          "local_datacurso"
+        );
+        const msg =
+          response && response.message ? response.message : defaultError;
         addStatus(`⚠️ ${msg}`, "error", eventList);
       }
     } catch (err) {
-      console.error('Error al crear la actividad desde resource_complete:', err);
-      const errorMessage = await get_string('module_streaming_add_problem', 'local_datacurso', err?.message || err);
+      const errorMessage = await get_string(
+        "module_streaming_add_problem",
+        "local_datacurso",
+        err?.message || err
+      );
       addStatus(`⚠️ ${errorMessage}`, "error", eventList);
     }
   };
 
-  const onError = async (e) => {
-    console.error("Streaming error:", e);
+  const onError = async () => {
     es.close();
-    const errorMessage = await get_string('module_streaming_creation_error', 'local_datacurso');
+    const errorMessage = await get_string(
+      "module_streaming_creation_error",
+      "local_datacurso"
+    );
     addStatus(errorMessage, "error", eventList);
   };
 

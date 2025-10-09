@@ -1,4 +1,3 @@
-/* eslint-disable */
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -18,7 +17,7 @@
  * Course Streaming Module for handling real-time course generation
  *
  * @module     local_datacurso/course_streaming
- * @copyright  2025 Buendata <soluciones@buendata.com>
+ * @copyright  2025 Wilber Narvaez <soluciones@buendata.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -36,7 +35,9 @@ let scrollTimeout = null;
  */
 const isAtBottom = (element) => {
   const threshold = 50; // 50px threshold
-  return element.scrollTop + element.clientHeight >= element.scrollHeight - threshold;
+  return (
+    element.scrollTop + element.clientHeight >= element.scrollHeight - threshold
+  );
 };
 
 /**
@@ -44,17 +45,19 @@ const isAtBottom = (element) => {
  * @param {Element} scrollContainer - The container to monitor for scroll
  */
 const setupScrollDetection = (scrollContainer) => {
-  if (!scrollContainer) return;
-  
+  if (!scrollContainer) {
+    return;
+  }
+
   const handleScroll = () => {
     // Clear existing timeout
     if (scrollTimeout) {
       clearTimeout(scrollTimeout);
     }
-    
+
     // Mark that user has scrolled
     userHasScrolled = true;
-    
+
     // Check if user scrolled back to bottom
     if (isAtBottom(scrollContainer)) {
       // Reset flag after a short delay to resume auto-scroll
@@ -63,8 +66,8 @@ const setupScrollDetection = (scrollContainer) => {
       }, 1000);
     }
   };
-  
-  scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+
+  scrollContainer.addEventListener("scroll", handleScroll, { passive: true });
 };
 
 /**
@@ -74,7 +77,11 @@ const setupScrollDetection = (scrollContainer) => {
  * @param {boolean} isCorrection - Whether this is a plan correction (don't clear existing content)
  * @returns {Promise} Promise that resolves when streaming is complete
  */
-export const startStreaming = async (streamingUrl, container, isCorrection = false) => {
+export const startStreaming = async (
+  streamingUrl,
+  container,
+  isCorrection = false
+) => {
   const progressIndicator = container.querySelector(
     "[data-region='local_datacurso/course_streaming/progress']"
   );
@@ -105,7 +112,7 @@ export const startStreaming = async (streamingUrl, container, isCorrection = fal
   }
 
   // Setup scroll detection on modal body
-  const modalBody = document.querySelector('.modal-body');
+  const modalBody = document.querySelector(".modal-body");
   if (modalBody) {
     setupScrollDetection(modalBody);
   }
@@ -122,14 +129,16 @@ export const startStreaming = async (streamingUrl, container, isCorrection = fal
 
   // Local functions for this streaming instance
   const updateHtmlSoon = (container) => {
-    if (rafPending) return;
+    if (rafPending) {
+      return;
+    }
     rafPending = true;
     requestAnimationFrame(() => {
       rafPending = false;
       container.innerHTML = htmlBuffer;
       // Only auto-scroll if user hasn't manually scrolled
       if (!userHasScrolled) {
-        const modalBody = document.querySelector('.modal-body');
+        const modalBody = document.querySelector(".modal-body");
         if (modalBody) {
           modalBody.scrollTop = modalBody.scrollHeight;
         } else {
@@ -152,7 +161,8 @@ export const startStreaming = async (streamingUrl, container, isCorrection = fal
 
   evtSource.addEventListener("assistant_message_end", () => {
     progressIcon.innerHTML = `
-        <div class="bg-success rounded-circle d-flex align-items-center justify-content-center" style="width: 1.5rem; height: 1.5rem;">
+        <div class="bg-success rounded-circle d-flex align-items-center justify-content-center"
+              style="width: 1.5rem; height: 1.5rem;">
           <i class="text-white" style="font-size: 0.8rem;">✓</i>
         </div>
       `;
@@ -160,7 +170,7 @@ export const startStreaming = async (streamingUrl, container, isCorrection = fal
     if (planningActions) {
       planningActions.style.display = "block";
     }
-    
+
     // Re-enable both planning buttons after streaming completes
     const acceptBtn = document.getElementById("accept-planning-btn");
     const adjustBtn = document.getElementById("adjust-planning-btn");
@@ -170,7 +180,7 @@ export const startStreaming = async (streamingUrl, container, isCorrection = fal
     if (adjustBtn) {
       adjustBtn.disabled = false;
     }
-    
+
     evtSource.close();
   });
 };
@@ -181,7 +191,9 @@ export const startStreaming = async (streamingUrl, container, isCorrection = fal
  * @returns {Object|null} Parsed object or null
  */
 const parseBest = (raw) => {
-  if (!raw) return null;
+  if (!raw) {
+    return null;
+  }
   const s = String(raw).trim();
   try {
     return JSON.parse(s);
@@ -207,15 +219,19 @@ const parseBest = (raw) => {
  */
 const addStatus = (message, type, container) => {
   const statusDiv = document.createElement("div");
-  statusDiv.className = `alert alert-${
-    type === "ok" ? "success" : type === "error" ? "danger" : "info"
-  } mb-2`;
+  const alertClassMap = {
+    success: "success",
+    error: "danger",
+    info: "info"
+  };
+
+  statusDiv.className = `alert alert-${alertClassMap[type] || "info"} mb-2`;
   statusDiv.innerHTML = `<small>${message}</small>`;
   container.appendChild(statusDiv);
-  
+
   // Only auto-scroll if user hasn't manually scrolled
   if (!userHasScrolled) {
-    const modalBody = document.querySelector('.modal-body');
+    const modalBody = document.querySelector(".modal-body");
     if (modalBody) {
       modalBody.scrollTop = modalBody.scrollHeight;
     } else {
@@ -228,6 +244,7 @@ const addStatus = (message, type, container) => {
  * Start execution streaming from the provided URL
  * @param {string} streamingUrl - The EventSource URL for streaming
  * @param {Element} container - Container element for displaying results
+ * @param {number} courseid - The course ID for creating the course
  * @returns {Promise} Promise that resolves when streaming is complete
  */
 export const startExecutionStreaming = async (
@@ -245,7 +262,6 @@ export const startExecutionStreaming = async (
     "[data-region='local_datacurso/course_streaming/progress/icon']"
   );
 
-  console.log({ container, progressIndicator, eventList, progressIcon });
   eventList.innerHTML = "";
   if (progressIndicator) {
     progressIndicator.style.display = "block";
@@ -259,7 +275,7 @@ export const startExecutionStreaming = async (
   }
 
   // Setup scroll detection on modal body
-  const modalBody = document.querySelector('.modal-body');
+  const modalBody = document.querySelector(".modal-body");
   if (modalBody) {
     setupScrollDetection(modalBody);
   }
@@ -267,21 +283,23 @@ export const startExecutionStreaming = async (
   const es = new EventSource(streamingUrl);
 
   const onActStart = async (e) => {
-    console.log("onActStart", e);
     const obj = parseBest(e.data) || {};
     const idx = obj.index ?? "?";
     const title = obj.title || "";
     const sec = obj.section_index ?? "?";
-    const msg = await get_string("execution_activity_start", "local_datacurso", {
-      index: idx,
-      section: sec,
-      title: title,
-    });
+    const msg = await get_string(
+      "execution_activity_start",
+      "local_datacurso",
+      {
+        index: idx,
+        section: sec,
+        title: title,
+      }
+    );
     addStatus(msg, "info", eventList);
   };
 
   const onActDone = async (e) => {
-    console.log("onActDone", e);
     const obj = parseBest(e.data) || {};
     const done = obj.done ?? 0;
     const total = obj.total ?? 0;
@@ -295,7 +313,6 @@ export const startExecutionStreaming = async (
   };
 
   const onProgress = async (e) => {
-    console.log("onProgress", e);
     const obj = parseBest(e.data) || {};
     const done = obj.done ?? 0;
     const total = obj.total ?? 0;
@@ -308,19 +325,17 @@ export const startExecutionStreaming = async (
     addStatus(msg, "info", eventList);
   };
 
-  const onExecError = async (e) => {
-    console.log("onExecError", e);
+  const onExecError = async () => {
     const msg = await get_string("execution_error_activity", "local_datacurso");
     addStatus(msg, "error", eventList);
   };
 
-  const onComplete = async (e) => {
-    console.log("onComplete", e);
-
+  const onComplete = async () => {
     // Close the EventSource connection first
     es.close();
     progressIcon.innerHTML = `
-        <div class="bg-success rounded-circle d-flex align-items-center justify-content-center" style="width: 1.5rem; height: 1.5rem;">
+        <div class="bg-success rounded-circle d-flex align-items-center justify-content-center"
+              style="width: 1.5rem; height: 1.5rem;">
           <i class="text-white" style="font-size: 0.8rem;">✓</i>
         </div>
       `;
@@ -330,18 +345,29 @@ export const startExecutionStreaming = async (
       const result = await createCourse({ courseid });
 
       if (result.success) {
-        const okmsg = await get_string("course_created_success_simple", "local_datacurso");
+        const okmsg = await get_string(
+          "course_created_success_simple",
+          "local_datacurso"
+        );
         addStatus(okmsg, "ok", eventList);
         // Reload the page after 500ms
         setTimeout(() => {
           window.location.reload();
         }, 500);
       } else {
-        const errmsg = await get_string("error_creating_course", "local_datacurso", result.message || "");
+        const errmsg = await get_string(
+          "error_creating_course",
+          "local_datacurso",
+          result.message || ""
+        );
         addStatus(errmsg, "error", eventList);
       }
     } catch (error) {
-      const errmsg = await get_string("error_creating_course", "local_datacurso", error.message || "");
+      const errmsg = await get_string(
+        "error_creating_course",
+        "local_datacurso",
+        error.message || ""
+      );
       addStatus(errmsg, "error", eventList);
     }
   };
@@ -353,4 +379,3 @@ export const startExecutionStreaming = async (
   es.addEventListener("execution_error", onExecError);
   es.addEventListener("execution_complete", onComplete);
 };
-

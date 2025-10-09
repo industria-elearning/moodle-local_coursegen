@@ -18,7 +18,7 @@
  * Utility class for cleaning text editor parameters from API responses.
  *
  * @package    local_datacurso
- * @copyright  2025 Buendata <wilber@buendata.com>
+ * @copyright  2025 Wilber Narvaez <soluciones@buendata.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

@@ -35,7 +35,7 @@ require_once($CFG->libdir . '/externallib.php');
  * like a session_id using ai_course::save_course_session(), and returns that id to the caller.
  *
  * @package    local_datacurso
- * @copyright  2025 Buendata
+ * @copyright  2025 Wilber Narvaez
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class create_mod_stream extends external_api {
