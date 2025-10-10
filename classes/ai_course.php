@@ -58,7 +58,7 @@ class ai_course {
             \core\session\manager::write_close();
 
             $client = new ai_course_api();
-            $result = $client->request('POST', '/planning/plan-course/start', $requestdata);
+            $result = $client->request('POST', '/course/start', $requestdata);
 
             if (!isset($result['session_id'])) {
                 return [
