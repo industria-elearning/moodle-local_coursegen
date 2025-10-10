@@ -101,7 +101,7 @@ class create_course extends external_api {
             \core\session\manager::write_close();
 
             $client = new ai_course_api();
-            $result = $client->request('GET', '/planning/plan-course/result?session_id=' . urlencode($session->session_id));
+            $result = $client->request('GET', '/course/result?session_id=' . urlencode($session->session_id));
 
             // Check if the plan is completed.
             if (empty($result['status']) || $result['status'] !== 'completed') {
