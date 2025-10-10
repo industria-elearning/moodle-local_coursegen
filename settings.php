@@ -32,26 +32,6 @@ if ($hassiteconfig) {
     $ADMIN->add('localplugins', $admincategory);
     $settings = new admin_settingpage("{$pluginname}_settings", get_string('generalsettings', $pluginname));
 
-    // Add tenantid setting.
-    $settings->add(
-        new admin_setting_configtext(
-            "{$pluginname}/tenantid",
-            get_string('tenantid', $pluginname),
-            get_string('tenantid_desc', $pluginname),
-            '',
-        )
-    );
-
-    // Add tenant token setting.
-    $settings->add(
-        new admin_setting_configpasswordunmask(
-            'local_datacurso/tenanttoken',
-            new lang_string('tenanttoken', 'local_datacurso'),
-            new lang_string('tenanttoken_desc', 'local_datacurso'),
-            '',
-        )
-    );
-
     $ADMIN->add($pluginname, $settings);
     // Add manage models page.
     $ADMIN->add($pluginname, new admin_externalpage(
