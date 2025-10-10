@@ -16,6 +16,8 @@
 
 namespace local_datacurso\mod_parameters;
 
+use aiprovider_datacurso\httpclient\ai_course_api;
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/filelib.php');
@@ -36,24 +38,11 @@ class scorm_parameters extends base_parameters {
      */
     public function get_parameters() {
         global $USER, $CFG;
-        $userid = $USER->id;
-        $draftid = file_get_unused_draft_itemid();
 
-        $filepath = $CFG->dirroot . '/local/datacurso/classes/mod_parameters/scorm/scorm-test.zip';
-        $filename = basename($filepath);
-
-        // Store image in moodledata.
-        $fs = get_file_storage();
-        $context = \context_user::instance($userid);
-        $fileinfo = [
-            'contextid' => $context->id,
-            'component' => 'user',
-            'filearea' => 'draft',
-            'itemid' => $draftid,
-            'filepath' => '/',
-            'filename' => $filename,
-        ];
-        $file = $fs->create_file_from_pathname($fileinfo, $filepath);
+        $modsettings = $this->parameters->mod_settings;
+        $client = new ai_course_api();
+        $endpoint = '/files/download?path=' . $modsettings['file_path'];
+        $file = $client->download_file($endpoint, $modsettings['file_name']);
         $this->parameters->packagefile = $file->get_itemid();
         return $this->parameters;
     }
