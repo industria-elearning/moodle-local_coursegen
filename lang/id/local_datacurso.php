@@ -116,3 +116,4 @@ $string['syllabus_pdf_field'] = 'Unggah PDF silabus';
 $string['syllabus_pdf_field_help'] = 'Unggah file PDF yang berisi silabus kursus. File ini akan dikirim ke AI untuk analisis konteks. Ukuran maksimum: 10MB.';
 $string['unauthorized'] = 'Akses tidak sah';
 $string['yesimages'] = 'Buat gambar';
+$string['addcourseai_modaltitle'] = 'Buat kursus dengan AI';
