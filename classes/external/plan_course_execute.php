@@ -36,7 +36,6 @@ use external_value;
 use external_single_structure;
 use context_course;
 use moodle_exception;
-use local_datacurso\local\streaming_helper;
 
 /**
  * External API for executing AI course planning sessions.
@@ -98,7 +97,7 @@ class plan_course_execute extends external_api {
             ];
 
             $client = new ai_course_api();
-            $result = $client->request('POST', '/planning/plan-course/execute', $requestdata);
+            $result = $client->request('POST', '/course/execute', $requestdata);
 
             // Build streaming URL and return success response with API status.
             $streamingurl = $client->get_streaming_url_for_session($session->session_id);

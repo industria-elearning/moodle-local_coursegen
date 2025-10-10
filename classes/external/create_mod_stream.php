@@ -22,7 +22,6 @@ use external_api;
 use external_function_parameters;
 use external_single_structure;
 use external_value;
-use local_datacurso\local\streaming_helper;
 
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/externallib.php');
