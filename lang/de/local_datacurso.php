@@ -37,6 +37,7 @@ $string['addactivityai_welcome'] = 'Hallo! Sag mir, welche Ressource oder Aktivi
 $string['addactivitywithia'] = 'Aktivität oder Ressource mit KI hinzufügen';
 $string['addcourseai_arialabel'] = 'KI-Assistent zum Erstellen von Kursen';
 $string['addcourseai_done'] = 'Fertig! Der Kurs wurde erfolgreich erstellt.';
+$string['addcourseai_modaltitle'] = 'Kurs mit KI erstellen';
 $string['addmodel'] = 'Modell hinzufügen';
 $string['adjust_course_planning'] = 'Kursplanung anpassen';
 $string['adjust_planning_title'] = 'Kursplanung anpassen';

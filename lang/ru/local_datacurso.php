@@ -37,6 +37,7 @@ $string['addactivityai_welcome'] = 'Здравствуйте! Расскажит
 $string['addactivitywithia'] = 'Добавить активность или ресурс с ИИ';
 $string['addcourseai_arialabel'] = 'ИИ-ассистент для создания курсов';
 $string['addcourseai_done'] = 'Готово! Курс успешно создан.';
+$string['addcourseai_modaltitle'] = 'Создать курс с ИИ';
 $string['addmodel'] = 'Добавить модель';
 $string['adjust_course_planning'] = 'Настроить планирование курса';
 $string['adjust_planning_title'] = 'Настройка планирования курса';

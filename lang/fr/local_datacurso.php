@@ -38,6 +38,7 @@ $string['addactivityai_welcome'] = 'Bonjour ! Dites-moi quelle ressource ou acti
 $string['addactivitywithia'] = 'Ajouter une activité ou ressource avec l’IA';
 $string['addcourseai_arialabel'] = 'Assistant IA pour créer des cours';
 $string['addcourseai_done'] = 'Terminé ! Le cours a été créé avec succès.';
+$string['addcourseai_modaltitle'] = 'Créer un cours avec l’IA';
 $string['addmodel'] = 'Ajouter un modèle';
 $string['adjust_course_planning'] = 'Ajuster la planification du cours';
 $string['adjust_planning_title'] = 'Ajuster la planification du cours';
