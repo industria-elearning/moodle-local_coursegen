@@ -24,7 +24,7 @@ use local_datacurso\ai_course;
  * Hook para cargar el chat flotante
  *
  * @package    local_datacurso
- * @copyright  2025 Datacurso <josue@datacurso.com>
+ * @copyright  2025 Wilber Narvaez <https://datacurso.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class chat_hook {

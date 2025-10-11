@@ -19,7 +19,7 @@
  *
  * @package     local_datacurso
  * @category    upgrade
- * @copyright   Josue <josue@datacurso.com>
+ * @copyright   2025 Josue Condori <https://datacurso.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

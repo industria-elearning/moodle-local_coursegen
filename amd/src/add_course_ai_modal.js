@@ -17,7 +17,7 @@
  * Course AI Modal Module using Moodle's modal factory
  *
  * @module     local_datacurso/add_course_ai_modal
- * @copyright  2025 Wilber Narvaez <soluciones@buendata.com>
+ * @copyright  2025 Wilber Narvaez <https://datacurso.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

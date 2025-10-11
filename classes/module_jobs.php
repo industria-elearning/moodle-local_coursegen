@@ -20,7 +20,7 @@ namespace local_datacurso;
  * Helper class to manage AI module generation jobs (streaming) stored in local_datacurso_module_jobs.
  *
  * @package    local_datacurso
- * @copyright  2025
+ * @copyright  2025 Wilber Narvaez <https://datacurso.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class module_jobs {

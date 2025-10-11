@@ -18,7 +18,7 @@
  * Plugin version and other meta-data are defined here.
  *
  * @package     local_datacurso
- * @copyright   Josue <josue@datacurso.com>
+ * @copyright   2025 Josue Condori <https://datacurso.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

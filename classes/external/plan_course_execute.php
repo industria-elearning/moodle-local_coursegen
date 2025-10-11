@@ -18,7 +18,7 @@
  * External API for executing AI course planning sessions.
  *
  * @package    local_datacurso
- * @copyright  2024 Your Name
+ * @copyright  2025 Wilber Narvaez <https://datacurso.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
