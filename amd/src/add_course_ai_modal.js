@@ -97,15 +97,17 @@ export const init = async (params = {}) => {
     }
 
     // Get modal title and body content
-    const [title, bodyHTML] = await Promise.all([
+    const [title, bodyHTML, footerHTML] = await Promise.all([
       get_string("addcourseai_modaltitle", "local_datacurso"),
       Templates.render("local_datacurso/add_course_ai_modal", {}),
+      Templates.render("local_datacurso/add_course_ai_modal_footer", {}),
     ]);
 
     // Create modal using modern Modal class
     currentModal = await Modal.create({
       title: title,
       body: bodyHTML,
+      footer: footerHTML,
       large: true,
       scrollable: true,
       removeOnClose: true,
