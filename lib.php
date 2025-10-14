@@ -17,7 +17,7 @@
 /**
  * Callback implementations for DataCurso
  *
- * @package    local_datacurso
+ * @package    aiplacement_coursegen
  * @copyright  2025 Wilber Narvaez <https://datacurso.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -33,7 +33,7 @@
  * @param bool $forcedownload whether or not force download
  * @param array $options additional options affecting the file serving
  */
-function local_datacurso_pluginfile(
+function aiplacement_coursegen_pluginfile(
     $course,
     $cm,
     $context,
@@ -51,7 +51,7 @@ function local_datacurso_pluginfile(
     }
 
     // Check the relevant capabilities - these may vary depending on the filearea being accessed.
-    if (!has_capability('mod/datacurso:view_syllabus', $context)) {
+    if (!has_capability('aiplacement/coursegen:view_syllabus', $context)) {
         return false;
     }
 
@@ -76,7 +76,7 @@ function local_datacurso_pluginfile(
 
     // Retrieve the file from the Files API.
     $fs = get_file_storage();
-    $file = $fs->get_file($context->id, 'local_datacurso', $filearea, $itemid, $filepath, $filename);
+    $file = $fs->get_file($context->id, 'aiplacement_coursegen', $filearea, $itemid, $filepath, $filename);
     if (!$file) {
         // The file does not exist.
         return false;

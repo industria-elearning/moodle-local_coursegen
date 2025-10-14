@@ -17,7 +17,7 @@
 /**
  * Code to be executed after the plugin's database scheme has been installed is defined here.
  *
- * @package     local_datacurso
+ * @package     aiplacement_coursegen
  * @category    upgrade
  * @copyright   2025 Josue Condori <https://datacurso.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -26,7 +26,7 @@
 /**
  * Custom code to be run on installing the plugin.
  */
-function xmldb_local_datacurso_install() {
+function xmldb_aiplacement_coursegen_install() {
 
     return true;
 }

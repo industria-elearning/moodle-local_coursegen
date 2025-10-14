@@ -14,19 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace local_datacurso\hook;
+namespace aiplacement_coursegen\hook;
 
 use core_course\hook\after_form_definition;
 use core_course\hook\after_form_definition_after_data;
 use core_course\hook\after_form_submission;
-use local_datacurso\ai_context;
-use local_datacurso\ai_course;
-use local_datacurso\model;
+use aiplacement_coursegen\ai_context;
+use aiplacement_coursegen\ai_course;
+use aiplacement_coursegen\model;
 
 /**
  * Hook para extender el formulario de curso con campos personalizados.
  *
- * @package    local_datacurso
+ * @package    aiplacement_coursegen
  * @copyright  2025 Wilber Narvaez <https://datacurso.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -44,19 +44,19 @@ class course_form_hook {
         // Add a section for custom fields.
         $mform->addElement(
             'header',
-            'local_datacurso_header',
-            get_string('custom_fields_header', 'local_datacurso')
+            'aiplacement_coursegen_header',
+            get_string('custom_fields_header', 'aiplacement_coursegen')
         );
 
         // Add context type selector.
         $contexttypes = [
-            'model' => get_string('context_type_model', 'local_datacurso'),
-            'syllabus' => get_string('context_type_syllabus', 'local_datacurso'),
+            'model' => get_string('context_type_model', 'aiplacement_coursegen'),
+            'syllabus' => get_string('context_type_syllabus', 'aiplacement_coursegen'),
         ];
         $mform->addElement(
             'select',
-            'local_datacurso_context_type',
-            get_string('context_type_field', 'local_datacurso'),
+            'aiplacement_coursegen_context_type',
+            get_string('context_type_field', 'aiplacement_coursegen'),
             $contexttypes
         );
 
@@ -69,17 +69,17 @@ class course_form_hook {
         // Agregar selector de modelo instruccional.
         $mform->addElement(
             'select',
-            'local_datacurso_select_model',
-            get_string('custom_model_select_field', 'local_datacurso'),
+            'aiplacement_coursegen_select_model',
+            get_string('custom_model_select_field', 'aiplacement_coursegen'),
             $modeloptions
         );
-        $mform->hideIf('local_datacurso_select_model', 'local_datacurso_context_type', 'neq', 'model');
+        $mform->hideIf('aiplacement_coursegen_select_model', 'aiplacement_coursegen_context_type', 'neq', 'model');
 
         // Agregar campo para subir PDF del sílabo.
         $mform->addElement(
             'filepicker',
-            'local_datacurso_syllabus_pdf',
-            get_string('syllabus_pdf_field', 'local_datacurso'),
+            'aiplacement_coursegen_syllabus_pdf',
+            get_string('syllabus_pdf_field', 'aiplacement_coursegen'),
             null,
             [
                 'accepted_types' => ['.pdf'],
@@ -87,12 +87,12 @@ class course_form_hook {
                 'subdirs' => 0,
             ]
         );
-        $mform->addHelpButton('local_datacurso_syllabus_pdf', 'syllabus_pdf_field', 'local_datacurso');
-        $mform->hideIf('local_datacurso_syllabus_pdf', 'local_datacurso_context_type', 'neq', 'syllabus');
+        $mform->addHelpButton('aiplacement_coursegen_syllabus_pdf', 'syllabus_pdf_field', 'aiplacement_coursegen');
+        $mform->hideIf('aiplacement_coursegen_syllabus_pdf', 'aiplacement_coursegen_context_type', 'neq', 'syllabus');
 
         // Add hidden field for AI creation to identify the form submission.
-        $mform->addElement('hidden', 'local_datacurso_create_ai_course', 0);
-        $mform->setType('local_datacurso_create_ai_course', PARAM_INT);
+        $mform->addElement('hidden', 'aiplacement_coursegen_create_ai_course', 0);
+        $mform->setType('aiplacement_coursegen_create_ai_course', PARAM_INT);
     }
 
     /**
@@ -107,13 +107,13 @@ class course_form_hook {
             $context = \context_course::instance($courseid);
 
             // Create a draft area for the filepicker.
-            $draftitemid = file_get_submitted_draft_itemid('local_datacurso_syllabus_pdf');
+            $draftitemid = file_get_submitted_draft_itemid('aiplacement_coursegen_syllabus_pdf');
 
             // Copy existing file to draft area.
             file_prepare_draft_area(
                 $draftitemid,
                 $context->id,
-                'local_datacurso',
+                'aiplacement_coursegen',
                 'syllabus',
                 0,
                 ['subdirs' => 0, 'maxfiles' => 1, 'accepted_types' => ['.pdf']]
@@ -124,7 +124,7 @@ class course_form_hook {
             $selectedmodel = '';
 
             // Get existing course context data from database.
-            $contextdata = $DB->get_record('local_datacurso_course_context', ['courseid' => $courseid]);
+            $contextdata = $DB->get_record('aiplacement_coursegen_course_context', ['courseid' => $courseid]);
             if ($contextdata) {
                 $contexttype = $contextdata->context_type;
                 $selectedmodel = $contextdata->model_id;
@@ -133,9 +133,9 @@ class course_form_hook {
             $editform = $hook->formwrapper;
 
             $editform->set_data([
-                'local_datacurso_syllabus_pdf' => $draftitemid,
-                'local_datacurso_context_type' => $contexttype,
-                'local_datacurso_select_model' => $selectedmodel,
+                'aiplacement_coursegen_syllabus_pdf' => $draftitemid,
+                'aiplacement_coursegen_context_type' => $contexttype,
+                'aiplacement_coursegen_select_model' => $selectedmodel,
             ]);
         }
     }
@@ -150,14 +150,14 @@ class course_form_hook {
 
         $data = $hook->get_data();
         $courseid = $data->id;
-        $createaicourse = $data->local_datacurso_create_ai_course;
+        $createaicourse = $data->aiplacement_coursegen_create_ai_course;
 
         // Get the context type selection.
-        $contexttype = isset($data->local_datacurso_context_type) ? $data->local_datacurso_context_type : '';
+        $contexttype = isset($data->aiplacement_coursegen_context_type) ? $data->aiplacement_coursegen_context_type : '';
 
         if ($contexttype === 'syllabus') {
             // Handle syllabus upload.
-            $draftitemid = $data->local_datacurso_syllabus_pdf;
+            $draftitemid = $data->aiplacement_coursegen_syllabus_pdf;
 
             // Save syllabus PDF from draft area.
             $success = ai_context::save_syllabus_from_draft($courseid, $draftitemid);
@@ -168,13 +168,13 @@ class course_form_hook {
         }
 
         // Store the context type and selected option in the database.
-        ai_context::save_course_context($courseid, $contexttype, $data->local_datacurso_select_model);
+        ai_context::save_course_context($courseid, $contexttype, $data->aiplacement_coursegen_select_model);
 
         if (!empty($createaicourse)) {
             ai_course::start_course_planning(
                 $courseid,
                 $contexttype,
-                $data->local_datacurso_select_model,
+                $data->aiplacement_coursegen_select_model,
                 $data->fullname
             );
         }

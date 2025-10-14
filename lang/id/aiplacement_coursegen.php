@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Strings for component 'local_datacurso', language 'id'
+ * Strings for component 'aiplacement_coursegen', language 'id'
  *
- * @package    local_datacurso
+ * @package    aiplacement_coursegen
  * @category   string
  * @copyright  2025 Wilber Narvaez <https://datacurso.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -58,8 +58,8 @@ $string['coursecreated'] = 'Kursus berhasil dibuat';
 $string['createwithai'] = 'Buat dengan AI';
 $string['creating_course'] = 'Membuat kursus...';
 $string['custom_model_select_field'] = 'Pilih model yang akan digunakan';
-$string['datacurso:managemodels'] = 'Kelola model';
-$string['datacurso:view_syllabus'] = 'Lihat silabus';
+$string['coursegen:managemodels'] = 'Kelola model';
+$string['coursegen:view_syllabus'] = 'Lihat silabus';
 $string['delete'] = 'Hapus';
 $string['deletemodel'] = 'Hapus model';
 $string['editmodel'] = 'Edit model';

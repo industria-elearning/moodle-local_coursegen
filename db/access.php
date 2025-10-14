@@ -19,7 +19,7 @@
  *
  * Documentation: {@link https://moodledev.io/docs/apis/subsystems/access}
  *
- * @package    local_datacurso
+ * @package    aiplacement_coursegen
  * @category   access
  * @copyright  2025 Wilber Narvaez <https://datacurso.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -28,7 +28,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $capabilities = [
-    'mod/datacurso:view_syllabus' => [
+    'aiplacement/coursegen:view_syllabus' => [
         'riskbitmask' => RISK_XSS,
         'captype' => 'read',
         'contextlevel' => CONTEXT_COURSE,
@@ -37,7 +37,7 @@ $capabilities = [
             'editingteacher' => CAP_ALLOW,
         ],
     ],
-    'local/datacurso:managemodels' => [
+    'local/coursegen:managemodels' => [
         'riskbitmask' => RISK_CONFIG,
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,

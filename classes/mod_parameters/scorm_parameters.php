@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace local_datacurso\mod_parameters;
+namespace aiplacement_coursegen\mod_parameters;
 
 use aiprovider_datacurso\httpclient\ai_course_api;
 
@@ -25,7 +25,7 @@ require_once($CFG->libdir . '/filelib.php');
 /**
  * Class scorm_parameters
  *
- * @package    local_datacurso
+ * @package    aiplacement_coursegen
  * @copyright  2025 Wilber Narvaez <https://datacurso.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

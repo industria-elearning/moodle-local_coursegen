@@ -17,7 +17,7 @@
 /**
  * Hook callbacks for Tenant Navigator
  *
- * @package    local_datacurso
+ * @package    aiplacement_coursegen
  * @copyright  2025 Wilber Narvaez <https://datacurso.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -27,22 +27,22 @@ defined('MOODLE_INTERNAL') || die();
 $callbacks = [
     [
         'hook' => core_course\hook\after_form_definition::class,
-        'callback' => 'local_datacurso\hook\course_form_hook::after_form_definition',
+        'callback' => 'aiplacement_coursegen\hook\course_form_hook::after_form_definition',
         'priority' => 100,
     ],
     [
         'hook' => core_course\hook\after_form_definition_after_data::class,
-        'callback' => 'local_datacurso\hook\course_form_hook::after_form_definition_after_data',
+        'callback' => 'aiplacement_coursegen\hook\course_form_hook::after_form_definition_after_data',
         'priority' => 100,
     ],
     [
         'hook' => core_course\hook\after_form_submission::class,
-        'callback' => 'local_datacurso\hook\course_form_hook::after_form_submission',
+        'callback' => 'aiplacement_coursegen\hook\course_form_hook::after_form_submission',
         'priority' => 100,
     ],
     [
         'hook' => core\hook\output\before_footer_html_generation::class,
-        'callback' => 'local_datacurso\hook\chat_hook::before_footer_html_generation',
+        'callback' => 'aiplacement_coursegen\hook\chat_hook::before_footer_html_generation',
         'priority' => 900,
     ],
 ];

@@ -14,14 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace local_datacurso;
+namespace aiplacement_coursegen;
 
 use aiprovider_datacurso\httpclient\ai_course_api;
 
 /**
  * Class ai_context
  *
- * @package    local_datacurso
+ * @package    aiplacement_coursegen
  * @copyright  2025 Wilber Narvaez <https://datacurso.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -47,7 +47,7 @@ class ai_context {
             $client->request('POST', '/context/upload-model-context', $postdata);
         } catch (\Exception $e) {
             // Mostrar notificación de error al usuario.
-            \core\notification::error(get_string('error_upload_failed_model', 'local_datacurso', $e->getMessage()));
+            \core\notification::error(get_string('error_upload_failed_model', 'aiplacement_coursegen', $e->getMessage()));
         }
     }
 
@@ -63,7 +63,7 @@ class ai_context {
             $fs = get_file_storage();
             $context = \context_course::instance($courseid);
 
-            $files = $fs->get_area_files($context->id, 'local_datacurso', 'syllabus', 0, 'itemid', false);
+            $files = $fs->get_area_files($context->id, 'aiplacement_coursegen', 'syllabus', 0, 'itemid', false);
 
             if (empty($files)) {
                 return;
@@ -89,7 +89,7 @@ class ai_context {
             $client->upload_file('/context/upload', $filepath, $file->get_mimetype(), $file->get_filename(), $postdata);
         } catch (\Exception $e) {
             // Mostrar notificación de error al usuario.
-            \core\notification::error(get_string('error_upload_failed', 'local_datacurso', $e->getMessage()));
+            \core\notification::error(get_string('error_upload_failed', 'aiplacement_coursegen', $e->getMessage()));
         }
     }
 
@@ -116,14 +116,10 @@ class ai_context {
             file_save_draft_area_files(
                 $draftitemid,
                 \context_course::instance($courseid)->id,
-                'local_datacurso',
+                'aiplacement_coursegen',
                 'syllabus',
                 0,
-                [
-                    'subdirs' => 0,
-                    'maxfiles' => 1,
-                    'accepted_types' => ['.pdf'],
-                ]
+                $fileoptions
             );
             return true;
         } catch (\Exception $e) {
@@ -146,7 +142,7 @@ class ai_context {
         $now = time();
 
         // Check if record already exists.
-        $existingrecord = $DB->get_record('local_datacurso_course_context', ['courseid' => $courseid]);
+        $existingrecord = $DB->get_record('aiplacement_coursegen_course_context', ['courseid' => $courseid]);
 
         if ($existingrecord) {
             // Update existing record.
@@ -157,7 +153,7 @@ class ai_context {
             $record->timemodified = $now;
             $record->usermodified = $USER->id;
 
-            $DB->update_record('local_datacurso_course_context', $record);
+            $DB->update_record('aiplacement_coursegen_course_context', $record);
         } else {
             // Create new record.
             $record = new \stdClass();
@@ -168,7 +164,7 @@ class ai_context {
             $record->timemodified = $now;
             $record->usermodified = $USER->id;
 
-            $DB->insert_record('local_datacurso_course_context', $record);
+            $DB->insert_record('aiplacement_coursegen_course_context', $record);
         }
     }
 }

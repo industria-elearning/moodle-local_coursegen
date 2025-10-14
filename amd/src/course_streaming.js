@@ -16,12 +16,12 @@
 /**
  * Course Streaming Module for handling real-time course generation
  *
- * @module     local_datacurso/course_streaming
+ * @module     aiplacement_coursegen/course_streaming
  * @copyright  2025 Wilber Narvaez <https://datacurso.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import { createCourse } from "local_datacurso/repository/chatbot";
+import { createCourse } from "aiplacement_coursegen/repository/chatbot";
 import { get_string } from "core/str";
 
 // Global state for scroll behavior
@@ -83,13 +83,13 @@ export const startStreaming = async (
   isCorrection = false
 ) => {
   const progressIndicator = container.querySelector(
-    "[data-region='local_datacurso/course_streaming/progress']"
+    "[data-region='aiplacement_coursegen/course_streaming/progress']"
   );
   const eventList = container.querySelector(
-    "[data-region='local_datacurso/course_streaming']"
+    "[data-region='aiplacement_coursegen/course_streaming']"
   );
   const progressIcon = container.querySelector(
-    "[data-region='local_datacurso/course_streaming/progress/icon']"
+    "[data-region='aiplacement_coursegen/course_streaming/progress/icon']"
   );
 
   // Create local buffer and RAF state for this streaming instance
@@ -253,13 +253,13 @@ export const startExecutionStreaming = async (
   courseid
 ) => {
   const progressIndicator = container.querySelector(
-    "[data-region='local_datacurso/course_streaming/progress']"
+    "[data-region='aiplacement_coursegen/course_streaming/progress']"
   );
   const eventList = container.querySelector(
-    "[data-region='local_datacurso/course_streaming']"
+    "[data-region='aiplacement_coursegen/course_streaming']"
   );
   const progressIcon = container.querySelector(
-    "[data-region='local_datacurso/course_streaming/progress/icon']"
+    "[data-region='aiplacement_coursegen/course_streaming/progress/icon']"
   );
 
   eventList.innerHTML = "";
@@ -289,7 +289,7 @@ export const startExecutionStreaming = async (
     const sec = obj.section_index ?? "?";
     const msg = await get_string(
       "execution_activity_start",
-      "local_datacurso",
+      "aiplacement_coursegen",
       {
         index: idx,
         section: sec,
@@ -304,7 +304,7 @@ export const startExecutionStreaming = async (
     const done = obj.done ?? 0;
     const total = obj.total ?? 0;
     const percent = obj.percent ?? 0;
-    const msg = await get_string("execution_activity_done", "local_datacurso", {
+    const msg = await get_string("execution_activity_done", "aiplacement_coursegen", {
       done,
       total,
       percent,
@@ -317,7 +317,7 @@ export const startExecutionStreaming = async (
     const done = obj.done ?? 0;
     const total = obj.total ?? 0;
     const percent = obj.percent ?? 0;
-    const msg = await get_string("execution_progress", "local_datacurso", {
+    const msg = await get_string("execution_progress", "aiplacement_coursegen", {
       done,
       total,
       percent,
@@ -326,7 +326,7 @@ export const startExecutionStreaming = async (
   };
 
   const onExecError = async () => {
-    const msg = await get_string("execution_error_activity", "local_datacurso");
+    const msg = await get_string("execution_error_activity", "aiplacement_coursegen");
     addStatus(msg, "error", eventList);
   };
 
@@ -347,7 +347,7 @@ export const startExecutionStreaming = async (
       if (result.success) {
         const okmsg = await get_string(
           "course_created_success_simple",
-          "local_datacurso"
+          "aiplacement_coursegen"
         );
         addStatus(okmsg, "ok", eventList);
         // Reload the page after 500ms
@@ -357,7 +357,7 @@ export const startExecutionStreaming = async (
       } else {
         const errmsg = await get_string(
           "error_creating_course",
-          "local_datacurso",
+          "aiplacement_coursegen",
           result.message || ""
         );
         addStatus(errmsg, "error", eventList);
@@ -365,7 +365,7 @@ export const startExecutionStreaming = async (
     } catch (error) {
       const errmsg = await get_string(
         "error_creating_course",
-        "local_datacurso",
+        "aiplacement_coursegen",
         error.message || ""
       );
       addStatus(errmsg, "error", eventList);

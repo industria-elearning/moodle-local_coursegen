@@ -16,7 +16,7 @@
 /**
  * Module Streaming Module for handling real-time module generation
  *
- * @module     local_datacurso/module_streaming
+ * @module     aiplacement_coursegen/module_streaming
  * @copyright  2025 Wilber Narvaez <https://datacurso.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -112,13 +112,13 @@ export const startModuleStreaming = async (
   params = {}
 ) => {
   const progressIndicator = container.querySelector(
-    "[data-region='local_datacurso/course_streaming/progress']"
+    "[data-region='aiplacement_coursegen/course_streaming/progress']"
   );
   const eventList = container.querySelector(
-    "[data-region='local_datacurso/course_streaming']"
+    "[data-region='aiplacement_coursegen/course_streaming']"
   );
   const progressIcon = container.querySelector(
-    "[data-region='local_datacurso/course_streaming/progress/icon']"
+    "[data-region='aiplacement_coursegen/course_streaming/progress/icon']"
   );
 
   // Clear previous content
@@ -148,7 +148,7 @@ export const startModuleStreaming = async (
   const onResourceStart = async () => {
     const message = await get_string(
       "module_streaming_start",
-      "local_datacurso"
+      "aiplacement_coursegen"
     );
     addStatus(message, "info", eventList);
   };
@@ -156,7 +156,7 @@ export const startModuleStreaming = async (
   const onSchemaStart = async () => {
     const message = await get_string(
       "module_streaming_schema_start",
-      "local_datacurso"
+      "aiplacement_coursegen"
     );
     addStatus(message, "info", eventList);
   };
@@ -164,7 +164,7 @@ export const startModuleStreaming = async (
   const onSchemaDone = async () => {
     const message = await get_string(
       "module_streaming_schema_done",
-      "local_datacurso"
+      "aiplacement_coursegen"
     );
     addStatus(message, "success", eventList);
   };
@@ -172,7 +172,7 @@ export const startModuleStreaming = async (
   const onImagesStart = async () => {
     const message = await get_string(
       "module_streaming_images_start",
-      "local_datacurso"
+      "aiplacement_coursegen"
     );
     addStatus(message, "info", eventList);
   };
@@ -180,7 +180,7 @@ export const startModuleStreaming = async (
   const onImagesDone = async () => {
     const message = await get_string(
       "module_streaming_images_done",
-      "local_datacurso"
+      "aiplacement_coursegen"
     );
     addStatus(message, "success", eventList);
   };
@@ -188,7 +188,7 @@ export const startModuleStreaming = async (
   const onParametersStart = async () => {
     const message = await get_string(
       "module_streaming_parameters_start",
-      "local_datacurso"
+      "aiplacement_coursegen"
     );
     addStatus(message, "info", eventList);
   };
@@ -196,7 +196,7 @@ export const startModuleStreaming = async (
   const onParametersDone = async () => {
     const message = await get_string(
       "module_streaming_parameters_done",
-      "local_datacurso"
+      "aiplacement_coursegen"
     );
     addStatus(message, "success", eventList);
   };
@@ -204,7 +204,7 @@ export const startModuleStreaming = async (
   const onOutputStart = async () => {
     const message = await get_string(
       "module_streaming_output_start",
-      "local_datacurso"
+      "aiplacement_coursegen"
     );
     addStatus(message, "info", eventList);
   };
@@ -224,12 +224,12 @@ export const startModuleStreaming = async (
 
     const completeMessage = await get_string(
       "module_streaming_complete",
-      "local_datacurso"
+      "aiplacement_coursegen"
     );
     addStatus(completeMessage, "success", eventList);
 
     try {
-      const { createMod } = await import("local_datacurso/repository/chatbot");
+      const { createMod } = await import("aiplacement_coursegen/repository/chatbot");
       const response = await createMod({
         courseid: params.courseid,
         sectionnum: params.sectionnum,
@@ -239,7 +239,7 @@ export const startModuleStreaming = async (
       if (response && response.ok) {
         const successMessage = await get_string(
           "module_streaming_added_success",
-          "local_datacurso"
+          "aiplacement_coursegen"
         );
         addStatus(successMessage, "success", eventList);
         setTimeout(() => {
@@ -248,7 +248,7 @@ export const startModuleStreaming = async (
       } else {
         const defaultError = await get_string(
           "module_streaming_add_error",
-          "local_datacurso"
+          "aiplacement_coursegen"
         );
         const msg =
           response && response.message ? response.message : defaultError;
@@ -257,7 +257,7 @@ export const startModuleStreaming = async (
     } catch (err) {
       const errorMessage = await get_string(
         "module_streaming_add_problem",
-        "local_datacurso",
+        "aiplacement_coursegen",
         err?.message || err
       );
       addStatus(`⚠️ ${errorMessage}`, "error", eventList);
@@ -268,7 +268,7 @@ export const startModuleStreaming = async (
     es.close();
     const errorMessage = await get_string(
       "module_streaming_creation_error",
-      "local_datacurso"
+      "aiplacement_coursegen"
     );
     addStatus(errorMessage, "error", eventList);
   };

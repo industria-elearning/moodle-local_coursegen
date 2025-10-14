@@ -17,7 +17,7 @@
 /**
  * TODO describe module add_activity_ai
  *
- * @module     local_datacurso/add_activity_ai
+ * @module     aiplacement_coursegen/add_activity_ai
  * @copyright  2025 Wilber Narvaez <https://datacurso.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -28,10 +28,10 @@ define([
   "core/modal",
   "core/custom_interaction_events",
   "core/str",
-  "local_datacurso/repository/chatbot",
-  "local_datacurso/module_streaming",
+  "aiplacement_coursegen/repository/chatbot",
+  "aiplacement_coursegen/module_streaming",
 ], (Templates, Notification, Modal, CustomEvents, Str, chatbotRepository, moduleStreaming) => {
-  const LINK_SELECTOR = '[data-action="local_datacurso/add_activity_ai"]';
+  const LINK_SELECTOR = '[data-action="aiplacement_coursegen/add_activity_ai"]';
 
   let modal = null;
   let initialized = false;
@@ -122,13 +122,13 @@ define([
       }
 
       const [bodyHTML, footerHTML] = await Promise.all([
-        Templates.render("local_datacurso/add_activity_ai_modal", {}),
-        Templates.render("local_datacurso/activity_chat_footer", {})
+        Templates.render("aiplacement_coursegen/add_activity_ai_modal", {}),
+        Templates.render("aiplacement_coursegen/activity_chat_footer", {})
       ]);
 
       const title = await Str.get_string(
         "addactivityai_modaltitle",
-        "local_datacurso"
+        "aiplacement_coursegen"
       );
 
       modal = await Modal.create({
@@ -141,7 +141,7 @@ define([
       });
 
       // Align width/appearance with course AI modal.
-      modal.getRoot().addClass('local_datacurso_course_ai_modal');
+      modal.getRoot().addClass('aiplacement_coursegen_course_ai_modal');
 
       // Explicitly show after creation (no show: true in options).
       modal.show();
@@ -178,9 +178,9 @@ define([
   const wireChatHandlers = (container, footerContainer, payload) => {
     const streamingSection = container.querySelector("#activity-streaming-section");
     const userMessagesSection = container.querySelector("#activity-user-messages");
-    const form = footerContainer.querySelector("form.local_datacurso_ai_input");
+    const form = footerContainer.querySelector("form.aiplacement_coursegen_ai_input");
     const textarea = form.querySelector("textarea");
-    const sendBtn = form.querySelector(".local_datacurso_ai_send");
+    const sendBtn = form.querySelector(".aiplacement_coursegen_ai_send");
 
     // Enviar con submit.
     form.addEventListener("submit", async (e) => {
@@ -225,16 +225,16 @@ define([
           streamingSection.style.display = "block";
           
           // Update progress indicator text for activity creation
-          const progressIndicator = streamingSection.querySelector("[data-region='local_datacurso/course_streaming/progress']");
+          const progressIndicator = streamingSection.querySelector("[data-region='aiplacement_coursegen/course_streaming/progress']");
           if (progressIndicator) {
             const titleElement = progressIndicator.querySelector("h6, h5");
             const subtitleElement = progressIndicator.querySelector("small");
             if (titleElement) {
-              const titleText = await Str.get_string('module_creation_title', 'local_datacurso');
+              const titleText = await Str.get_string('module_creation_title', 'aiplacement_coursegen');
               titleElement.textContent = titleText;
             }
             if (subtitleElement) {
-              const subtitleText = await Str.get_string('module_creation_subtitle', 'local_datacurso');
+              const subtitleText = await Str.get_string('module_creation_subtitle', 'aiplacement_coursegen');
               subtitleElement.textContent = subtitleText;
             }
             progressIndicator.style.display = "block";
@@ -259,11 +259,11 @@ define([
         // Show error message in streaming section
         if (streamingSection) {
           streamingSection.style.display = "block";
-          const eventList = streamingSection.querySelector("[data-region='local_datacurso/course_streaming']");
+          const eventList = streamingSection.querySelector("[data-region='aiplacement_coursegen/course_streaming']");
           if (eventList) {
             const errorDiv = document.createElement("div");
             errorDiv.className = "alert alert-danger mb-2";
-            const errorMsg = err.message || await Str.get_string("addactivityai_error", "local_datacurso");
+            const errorMsg = err.message || await Str.get_string("addactivityai_error", "aiplacement_coursegen");
             errorDiv.innerHTML = `<small>❌ Error: ${errorMsg}</small>`;
             eventList.appendChild(errorDiv);
             
@@ -303,7 +303,7 @@ define([
 
   const addBubble = (wrap, text, role) => {
     const row = document.createElement("div");
-    row.className = `local_datacurso_ai_msg ${role}`;
+    row.className = `aiplacement_coursegen_ai_msg ${role}`;
     const b = document.createElement("div");
     b.className = "bubble";
     b.textContent = text;
@@ -334,7 +334,7 @@ define([
       if (res?.message) {
         pushAI(wrap, res.message);
       } else {
-        Str.get_string("addactivityai_faildefault", "local_datacurso").then(
+        Str.get_string("addactivityai_faildefault", "aiplacement_coursegen").then(
           (s) => pushAI(wrap, s)
         );
       }
@@ -346,11 +346,11 @@ define([
     if (lines.length) {
       pushAI(wrap, lines.join("\n"));
       setTimeout(() => {
-        const last = wrap.querySelector(".local_datacurso_ai_msg.ai:last-child .bubble");
+        const last = wrap.querySelector(".aiplacement_coursegen_ai_msg.ai:last-child .bubble");
         if (last) last.textContent = lines.join("\n");
       }, 50);
     } else {
-      Str.get_string("addactivityai_done", "local_datacurso").then((s) =>
+      Str.get_string("addactivityai_done", "aiplacement_coursegen").then((s) =>
         pushAI(wrap, s)
       );
     }

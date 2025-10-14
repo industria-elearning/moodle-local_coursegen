@@ -17,14 +17,14 @@
 /**
  * Plugin version and other meta-data are defined here.
  *
- * @package     local_datacurso
+ * @package     aiplacement_coursegen
  * @copyright   2025 Josue Condori <https://datacurso.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'local_datacurso';
+$plugin->component = 'aiplacement_coursegen';
 $plugin->release = '0.1.0';
 $plugin->version = 2025101000;
 $plugin->requires = 2022112800;

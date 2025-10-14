@@ -17,15 +17,15 @@
 /**
  * External API for creating courses with AI assistance.
  *
- * @package    local_datacurso
+ * @package    aiplacement_coursegen
  * @copyright  2025 Wilber Narvaez <https://datacurso.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_datacurso\external;
+namespace aiplacement_coursegen\external;
 
 use aiprovider_datacurso\httpclient\ai_course_api;
-use local_datacurso\mod_settings\base_settings;
+use aiplacement_coursegen\mod_settings\base_settings;
 
 
 defined('MOODLE_INTERNAL') || die();
@@ -38,8 +38,8 @@ use external_function_parameters;
 use external_value;
 use external_single_structure;
 use moodle_exception;
-use local_datacurso\utils\text_editor_parameter_cleaner;
-use local_datacurso\mod_parameters\base_parameters;
+use aiplacement_coursegen\utils\text_editor_parameter_cleaner;
+use aiplacement_coursegen\mod_parameters\base_parameters;
 
 /**
  * External API for creating courses with AI assistance.
@@ -80,7 +80,7 @@ class create_course extends external_api {
             require_capability('moodle/course:manageactivities', $coursecontext);
 
             // Validate that a session exists for this course and user.
-            $session = $DB->get_record('local_datacurso_course_sessions', [
+            $session = $DB->get_record('aiplacement_coursegen_course_sessions', [
                 'courseid' => $course->id,
                 'userid' => $USER->id,
             ]);
@@ -88,7 +88,7 @@ class create_course extends external_api {
             if (!$session) {
                 return [
                     'success' => false,
-                    'message' => get_string('error_no_session_found', 'local_datacurso', $course->id),
+                    'message' => get_string('error_no_session_found', 'aiplacement_coursegen', $course->id),
                     'courseid' => $course->id,
                     'shortname' => $course->shortname,
                     'fullname' => $course->fullname,
@@ -141,7 +141,7 @@ class create_course extends external_api {
                 'courseid' => $course->id,
                 'shortname' => $course->shortname,
                 'fullname' => $course->fullname,
-                'message' => get_string('coursecreated', 'local_datacurso'),
+                'message' => get_string('coursecreated', 'aiplacement_coursegen'),
                 'courseurl' => course_get_url($course->id)->out(),
             ];
         } catch (\Exception $e) {
@@ -349,12 +349,12 @@ class create_course extends external_api {
                 $moduledata->module = $module->id;
 
                 // Process parameters through parameter class if exists.
-                $paramclass = '\\local_datacurso\\mod_parameters\\' . $modname . '_parameters';
+                $paramclass = '\\aiplacement_coursegen\\mod_parameters\\' . $modname . '_parameters';
                 if (
                     class_exists($paramclass)
                     && is_subclass_of($paramclass, base_parameters::class)
                 ) {
-                    /** @var \local_datacurso\mod_parameters\base_parameters $paraminstance */
+                    /** @var \aiplacement_coursegen\mod_parameters\base_parameters $paraminstance */
                     $paraminstance = new $paramclass($moduledata);
                     $moduledata = $paraminstance->get_parameters();
                 }
@@ -364,7 +364,7 @@ class create_course extends external_api {
 
                 // Process module settings if provided.
                 if (!empty($moduledata->mod_settings)) {
-                    $settingsclass = '\\local_datacurso\\mod_settings\\' . $modname . '_settings';
+                    $settingsclass = '\\aiplacement_coursegen\\mod_settings\\' . $modname . '_settings';
                     if (class_exists($settingsclass) && is_subclass_of($settingsclass, base_settings::class)) {
                         /** @var base_settings $settingsinstance */
                         $settingsinstance = new $settingsclass($newcm, $moduledata->mod_settings);
@@ -396,6 +396,6 @@ class create_course extends external_api {
         $updatedata->status = $status;
         $updatedata->timemodified = time();
 
-        $DB->update_record('local_datacurso_course_sessions', $updatedata);
+        $DB->update_record('aiplacement_coursegen_course_sessions', $updatedata);
     }
 }

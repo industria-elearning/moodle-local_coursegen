@@ -15,11 +15,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 import Templates from 'core/templates';
-import { openChatModal } from 'local_datacurso/add_activity_ai';
+import { openChatModal } from 'aiplacement_coursegen/add_activity_ai';
 /**
  * TODO describe module add_activity_ai_button
  *
- * @module     local_datacurso/add_activity_ai_button
+ * @module     aiplacement_coursegen/add_activity_ai_button
  * @copyright  2025 Wilber Narvaez <https://datacurso.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -40,7 +40,7 @@ export function injectButton(container, courseid) {
     const arialabel = openChooserButton.getAttribute('aria-label');
     
     Templates.renderForPromise(
-        'local_datacurso/add_activity_ai_button',
+        'aiplacement_coursegen/add_activity_ai_button',
         {
             sectionnum,
             beforemod,
@@ -48,7 +48,7 @@ export function injectButton(container, courseid) {
         }
       ).then(({ html }) => {
         container.insertAdjacentHTML('beforeend', html);
-        const addActivityAiButton = container.querySelector('.local_datacurso-add-activity-ai-button');
+        const addActivityAiButton = container.querySelector('.aiplacement_coursegen-add-activity-ai-button');
         addActivityAiButton.addEventListener('click', () => {
             openChatModal({
                 sectionnum,

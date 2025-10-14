@@ -17,7 +17,7 @@
 /**
  * Plugin strings are defined here.
  *
- * @package     local_datacurso
+ * @package     aiplacement_coursegen
  * @category    string
  * @copyright   2025 Josue Condori <https://datacurso.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -60,8 +60,8 @@ $string['createwithai'] = 'Create with AI';
 $string['creating_course'] = 'Creating Course...';
 $string['custom_fields_header'] = 'DataCurso';
 $string['custom_model_select_field'] = 'Choose the model to use';
-$string['datacurso:managemodels'] = 'Manage models';
-$string['datacurso:view_syllabus'] = 'View syllabus';
+$string['coursegen:managemodels'] = 'Manage models';
+$string['coursegen:view_syllabus'] = 'View syllabus';
 $string['delete'] = 'Delete';
 $string['deletemodel'] = 'Delete Model';
 $string['edit'] = 'Edit';

@@ -14,16 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace local_datacurso\hook;
+namespace aiplacement_coursegen\hook;
 
 use aiprovider_datacurso\httpclient\ai_course_api;
 use core\hook\output\before_footer_html_generation;
-use local_datacurso\ai_course;
+use aiplacement_coursegen\ai_course;
 
 /**
  * Hook para cargar el chat flotante
  *
- * @package    local_datacurso
+ * @package    aiplacement_coursegen
  * @copyright  2025 Wilber Narvaez <https://datacurso.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -95,7 +95,7 @@ class chat_hook {
             return;
         }
 
-        $PAGE->requires->js_call_amd('local_datacurso/add_activity_ai_button', 'init', ['courseid' => $COURSE->id]);
+        $PAGE->requires->js_call_amd('aiplacement_coursegen/add_activity_ai_button', 'init', ['courseid' => $COURSE->id]);
     }
 
     /**
@@ -114,7 +114,7 @@ class chat_hook {
             return;
         }
 
-        $PAGE->requires->js_call_amd('local_datacurso/add_course_ai_button', 'init', []);
+        $PAGE->requires->js_call_amd('aiplacement_coursegen/add_course_ai_button', 'init', []);
     }
 
     /**
@@ -147,7 +147,7 @@ class chat_hook {
             $streamingurl = $client->get_streaming_url_for_session($session->session_id);
 
             // Load the AI course modal with streaming URL.
-            $PAGE->requires->js_call_amd('local_datacurso/add_course_ai_modal', 'init', [
+            $PAGE->requires->js_call_amd('aiplacement_coursegen/add_course_ai_modal', 'init', [
                 [
                     'streamingurl' => $streamingurl,
                     'courseid' => $COURSE->id,

@@ -17,12 +17,12 @@
 /**
  * Model form for DataCurso plugin.
  *
- * @package    local_datacurso
+ * @package    aiplacement_coursegen
  * @copyright  2025 Wilber Narvaez <https://datacurso.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_datacurso\form;
+namespace aiplacement_coursegen\form;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -39,7 +39,7 @@ class model_form extends \moodleform {
         $mform = $this->_form;
 
         // Model name field.
-        $mform->addElement('text', 'name', get_string('modelname', 'local_datacurso'), ['size' => 60]);
+        $mform->addElement('text', 'name', get_string('modelname', 'aiplacement_coursegen'), ['size' => 60]);
         $mform->setType('name', PARAM_TEXT);
         $mform->addRule('name', get_string('required'), 'required', null, 'client');
 
@@ -47,7 +47,7 @@ class model_form extends \moodleform {
         $mform->addElement(
             'editor',
             'content_editor',
-            get_string('modelcontent', 'local_datacurso'),
+            get_string('modelcontent', 'aiplacement_coursegen'),
             ['rows' => 15],
             $this->get_editor_options()
         );
@@ -94,15 +94,15 @@ class model_form extends \moodleform {
 
             // If editing, exclude current record from uniqueness check.
             if (!empty($data['id'])) {
-                $sql = "SELECT id FROM {local_datacurso_model} WHERE name = ? AND deleted = 0 AND id != ?";
+                $sql = "SELECT id FROM {aiplacement_coursegen_model} WHERE name = ? AND deleted = 0 AND id != ?";
                 $params = [$name, $data['id']];
             } else {
-                $sql = "SELECT id FROM {local_datacurso_model} WHERE name = ? AND deleted = 0";
+                $sql = "SELECT id FROM {aiplacement_coursegen_model} WHERE name = ? AND deleted = 0";
                 $params = [$name];
             }
 
             if ($DB->record_exists_sql($sql, $params)) {
-                $errors['name'] = get_string('modelnameexists', 'local_datacurso');
+                $errors['name'] = get_string('modelnameexists', 'aiplacement_coursegen');
             }
         }
 
