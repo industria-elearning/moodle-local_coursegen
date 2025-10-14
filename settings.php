@@ -26,12 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
-    // Add a visible category under the AI section for this plugin shortcuts.
-    $categoryid = 'aiplacement_coursegen_cat';
-    $ADMIN->add('ai', new admin_category($categoryid, get_string('pluginname', 'aiplacement_coursegen')));
-
-    // Add external page to manage models within that category.
-    $ADMIN->add($categoryid, new admin_externalpage(
+    $ADMIN->add('ai', new admin_externalpage(
         'aiplacement_coursegen_manage_models',
         get_string('managemodels', 'aiplacement_coursegen'),
         new moodle_url('/ai/placement/coursegen/manage_models.php')
