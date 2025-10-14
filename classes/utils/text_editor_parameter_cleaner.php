@@ -17,12 +17,12 @@
 /**
  * Utility class for cleaning text editor parameters from API responses.
  *
- * @package    local_datacurso
+ * @package    local_coursegen
  * @copyright  2025 Wilber Narvaez <https://datacurso.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_datacurso\utils;
+namespace local_coursegen\utils;
 
 defined('MOODLE_INTERNAL') || die();
 

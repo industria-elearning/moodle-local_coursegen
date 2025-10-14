@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<XMLDB PATH="local/datacurso/db" VERSION="20250827"
-    COMMENT="XMLDB file for Moodle local/datacurso"
+<XMLDB PATH="local/coursegen/db" VERSION="20250827"
+    COMMENT="XMLDB file for Moodle local/coursegen"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd">
 
     <TABLES>
-        <TABLE NAME="local_datacurso_course_data" COMMENT="Store custom course data from datacurso">
+        <TABLE NAME="local_coursegen_course_data" COMMENT="Store custom course data from datacurso">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
                 <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" />
@@ -26,7 +26,7 @@
             </KEYS>
         </TABLE>
         
-        <TABLE NAME="local_datacurso_model" COMMENT="Store models for datacurso">
+        <TABLE NAME="local_coursegen_model" COMMENT="Store models for datacurso">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
                 <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" />
@@ -42,7 +42,7 @@
             </KEYS>
         </TABLE>
         
-        <TABLE NAME="local_datacurso_course_context" COMMENT="Store course context type and model selection">
+        <TABLE NAME="local_coursegen_course_context" COMMENT="Store course context type and model selection">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
                 <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" />
@@ -55,12 +55,12 @@
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id" />
                 <KEY NAME="courseid" TYPE="foreign" FIELDS="courseid" REFTABLE="course" REFFIELDS="id" />
-                <KEY NAME="model_id" TYPE="foreign" FIELDS="model_id" REFTABLE="local_datacurso_model" REFFIELDS="id" />
+                <KEY NAME="model_id" TYPE="foreign" FIELDS="model_id" REFTABLE="local_coursegen_model" REFFIELDS="id" />
                 <KEY NAME="usermodified" TYPE="foreign" FIELDS="usermodified" REFTABLE="user" REFFIELDS="id" />
             </KEYS>
         </TABLE>
         
-        <TABLE NAME="local_datacurso_course_sessions" COMMENT="Store AI course planning sessions">
+        <TABLE NAME="local_coursegen_course_sessions" COMMENT="Store AI course planning sessions">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
                 <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" />
@@ -77,7 +77,7 @@
             </KEYS>
         </TABLE>
         
-        <TABLE NAME="local_datacurso_module_jobs" COMMENT="Store AI module generation jobs (stream)">
+        <TABLE NAME="local_coursegen_module_jobs" COMMENT="Store AI module generation jobs (stream)">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
                 <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" />

@@ -14,14 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace local_datacurso\mod_settings;
+namespace local_coursegen\mod_settings;
 
-use local_datacurso\mod_settings\feedback\presentation_builder;
+use local_coursegen\mod_settings\feedback\presentation_builder;
 
 /**
  * Class feedback_settings
  *
- * @package    local_datacurso
+ * @package    local_coursegen
  * @copyright  2025 Wilber Narvaez <https://datacurso.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

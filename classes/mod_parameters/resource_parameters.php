@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace local_datacurso\mod_parameters;
+namespace local_coursegen\mod_parameters;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -23,7 +23,7 @@ require_once($CFG->libdir . '/filelib.php');
 /**
  * Class resource_parameters
  *
- * @package    local_datacurso
+ * @package    local_coursegen
  * @copyright  2025 Wilber Narvaez <https://datacurso.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -38,7 +38,7 @@ class resource_parameters extends base_parameters {
         $userid = $USER->id;
         $draftid = file_get_unused_draft_itemid();
 
-        $filepath = $CFG->dirroot . '/local/datacurso/classes/mod_parameters/resource/pdf-test.pdf';
+        $filepath = $CFG->dirroot . '/local/coursegen/classes/mod_parameters/resource/pdf-test.pdf';
         $filename = basename($filepath);
 
         // Store file in moodledata.

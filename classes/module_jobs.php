@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace local_datacurso;
+namespace local_coursegen;
 
 /**
- * Helper class to manage AI module generation jobs (streaming) stored in local_datacurso_module_jobs.
+ * Helper class to manage AI module generation jobs (streaming) stored in local_coursegen_module_jobs.
  *
- * @package    local_datacurso
+ * @package    local_coursegen
  * @copyright  2025 Wilber Narvaez <https://datacurso.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -36,7 +36,7 @@ class module_jobs {
         global $DB, $USER;
 
         $now = time();
-        $record = $DB->get_record('local_datacurso_module_jobs', ['job_id' => $jobid]);
+        $record = $DB->get_record('local_coursegen_module_jobs', ['job_id' => $jobid]);
 
         $entry = (object) [
             'courseid' => $courseid,
@@ -53,10 +53,10 @@ class module_jobs {
 
         if ($record) {
             $entry->id = $record->id;
-            return $DB->update_record('local_datacurso_module_jobs', $entry);
+            return $DB->update_record('local_coursegen_module_jobs', $entry);
         } else {
             $entry->timecreated = $now;
-            return (bool)$DB->insert_record('local_datacurso_module_jobs', $entry);
+            return (bool)$DB->insert_record('local_coursegen_module_jobs', $entry);
         }
     }
 
@@ -69,13 +69,13 @@ class module_jobs {
      */
     public static function update_status(string $jobid, string $status): bool {
         global $DB;
-        $record = $DB->get_record('local_datacurso_module_jobs', ['job_id' => $jobid]);
+        $record = $DB->get_record('local_coursegen_module_jobs', ['job_id' => $jobid]);
         if (!$record) {
             return false;
         }
         $record->status = $status;
         $record->timemodified = time();
-        return $DB->update_record('local_datacurso_module_jobs', $record);
+        return $DB->update_record('local_coursegen_module_jobs', $record);
     }
 
     /**
@@ -86,7 +86,7 @@ class module_jobs {
      */
     public static function get_by_jobid(string $jobid) {
         global $DB;
-        return $DB->get_record('local_datacurso_module_jobs', ['job_id' => $jobid]);
+        return $DB->get_record('local_coursegen_module_jobs', ['job_id' => $jobid]);
     }
 
     /**
@@ -99,7 +99,7 @@ class module_jobs {
     public static function get_latest_for_course(int $courseid, ?int $userid = null) {
         global $DB, $USER;
         $userid = $userid ?? $USER->id;
-        $sql = "SELECT * FROM {local_datacurso_module_jobs} ";
+        $sql = "SELECT * FROM {local_coursegen_module_jobs} ";
         $sql .= "WHERE courseid = :courseid AND userid = :userid ";
         $sql .= "ORDER BY timecreated DESC";
         return $DB->get_record_sql($sql, ['courseid' => $courseid, 'userid' => $userid]);

@@ -17,12 +17,12 @@
 /**
  * External API for sending messages to AI course planning sessions.
  *
- * @package    local_datacurso
+ * @package    local_coursegen
  * @copyright  2025 Wilber Narvaez <https://datacurso.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_datacurso\external;
+namespace local_coursegen\external;
 
 use aiprovider_datacurso\httpclient\ai_course_api;
 
@@ -81,7 +81,7 @@ class plan_course_message extends external_api {
             require_capability('moodle/course:update', $context);
 
             // Validate that a session exists for this user and course.
-            $session = $DB->get_record('local_datacurso_course_sessions', [
+            $session = $DB->get_record('local_coursegen_course_sessions', [
                 'courseid' => $courseid,
                 'userid' => $USER->id,
             ]);
@@ -89,7 +89,7 @@ class plan_course_message extends external_api {
             if (!$session) {
                 return [
                     'success' => false,
-                    'message' => get_string('error_no_session_found', 'local_datacurso', $courseid),
+                    'message' => get_string('error_no_session_found', 'local_coursegen', $courseid),
                     'status' => null,
                 ];
             }
@@ -107,7 +107,7 @@ class plan_course_message extends external_api {
             $streamingurl = $client->get_streaming_url_for_session($session->session_id);
             return [
                 'success' => true,
-                'message' => get_string('message_sent_successfully', 'local_datacurso'),
+                'message' => get_string('message_sent_successfully', 'local_coursegen'),
                 'data' => [
                     'status' => $result['status'],
                     'streamingurl' => $streamingurl,

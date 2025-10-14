@@ -15,7 +15,7 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template local_datacurso/course_streaming
+    @template local_coursegen/course_streaming
 
     TODO describe template course_streaming
 
@@ -27,22 +27,22 @@
   <div class="row justify-content-center">
     <div class="col-lg-10">      
       <!-- Progress Indicator -->
-      <div data-region="local_datacurso/course_streaming/progress" class="card mb-4" style="display: none;">
+      <div data-region="local_coursegen/course_streaming/progress" class="card mb-4" style="display: none;">
         <div class="card-body py-3">
           <div class="d-flex align-items-center">
-            <div data-region="local_datacurso/course_streaming/progress/icon" class="mr-3">
+            <div data-region="local_coursegen/course_streaming/progress/icon" class="mr-3">
               <div class="spinner-border text-primary" role="status" style="width: 1.5rem; height: 1.5rem;">
-                <span class="sr-only">{{#str}} course_streaming_loading, local_datacurso {{/str}}</span>
+                <span class="sr-only">{{#str}} course_streaming_loading, local_coursegen {{/str}}</span>
               </div>
             </div>
             <div>
-              <h5 class="mb-0">{{#str}} course_streaming_planning_title, local_datacurso {{/str}}</h5>
-              <small class="text-muted">{{#str}} course_streaming_planning_subtitle, local_datacurso {{/str}}</small>
+              <h5 class="mb-0">{{#str}} course_streaming_planning_title, local_coursegen {{/str}}</h5>
+              <small class="text-muted">{{#str}} course_streaming_planning_subtitle, local_coursegen {{/str}}</small>
             </div>
           </div>
         </div>
       </div>
-      <div data-region="local_datacurso/course_streaming"></div>
+      <div data-region="local_coursegen/course_streaming"></div>
     </div>
   </div>
 </div>
