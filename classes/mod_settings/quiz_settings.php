@@ -36,7 +36,7 @@ class quiz_settings extends base_settings {
     /**
      * Add question to quiz.
      *
-     * @param array $question Question data.
+     * @param array $aiquestiondata Question data.
      */
     protected function add_question($aiquestiondata) {
         global $DB, $USER;
