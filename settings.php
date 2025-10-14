@@ -28,11 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 if ($hassiteconfig) {
     $pluginname = 'local_datacurso';
     $admincategory = new admin_category($pluginname, get_string('pluginname', $pluginname));
-
     $ADMIN->add('localplugins', $admincategory);
-    $settings = new admin_settingpage("{$pluginname}_settings", get_string('generalsettings', $pluginname));
-
-    $ADMIN->add($pluginname, $settings);
     // Add manage models page.
     $ADMIN->add($pluginname, new admin_externalpage(
         'local_datacurso_manage_models',

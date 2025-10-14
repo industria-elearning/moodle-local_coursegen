@@ -25,6 +25,7 @@
 namespace local_datacurso\external;
 
 use aiprovider_datacurso\httpclient\ai_course_api;
+use local_datacurso\mod_settings\base_settings;
 
 
 defined('MOODLE_INTERNAL') || die();
@@ -38,6 +39,7 @@ use external_value;
 use external_single_structure;
 use moodle_exception;
 use local_datacurso\utils\text_editor_parameter_cleaner;
+use local_datacurso\mod_parameters\base_parameters;
 
 /**
  * External API for creating courses with AI assistance.
@@ -343,7 +345,10 @@ class create_course extends external_api {
 
                 // Process parameters through parameter class if exists.
                 $paramclass = '\\local_datacurso\\mod_parameters\\' . $modname . '_parameters';
-                if (class_exists($paramclass) && is_subclass_of($paramclass, \local_datacurso\mod_parameters\base_parameters::class)) {
+                if (
+                    class_exists($paramclass)
+                    && is_subclass_of($paramclass, base_parameters::class)
+                ) {
                     /** @var \local_datacurso\mod_parameters\base_parameters $paraminstance */
                     $paraminstance = new $paramclass($moduledata);
                     $moduledata = $paraminstance->get_parameters();
@@ -355,8 +360,8 @@ class create_course extends external_api {
                 // Process module settings if provided.
                 if (!empty($moduledata->mod_settings)) {
                     $settingsclass = '\\local_datacurso\\mod_settings\\' . $modname . '_settings';
-                    if (class_exists($settingsclass) && is_subclass_of($settingsclass, \local_datacurso\mod_settings\base_settings::class)) {
-                        /** @var \local_datacurso\mod_settings\base_settings $settingsinstance */
+                    if (class_exists($settingsclass) && is_subclass_of($settingsclass, base_settings::class)) {
+                        /** @var base_settings $settingsinstance */
                         $settingsinstance = new $settingsclass($newcm, $moduledata->mod_settings);
                         $settingsinstance->add_settings();
                     }
@@ -364,7 +369,8 @@ class create_course extends external_api {
 
             } catch (\Exception $e) {
                 debugging("Error creating module {$modname}: " . $e->getMessage());
-                continue; // Continue with next activity
+                // Continue with next activity.
+                continue;
             }
         }
 

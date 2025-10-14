@@ -61,7 +61,13 @@ class create_mod_stream extends external_api {
      * @param int $generateimages 1 indicates AI could generate images, 0 indicates AI could not generate images
      * @return array
      */
-    public static function execute(int $courseid, ?int $sectionnum, string $prompt, int $generateimages = 0, ?int $beforemod = null) {
+    public static function execute(
+        int $courseid,
+        ?int $sectionnum,
+        string $prompt,
+        int $generateimages = 0,
+        ?int $beforemod = null
+    ) {
         global $CFG, $DB;
 
         try {
