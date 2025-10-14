@@ -227,7 +227,8 @@ class create_course extends external_api {
         }
 
         // Get all sections except section 0.
-        $sections = $DB->get_records_select('course_sections',
+        $sections = $DB->get_records_select(
+            'course_sections',
             'course = ? AND section > 0',
             [$courseid],
             'section DESC' // Delete from highest to lowest to avoid numbering issues.
