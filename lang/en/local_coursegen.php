@@ -17,7 +17,7 @@
 /**
  * Plugin strings are defined here.
  *
- * @package     local_datacurso
+ * @package     local_coursegen
  * @category    string
  * @copyright   2025 Josue Condori <https://datacurso.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -60,8 +60,8 @@ $string['createwithai'] = 'Create with AI';
 $string['creating_course'] = 'Creating Course...';
 $string['custom_fields_header'] = 'DataCurso';
 $string['custom_model_select_field'] = 'Choose the model to use';
-$string['datacurso:managemodels'] = 'Manage models';
-$string['datacurso:view_syllabus'] = 'View syllabus';
+$string['coursegen:managemodels'] = 'Manage models';
+$string['coursegen:view_syllabus'] = 'View syllabus';
 $string['delete'] = 'Delete';
 $string['deletemodel'] = 'Delete Model';
 $string['edit'] = 'Edit';
@@ -112,7 +112,7 @@ $string['noimages'] = 'Do not generate images';
 $string['nomodels'] = 'No models found';
 $string['planning_chat_placeholder'] = 'Describe the adjustments you want to make to the course planning...';
 $string['planning_completed'] = 'Planning completed';
-$string['pluginname'] = 'DataCurso';
+$string['pluginname'] = 'Course Creator AI';
 $string['resource_created'] = 'Resource {$a} created successfully.';
 $string['send'] = 'Send';
 $string['syllabus_pdf_field'] = 'Upload Syllabus PDF';

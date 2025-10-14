@@ -17,12 +17,12 @@
 /**
  * Model class for DataCurso plugin.
  *
- * @package    local_datacurso
+ * @package    local_coursegen
  * @copyright  2025 Wilber Narvaez <https://datacurso.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_datacurso;
+namespace local_coursegen;
 
 /**
  * Model class for handling datacurso models.
@@ -69,7 +69,7 @@ class model {
     public function load($id) {
         global $DB;
 
-        $record = $DB->get_record('local_datacurso_model', ['id' => $id, 'deleted' => 0]);
+        $record = $DB->get_record('local_coursegen_model', ['id' => $id, 'deleted' => 0]);
         if ($record) {
             $this->id = $record->id;
             $this->name = $record->name;
@@ -94,7 +94,7 @@ class model {
 
         // Validate name uniqueness.
         if (!$this->validate_unique_name()) {
-            throw new \moodle_exception('modelnameexists', 'local_datacurso');
+            throw new \moodle_exception('modelnameexists', 'local_coursegen');
         }
 
         $now = time();
@@ -109,7 +109,7 @@ class model {
             $record->timemodified = $now;
             $record->usermodified = $USER->id;
 
-            $this->id = $DB->insert_record('local_datacurso_model', $record);
+            $this->id = $DB->insert_record('local_coursegen_model', $record);
             $this->timecreated = $now;
             $this->timemodified = $now;
             $this->usermodified = $USER->id;
@@ -123,7 +123,7 @@ class model {
             $record->timemodified = $now;
             $record->usermodified = $USER->id;
 
-            $DB->update_record('local_datacurso_model', $record);
+            $DB->update_record('local_coursegen_model', $record);
             $this->timemodified = $now;
             $this->usermodified = $USER->id;
         }
@@ -147,11 +147,11 @@ class model {
 
         if (!empty($this->id)) {
             // Editing existing model - exclude current record.
-            $sql = "SELECT id FROM {local_datacurso_model} WHERE name = ? AND deleted = 0 AND id != ?";
+            $sql = "SELECT id FROM {local_coursegen_model} WHERE name = ? AND deleted = 0 AND id != ?";
             $params = [$name, $this->id];
         } else {
             // Creating new model.
-            $sql = "SELECT id FROM {local_datacurso_model} WHERE name = ? AND deleted = 0";
+            $sql = "SELECT id FROM {local_coursegen_model} WHERE name = ? AND deleted = 0";
             $params = [$name];
         }
 
@@ -167,7 +167,7 @@ class model {
         global $DB;
 
         if (!empty($this->id)) {
-            $DB->set_field('local_datacurso_model', 'deleted', 1, ['id' => $this->id]);
+            $DB->set_field('local_coursegen_model', 'deleted', 1, ['id' => $this->id]);
             $this->deleted = 1;
             return true;
         }
@@ -182,7 +182,7 @@ class model {
     public static function get_all() {
         global $DB;
 
-        return $DB->get_records('local_datacurso_model', ['deleted' => 0], 'timecreated DESC');
+        return $DB->get_records('local_coursegen_model', ['deleted' => 0], 'timecreated DESC');
     }
 
     /**
@@ -207,6 +207,6 @@ class model {
      */
     public static function get_by_course($courseid) {
         global $DB;
-        return $DB->get_record('local_datacurso_model', ['courseid' => $courseid, 'deleted' => 0]);
+        return $DB->get_record('local_coursegen_model', ['courseid' => $courseid, 'deleted' => 0]);
     }
 }

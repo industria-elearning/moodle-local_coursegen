@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace local_datacurso\external;
+namespace local_coursegen\external;
 
 use aiprovider_datacurso\httpclient\ai_course_api;
 use context_course;
@@ -33,7 +33,7 @@ require_once($CFG->libdir . '/externallib.php');
  * It calls the /resources/create-mod?stream=true endpoint, stores the returned job_id
  * like a session_id using ai_course::save_course_session(), and returns that id to the caller.
  *
- * @package    local_datacurso
+ * @package    local_coursegen
  * @copyright  2025 Wilber Narvaez
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -92,8 +92,8 @@ class create_mod_stream extends external_api {
             self::validate_context($context);
 
             $aicontext = $DB->get_record_sql(
-                'SELECT cc.context_type, m.name FROM {local_datacurso_course_context} cc
-                    LEFT JOIN {local_datacurso_model} m
+                'SELECT cc.context_type, m.name FROM {local_coursegen_course_context} cc
+                    LEFT JOIN {local_coursegen_model} m
                        ON cc.model_id = m.id
                  WHERE cc.courseid = ?',
                 [$courseid]
@@ -122,7 +122,7 @@ class create_mod_stream extends external_api {
                 debugging("Invalid response from AI service (stream). Response: " . json_encode($result));
                 return [
                     'ok' => false,
-                    'message' => get_string('error_generating_resource', 'local_datacurso'),
+                    'message' => get_string('error_generating_resource', 'local_coursegen'),
                     'log' => "Invalid response from AI service (stream). Response: " . json_encode($result),
                 ];
             }
@@ -130,7 +130,7 @@ class create_mod_stream extends external_api {
             $jobid = $result['job_id'];
 
             // Store job info in module jobs table.
-            $success = \local_datacurso\module_jobs::save_job($courseid, $jobid, [
+            $success = \local_coursegen\module_jobs::save_job($courseid, $jobid, [
                 'status' => $result['status'] ?? null,
                 'generate_images' => $generateimages,
                 'context_type' => $aicontext ? $aicontext->context_type : null,
@@ -141,7 +141,7 @@ class create_mod_stream extends external_api {
             if (!$success) {
                 return [
                     'ok' => false,
-                    'message' => get_string('error_saving_session', 'local_datacurso'),
+                    'message' => get_string('error_saving_session', 'local_coursegen'),
                     'log' => 'Failed to save module job to database',
                 ];
             }
@@ -152,14 +152,14 @@ class create_mod_stream extends external_api {
                 'ok' => true,
                 'job_id' => $jobid,
                 'status' => $result['status'] ?? null,
-                'message' => $result['message'] ?? get_string('course_planning_started', 'local_datacurso'),
+                'message' => $result['message'] ?? get_string('course_planning_started', 'local_coursegen'),
                 'streamingurl' => $streamingurl,
             ];
         } catch (\Exception $e) {
             debugging("Unexpected error while starting resource generation (stream): " . $e->getMessage());
             return [
                 'ok' => false,
-                'message' => get_string('error_generating_resource', 'local_datacurso'),
+                'message' => get_string('error_generating_resource', 'local_coursegen'),
                 'log' => $e->getMessage(),
             ];
         }

@@ -17,7 +17,7 @@
 /**
  * Add AI button to course creation/edit form
  *
- * @module     local_datacurso/add_course_ai_button
+ * @module     local_coursegen/add_course_ai_button
  * @copyright  2025 Wilber Narvaez <https://datacurso.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -52,7 +52,7 @@ const addAIButton = async () => {
 
   await insertAIButton(submitElement);
   const button = document.querySelector(
-    '[data-action="local_datacurso/add_ai_course"]'
+    '[data-action="local_coursegen/add_ai_course"]'
   );
   button.addEventListener("click", handleAIButtonClick);
 };
@@ -64,7 +64,7 @@ const handleAIButtonClick = async (e) => {
   e.preventDefault();
 
   const form = document.querySelector('form[action*="course/edit.php"]');
-  document.querySelector('input[name="local_datacurso_create_ai_course"]').value = 1;
+  document.querySelector('input[name="local_coursegen_create_ai_course"]').value = 1;
   document.querySelector('input[name="saveanddisplay"]').click();
 };
 
@@ -74,13 +74,13 @@ const handleAIButtonClick = async (e) => {
  */
 const insertAIButton = async (targetElement) => {
   // Check if button already exists to avoid duplicates
-  if (document.querySelector('[data-action="local_datacurso/add_ai_course"]')) {
+  if (document.querySelector('[data-action="local_coursegen/add_ai_course"]')) {
     return;
   }
 
   // Render the template (no context needed as template is self-contained)
   const { html } = await Templates.renderForPromise(
-    "local_datacurso/add_ai_course_button",
+    "local_coursegen/add_ai_course_button",
     {}
   );
   const buttonContainer = document.createElement("div");

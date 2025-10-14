@@ -17,7 +17,7 @@
 /**
  * Plugin administration pages are defined here.
  *
- * @package     local_datacurso
+ * @package     local_coursegen
  * @category    admin
  * @copyright   2025 Josue Condori <https://datacurso.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -26,13 +26,13 @@
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
-    $pluginname = 'local_datacurso';
+    $pluginname = 'local_coursegen';
     $admincategory = new admin_category($pluginname, get_string('pluginname', $pluginname));
     $ADMIN->add('localplugins', $admincategory);
     // Add manage models page.
     $ADMIN->add($pluginname, new admin_externalpage(
-        'local_datacurso_manage_models',
-        get_string('managemodels', 'local_datacurso'),
-        new moodle_url('/local/datacurso/manage_models.php')
+        'local_coursegen_manage_models',
+        get_string('managemodels', 'local_coursegen'),
+        new moodle_url('/local/coursegen/manage_models.php')
     ));
 }

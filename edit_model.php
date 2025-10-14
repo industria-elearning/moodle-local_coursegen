@@ -17,7 +17,7 @@
 /**
  * Edit model page for DataCurso plugin.
  *
- * @package    local_datacurso
+ * @package    local_coursegen
  * @copyright  2025 Wilber Narvaez <https://datacurso.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -25,32 +25,32 @@
 require_once('../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 
-use local_datacurso\form\model_form;
-use local_datacurso\model;
-use local_datacurso\ai_context;
+use local_coursegen\form\model_form;
+use local_coursegen\model;
+use local_coursegen\ai_context;
 
 
-admin_externalpage_setup('local_datacurso_manage_models');
+admin_externalpage_setup('local_coursegen_manage_models');
 
 $id = optional_param('id', 0, PARAM_INT);
 
 $context = context_system::instance();
-require_capability('local/datacurso:managemodels', $context);
+require_capability('local/coursegen:managemodels', $context);
 
-$PAGE->set_url('/local/datacurso/edit_model.php', ['id' => $id]);
+$PAGE->set_url('/local/coursegen/edit_model.php', ['id' => $id]);
 
 $modelobj = null;
 if ($id > 0) {
     $modelobj = model::get_by_id($id);
     if (!$modelobj) {
-        throw new moodle_exception('invalidmodel', 'local_datacurso');
+        throw new moodle_exception('invalidmodel', 'local_coursegen');
     }
-    $PAGE->set_title(get_string('editmodel', 'local_datacurso'));
-    $PAGE->set_heading(get_string('editmodel', 'local_datacurso'));
+    $PAGE->set_title(get_string('editmodel', 'local_coursegen'));
+    $PAGE->set_heading(get_string('editmodel', 'local_coursegen'));
 } else {
     $modelobj = new model();
-    $PAGE->set_title(get_string('addmodel', 'local_datacurso'));
-    $PAGE->set_heading(get_string('addmodel', 'local_datacurso'));
+    $PAGE->set_title(get_string('addmodel', 'local_coursegen'));
+    $PAGE->set_heading(get_string('addmodel', 'local_coursegen'));
 }
 
 $form = new model_form();
@@ -71,7 +71,7 @@ if ($modelobj && $modelobj->id > 0) {
 }
 
 if ($form->is_cancelled()) {
-    redirect(new moodle_url('/local/datacurso/manage_models.php'));
+    redirect(new moodle_url('/local/coursegen/manage_models.php'));
 } else if ($data = $form->get_data()) {
     // Update model object with form data.
     $modelobj->name = trim($data->name);
@@ -82,8 +82,8 @@ if ($form->is_cancelled()) {
 
     ai_context::upload_model_to_ai($modelobj);
     redirect(
-        new moodle_url('/local/datacurso/manage_models.php'),
-        get_string('modelsaved', 'local_datacurso'),
+        new moodle_url('/local/coursegen/manage_models.php'),
+        get_string('modelsaved', 'local_coursegen'),
         null,
         \core\output\notification::NOTIFY_SUCCESS
     );

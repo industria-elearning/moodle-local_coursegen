@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace local_datacurso;
+namespace local_coursegen;
 
 use aiprovider_datacurso\httpclient\ai_course_api;
 
@@ -22,7 +22,7 @@ use aiprovider_datacurso\httpclient\ai_course_api;
 /**
  * AI Course class for managing AI-generated course planning sessions.
  *
- * @package    local_datacurso
+ * @package    local_coursegen
  * @copyright  2025 Wilber Narvaez <https://datacurso.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -61,7 +61,7 @@ class ai_course {
             if (!isset($result['session_id'])) {
                 return [
                     'ok' => false,
-                    'message' => get_string('error_starting_course_planning', 'local_datacurso'),
+                    'message' => get_string('error_starting_course_planning', 'local_coursegen'),
                     'log' => "Invalid response from AI service. Response: " . json_encode($result),
                 ];
             }
@@ -74,7 +74,7 @@ class ai_course {
             if (!$success) {
                 return [
                     'ok' => false,
-                    'message' => get_string('error_saving_session', 'local_datacurso'),
+                    'message' => get_string('error_saving_session', 'local_coursegen'),
                     'log' => 'Failed to save session ID to database',
                 ];
             }
@@ -82,13 +82,13 @@ class ai_course {
             return [
                 'ok' => true,
                 'session_id' => $sessionid,
-                'message' => get_string('course_planning_started', 'local_datacurso'),
+                'message' => get_string('course_planning_started', 'local_coursegen'),
             ];
         } catch (\Exception $e) {
             debugging("Unexpected error while starting course planning: " . $e->getMessage());
             return [
                 'ok' => false,
-                'message' => get_string('error_starting_course_planning', 'local_datacurso'),
+                'message' => get_string('error_starting_course_planning', 'local_coursegen'),
                 'log' => $e->getMessage(),
             ];
         }
@@ -106,7 +106,7 @@ class ai_course {
 
         try {
             // Check if a session already exists for this course.
-            $existingsession = $DB->get_record('local_datacurso_course_sessions', ['courseid' => $courseid]);
+            $existingsession = $DB->get_record('local_coursegen_course_sessions', ['courseid' => $courseid]);
 
             $sessiondata = new \stdClass();
             $sessiondata->courseid = $courseid;
@@ -119,11 +119,11 @@ class ai_course {
             if ($existingsession) {
                 // Update existing session.
                 $sessiondata->id = $existingsession->id;
-                return $DB->update_record('local_datacurso_course_sessions', $sessiondata);
+                return $DB->update_record('local_coursegen_course_sessions', $sessiondata);
             } else {
                 // Create new session record.
                 $sessiondata->timecreated = time();
-                return $DB->insert_record('local_datacurso_course_sessions', $sessiondata);
+                return $DB->insert_record('local_coursegen_course_sessions', $sessiondata);
             }
         } catch (\Exception $e) {
             debugging("Error saving course session: " . $e->getMessage());
@@ -141,7 +141,7 @@ class ai_course {
         global $DB;
 
         try {
-            return $DB->get_record('local_datacurso_course_sessions', ['courseid' => $courseid]);
+            return $DB->get_record('local_coursegen_course_sessions', ['courseid' => $courseid]);
         } catch (\Exception $e) {
             debugging("Error getting course session: " . $e->getMessage());
             return false;
@@ -167,7 +167,7 @@ class ai_course {
             $session->status = $status;
             $session->timemodified = time();
 
-            return $DB->update_record('local_datacurso_course_sessions', $session);
+            return $DB->update_record('local_coursegen_course_sessions', $session);
         } catch (\Exception $e) {
             debugging("Error updating session status: " . $e->getMessage());
             return false;

@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Strings for component 'local_datacurso', language 'es'
+ * Strings for component 'local_coursegen', language 'es'
  *
- * @package    local_datacurso
+ * @package    local_coursegen
  * @category   string
  * @copyright  2025 Wilber Narvaez <https://datacurso.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -58,8 +58,8 @@ $string['coursecreated'] = 'Curso creado exitosamente';
 $string['createwithai'] = 'Crear con IA';
 $string['creating_course'] = 'Creando curso...';
 $string['custom_model_select_field'] = 'Elige el modelo a usar';
-$string['datacurso:managemodels'] = 'Gestionar modelos';
-$string['datacurso:view_syllabus'] = 'Ver sílabus';
+$string['coursegen:managemodels'] = 'Gestionar modelos';
+$string['coursegen:view_syllabus'] = 'Ver sílabus';
 $string['delete'] = 'Eliminar';
 $string['deletemodel'] = 'Eliminar modelo';
 $string['edit'] = 'Editar';
@@ -110,7 +110,7 @@ $string['noimages'] = 'No generar imágenes';
 $string['nomodels'] = 'No se encontraron modelos';
 $string['planning_chat_placeholder'] = 'Describe los ajustes que deseas realizar en la planificación del curso...';
 $string['planning_completed'] = 'Planificación completada';
-$string['pluginname'] = 'DataCurso';
+$string['pluginname'] = 'Creador de Curso IA';
 $string['resource_created'] = 'Recurso {$a} creado correctamente.';
 $string['send'] = 'Enviar';
 $string['syllabus_pdf_field'] = 'Subir PDF del sílabus';

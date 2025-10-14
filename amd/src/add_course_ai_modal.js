@@ -16,7 +16,7 @@
 /**
  * Course AI Modal Module using Moodle's modal factory
  *
- * @module     local_datacurso/add_course_ai_modal
+ * @module     local_coursegen/add_course_ai_modal
  * @copyright  2025 Wilber Narvaez <https://datacurso.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -28,11 +28,11 @@ import { get_string } from "core/str";
 import {
   startStreaming,
   startExecutionStreaming,
-} from "local_datacurso/course_streaming";
+} from "local_coursegen/course_streaming";
 import {
   planCourseMessage,
   planCourseExecute,
-} from "local_datacurso/repository/chatbot";
+} from "local_coursegen/repository/chatbot";
 
 let currentModal = null;
 
@@ -98,9 +98,9 @@ export const init = async (params = {}) => {
 
     // Get modal title and body content
     const [title, bodyHTML, footerHTML] = await Promise.all([
-      get_string("addcourseai_modaltitle", "local_datacurso"),
-      Templates.render("local_datacurso/add_course_ai_modal", {}),
-      Templates.render("local_datacurso/add_course_ai_modal_footer", {}),
+      get_string("addcourseai_modaltitle", "local_coursegen"),
+      Templates.render("local_coursegen/add_course_ai_modal", {}),
+      Templates.render("local_coursegen/add_course_ai_modal_footer", {}),
     ]);
 
     // Create modal using modern Modal class
@@ -113,7 +113,7 @@ export const init = async (params = {}) => {
       removeOnClose: true,
     });
 
-    currentModal.getRoot().addClass("local_datacurso_course_ai_modal");
+    currentModal.getRoot().addClass("local_coursegen_course_ai_modal");
 
     currentModal.show();
 
@@ -178,7 +178,7 @@ const pushUser = (wrap, text) => addBubble(wrap, text, "user");
  */
 const addBubble = (wrap, text, role) => {
   const row = document.createElement("div");
-  row.className = `local_datacurso_ai_msg ${role}`;
+  row.className = `local_coursegen_ai_msg ${role}`;
   const bubble = document.createElement("div");
   bubble.className = "bubble";
   bubble.textContent = text;
@@ -308,7 +308,7 @@ const setupPlanningButtons = (container, params) => {
   const chatForm = container.querySelector("#course-chat-form");
   const chatInput = container.querySelector("#courseChatInput");
   const streamingContainer = container.querySelector(
-    "[data-region='local_datacurso/course_streaming']"
+    "[data-region='local_coursegen/course_streaming']"
   );
 
   if (acceptBtn) {
@@ -317,7 +317,7 @@ const setupPlanningButtons = (container, params) => {
       acceptBtn.disabled = true;
       acceptBtn.textContent = await get_string(
         "creating_course",
-        "local_datacurso"
+        "local_coursegen"
       );
 
       try {
@@ -326,7 +326,7 @@ const setupPlanningButtons = (container, params) => {
 
         if (!courseId) {
           throw new Error(
-            await get_string("error_no_course_id", "local_datacurso")
+            await get_string("error_no_course_id", "local_coursegen")
           );
         }
 
@@ -336,7 +336,7 @@ const setupPlanningButtons = (container, params) => {
         if (!response.success) {
           throw new Error(
             response.message ||
-              (await get_string("error_executing_plan", "local_datacurso"))
+              (await get_string("error_executing_plan", "local_coursegen"))
           );
         }
 
@@ -360,15 +360,15 @@ const setupPlanningButtons = (container, params) => {
         if (response.data && response.data.streamingurl && executionContainer) {
           // Create streaming block template with execution-specific texts
           const html = await Templates.render(
-            "local_datacurso/course_streaming_inline",
+            "local_coursegen/course_streaming_inline",
             {
               title: await get_string(
                 "course_creating_title",
-                "local_datacurso"
+                "local_coursegen"
               ),
               subtitle: await get_string(
                 "course_creating_subtitle",
-                "local_datacurso"
+                "local_coursegen"
               ),
             }
           );
@@ -384,7 +384,7 @@ const setupPlanningButtons = (container, params) => {
         }
 
         // Show success notification after execution completes
-        const message = await get_string("addcourseai_done", "local_datacurso");
+        const message = await get_string("addcourseai_done", "local_coursegen");
         Notification.addNotification({
           message: message,
           type: "success",
@@ -393,7 +393,7 @@ const setupPlanningButtons = (container, params) => {
         acceptBtn.disabled = false;
         acceptBtn.textContent = await get_string(
           "accept_planning_create_course",
-          "local_datacurso"
+          "local_coursegen"
         );
         Notification.exception(error);
       }
@@ -463,7 +463,7 @@ const setupPlanningButtons = (container, params) => {
           streamingContainer.appendChild(errorResponse);
           const errorMsg =
             response.message ||
-            (await get_string("error_processing_request", "local_datacurso"));
+            (await get_string("error_processing_request", "local_coursegen"));
           await typeWriter(errorResponse, errorMsg, 15);
           return;
         }
@@ -481,13 +481,13 @@ const setupPlanningButtons = (container, params) => {
           separator.className = "mt-4 mb-3 border-top pt-3";
           const correctionText = await get_string(
             "adjust_planning_title",
-            "local_datacurso"
+            "local_coursegen"
           );
           separator.innerHTML = `<h6 class="text-muted"><i class="fa fa-edit"></i> ${correctionText}</h6>`;
           streamingContainer.appendChild(separator);
 
           const html = await Templates.render(
-            "local_datacurso/course_streaming_inline",
+            "local_coursegen/course_streaming_inline",
             {}
           );
           const temp = document.createElement("div");
@@ -503,7 +503,7 @@ const setupPlanningButtons = (container, params) => {
         streamingContainer.appendChild(errorResponse);
         const errorMsg = await get_string(
           "error_sending_message",
-          "local_datacurso"
+          "local_coursegen"
         );
         await typeWriter(errorResponse, `${errorMsg}: ${error.message}`, 15);
       } finally {

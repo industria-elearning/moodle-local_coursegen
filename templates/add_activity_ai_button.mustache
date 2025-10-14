@@ -15,7 +15,7 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template local_datacurso/add_activity_ai_button
+    @template local_coursegen/add_activity_ai_button
 
     TODO describe template add_activity_ai_button
 
@@ -27,33 +27,33 @@
     }
 }}
 <div>
-<button class="local_datacurso-add-activity-ai-button section-modchooser btn add-content d-flex justify-content-center align-items-center p-1 icon-no-margin"
-    data-action="local_datacurso/add_activity_ai"
+<button class="local_coursegen-add-activity-ai-button section-modchooser btn add-content d-flex justify-content-center align-items-center p-1 icon-no-margin"
+    data-action="local_coursegen/add_activity_ai"
     data-sectionnum="{{sectionnum}}"
     {{#beforemod}}
         data-beforemod="{{beforemod}}"
         aria-label="{{arialabel}}"
         tabindex="0"
-        title="{{#str}} addactivitywithia, local_datacurso {{/str}}"
+        title="{{#str}} addactivitywithia, local_coursegen {{/str}}"
     {{/beforemod}}
 >
     {{#beforemod}}
-        <span class="local_datacurso-sparkles-icon" title="{{#str}} addactivitywithia, local_datacurso {{/str}}">
-            {{#pix}} sparkles, local_datacurso {{/pix}}
+        <span class="local_coursegen-sparkles-icon" title="{{#str}} addactivitywithia, local_coursegen {{/str}}">
+            {{#pix}} sparkles, local_coursegen {{/pix}}
         </span>
-        <span class="local_datacurso-sparkles-icon white" title="{{#str}} addactivitywithia, local_datacurso {{/str}}">
-            {{#pix}} sparkles-white, local_datacurso {{/pix}}
+        <span class="local_coursegen-sparkles-icon white" title="{{#str}} addactivitywithia, local_coursegen {{/str}}">
+            {{#pix}} sparkles-white, local_coursegen {{/pix}}
         </span>
     {{/beforemod}}
     {{^beforemod}}
         <div class="px-1">
-            <span class="local_datacurso-sparkles-icon">
-                {{#pix}} sparkles, local_datacurso {{/pix}}
+            <span class="local_coursegen-sparkles-icon">
+                {{#pix}} sparkles, local_coursegen {{/pix}}
             </span>
-            <span class="local_datacurso-sparkles-icon white">
-                {{#pix}} sparkles-white, local_datacurso {{/pix}}
+            <span class="local_coursegen-sparkles-icon white">
+                {{#pix}} sparkles-white, local_coursegen {{/pix}}
             </span>
-            <span class="activity-add-text pr-1">{{#str}}addactivitywithia, local_datacurso{{/str}}</span>
+            <span class="activity-add-text pr-1">{{#str}}addactivitywithia, local_coursegen{{/str}}</span>
         </div>
     {{/beforemod}}
 </button>

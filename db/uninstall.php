@@ -17,7 +17,7 @@
 /**
  * Code that is executed before the tables and data are dropped during the plugin uninstallation.
  *
- * @package     local_datacurso
+ * @package     local_coursegen
  * @category    upgrade
  * @copyright   2025 Josue Condori <https://datacurso.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -26,7 +26,7 @@
 /**
  * Custom uninstallation procedure.
  */
-function xmldb_local_datacurso_uninstall() {
+function xmldb_local_coursegen_uninstall() {
 
     return true;
 }

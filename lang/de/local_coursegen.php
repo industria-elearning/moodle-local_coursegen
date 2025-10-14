@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Strings for component 'local_datacurso', language 'de'
+ * Strings for component 'local_coursegen', language 'de'
  *
- * @package    local_datacurso
+ * @package    local_coursegen
  * @category   string
  * @copyright  2025 Wilber Narvaez <https://datacurso.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -58,8 +58,8 @@ $string['coursecreated'] = 'Kurs erfolgreich erstellt';
 $string['createwithai'] = 'Mit KI erstellen';
 $string['creating_course'] = 'Kurs wird erstellt...';
 $string['custom_model_select_field'] = 'Wähle das zu verwendende Modell';
-$string['datacurso:managemodels'] = 'Modelle verwalten';
-$string['datacurso:view_syllabus'] = 'Lehrplan anzeigen';
+$string['coursegen:managemodels'] = 'Modelle verwalten';
+$string['coursegen:view_syllabus'] = 'Lehrplan anzeigen';
 $string['delete'] = 'Löschen';
 $string['deletemodel'] = 'Modell löschen';
 $string['edit'] = 'Bearbeiten';
@@ -110,7 +110,7 @@ $string['noimages'] = 'Keine Bilder generieren';
 $string['nomodels'] = 'Keine Modelle gefunden';
 $string['planning_chat_placeholder'] = 'Beschreibe die Anpassungen, die du in der Kursplanung vornehmen möchtest...';
 $string['planning_completed'] = 'Planung abgeschlossen';
-$string['pluginname'] = 'DataCurso';
+$string['pluginname'] = 'KI-Kursersteller';
 $string['resource_created'] = 'Ressource {$a} erfolgreich erstellt.';
 $string['send'] = 'Senden';
 $string['syllabus_pdf_field'] = 'Lehrplan-PDF hochladen';

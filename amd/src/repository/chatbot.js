@@ -17,7 +17,7 @@
 /**
  * TODO describe module chatbot
  *
- * @module     local_datacurso/repository/chatbot
+ * @module     local_coursegen/repository/chatbot
  * @copyright  2025 Wilber Narvaez <https://datacurso.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -40,7 +40,7 @@ export async function planCourseMessage({courseid, text}) {
     };
     return ajax.call([
         {
-            methodname: "local_datacurso_plan_course_message",
+            methodname: "local_coursegen_plan_course_message",
             args,
         },
     ])[0];
@@ -69,7 +69,7 @@ export async function createMod({courseid, sectionnum, beforemod, jobid}) {
     };
     return ajax.call([
         {
-            methodname: "local_datacurso_create_mod",
+            methodname: "local_coursegen_create_mod",
             args,
         },
     ])[0];
@@ -102,7 +102,7 @@ export async function createModStream({courseid, sectionnum, beforemod, prompt, 
     };
     return ajax.call([
         {
-            methodname: "local_datacurso_create_mod_stream",
+            methodname: "local_coursegen_create_mod_stream",
             args,
         },
     ])[0];
@@ -123,7 +123,7 @@ export async function createCourse({courseid}) {
     };
     return ajax.call([
         {
-            methodname: "local_datacurso_create_course",
+            methodname: "local_coursegen_create_course",
             args,
         },
     ])[0];
@@ -138,7 +138,7 @@ export async function createCourse({courseid}) {
 export async function planCourseExecute(courseid) {
     return ajax.call([
         {
-            methodname: "local_datacurso_plan_course_execute",
+            methodname: "local_coursegen_plan_course_execute",
             args: {courseid: Number(courseid)},
         },
     ])[0];

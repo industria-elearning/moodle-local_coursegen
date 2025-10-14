@@ -1,5 +1,5 @@
 /* eslint-disable */
-.local_datacurso_card {
+.local_coursegen_card {
     border: 1px solid #ddd;
     padding: 10px;
     border-radius: 5px;
@@ -10,14 +10,14 @@
     text-align: center;
 }
 
-.local_datacurso_img {
+.local_coursegen_img {
     width: 100%;
     height: 150px;
     object-fit: contain;
     border-radius: 5px;
 }
 
-.local_datacurso_h3 {
+.local_coursegen_h3 {
     font-size: 16px;
     margin: 10px 0;
     word-wrap: break-word;
@@ -25,7 +25,7 @@
     white-space: normal;
 }
 
-.local_datacurso_p {
+.local_coursegen_p {
     font-size: 14px;
     margin: 0;
     word-wrap: break-word;
@@ -33,7 +33,7 @@
     white-space: normal;
 }
 
-.local_datacurso_button {
+.local_coursegen_button {
     background-color: white;
     color: #9155fd;
     border: 1px solid #9155fd;
@@ -46,7 +46,7 @@
     transition: all 0.3s ease;
 }
 
-.local_datacurso_button:hover {
+.local_coursegen_button:hover {
     background-color: #9155fd;
     color: white;
     border: 1px solid #9155fd;
@@ -55,7 +55,7 @@
 
 /* Plugin Loading */
 
-.local_datacurso_courses_page_loading {
+.local_coursegen_courses_page_loading {
     height: 100vh;
     display: flex;
     flex-direction: column;
@@ -63,21 +63,21 @@
     align-items: center;
 }
 
-.local_datacurso_courses_page_spinner_container {
+.local_coursegen_courses_page_spinner_container {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 120px;
 }
 
-.local_datacurso_courses_page_spinner_lds_ring {
+.local_coursegen_courses_page_spinner_lds_ring {
     display: inline-block;
     position: relative;
     width: 80px;
     height: 80px;
 }
 
-.local_datacurso_courses_page_spinner_lds_ring div {
+.local_coursegen_courses_page_spinner_lds_ring div {
     box-sizing: border-box;
     display: block;
     position: absolute;
@@ -91,15 +91,15 @@
     border-color: #1976d2 transparent transparent transparent;
 }
 
-.local_datacurso_courses_page_spinner_lds_ring div:nth-child(1) {
+.local_coursegen_courses_page_spinner_lds_ring div:nth-child(1) {
     animation-delay: -0.45s;
 }
 
-.local_datacurso_courses_page_spinner_lds_ring div:nth-child(2) {
+.local_coursegen_courses_page_spinner_lds_ring div:nth-child(2) {
     animation-delay: -0.3s;
 }
 
-.local_datacurso_courses_page_spinner_lds_ring div:nth-child(3) {
+.local_coursegen_courses_page_spinner_lds_ring div:nth-child(3) {
     animation-delay: -0.15s;
 }
 
@@ -113,34 +113,34 @@
     }
 }
 
-span.local_datacurso-sparkles-icon {
+span.local_coursegen-sparkles-icon {
     display: inline-block;
 }
 
-span.local_datacurso-sparkles-icon.white {
+span.local_coursegen-sparkles-icon.white {
     display: none;
 }
 
-.local_datacurso-add-activity-ai-button:not([disabled]):hover {
+.local_coursegen-add-activity-ai-button:not([disabled]):hover {
     color: #fff;
 }
 
-.local_datacurso-add-activity-ai-button:not([disabled]):hover span.local_datacurso-sparkles-icon {
+.local_coursegen-add-activity-ai-button:not([disabled]):hover span.local_coursegen-sparkles-icon {
     display: none;
 }
 
-.local_datacurso-add-activity-ai-button:not([disabled]):hover span.local_datacurso-sparkles-icon.white {
+.local_coursegen-add-activity-ai-button:not([disabled]):hover span.local_coursegen-sparkles-icon.white {
     display: inline-block;
 }
 
 /* Contenedor general */
-.local_datacurso_ai_chat {
+.local_coursegen_ai_chat {
     display: flex;
     flex-direction: column;
 }
 
 /* Área de mensajes */
-.local_datacurso_ai_messages {
+.local_coursegen_ai_messages {
     flex: 1 1 auto;
     overflow: auto;
     padding: 0.5rem;
@@ -150,12 +150,12 @@ span.local_datacurso-sparkles-icon.white {
 }
 
 /* Burbujas */
-.local_datacurso_ai_msg {
+.local_coursegen_ai_msg {
     display: flex;
     margin: .5rem 0;
 }
 
-.local_datacurso_ai_msg .bubble {
+.local_coursegen_ai_msg .bubble {
     padding: .5rem .75rem;
     border-radius: 1rem;
     max-width: 85%;
@@ -163,42 +163,42 @@ span.local_datacurso-sparkles-icon.white {
     word-break: break-word;
 }
 
-.local_datacurso_ai_msg.user {
+.local_coursegen_ai_msg.user {
     justify-content: flex-end;
 }
 
-.local_datacurso_ai_msg.user .bubble {
+.local_coursegen_ai_msg.user .bubble {
     background: var(--primary);
     color: var(--white);
     border-bottom-right-radius: .25rem;
 }
 
-.local_datacurso_ai_msg.ai .bubble {
+.local_coursegen_ai_msg.ai .bubble {
     background: var(--white);
     border: 1px solid rgba(0, 0, 0, .08);
     border-bottom-left-radius: .25rem;
 }
 
 /* “Escribiendo…” */
-.local_datacurso_ai_typing .dot {
+.local_coursegen_ai_typing .dot {
     display: inline-block;
     width: .35rem;
     height: .35rem;
     margin: 0 .12rem;
     border-radius: 50%;
     background: rgba(0, 0, 0, .45);
-    animation: local_datacurso_ai_blink 1.2s infinite ease-in-out;
+    animation: local_coursegen_ai_blink 1.2s infinite ease-in-out;
 }
 
-.local_datacurso_ai_typing .dot:nth-child(2) {
+.local_coursegen_ai_typing .dot:nth-child(2) {
     animation-delay: .15s;
 }
 
-.local_datacurso_ai_typing .dot:nth-child(3) {
+.local_coursegen_ai_typing .dot:nth-child(3) {
     animation-delay: .3s;
 }
 
-@keyframes local_datacurso_ai_blink {
+@keyframes local_coursegen_ai_blink {
 
     0%,
     80%,
@@ -214,7 +214,7 @@ span.local_datacurso-sparkles-icon.white {
 }
 
 /* Form */
-.local_datacurso_ai_input .form-text {
+.local_coursegen_ai_input .form-text {
     opacity: .8;
 }
 
@@ -230,14 +230,14 @@ span.local_datacurso-sparkles-icon.white {
 /* Nuevos estilos */
 
 /* Grupo de entrada */
-.local_datacurso_ai_input_group {
+.local_coursegen_ai_input_group {
     display: flex;
     align-items: center;
     gap: 0.4rem;
 }
 
 /* Textarea ocupa todo el espacio */
-.local_datacurso_ai_textarea {
+.local_coursegen_ai_textarea {
     flex: 1;
     resize: none;
     border-radius: .5rem;
@@ -248,7 +248,7 @@ span.local_datacurso-sparkles-icon.white {
 }
 
 /* Botón de enviar con ancho fijo */
-.local_datacurso_ai_send {
+.local_coursegen_ai_send {
     flex: 0 0 42px;
     height: 42px;
     border: none;
@@ -262,29 +262,29 @@ span.local_datacurso-sparkles-icon.white {
     transition: background-color 0.2s ease-in-out;
 }
 
-.local_datacurso_ai_send:hover {
+.local_coursegen_ai_send:hover {
     background-color: var(--blue);
 }
 
 /* Ícono */
-.local_datacurso_ai_send svg {
+.local_coursegen_ai_send svg {
     pointer-events: none;
 }
 
 /* AI Course Modal Styles */
-.local_datacurso_course_ai_modal .modal-dialog {
+.local_coursegen_course_ai_modal .modal-dialog {
     max-width: 75vw;
     width: 75vw;
     margin: 1.75rem auto;
 }
 
-.local_datacurso_course_ai_modal .modal-content {
+.local_coursegen_course_ai_modal .modal-content {
     height: calc(100vh - 3.5rem);
     display: flex;
     flex-direction: column;
 }
 
-.local_datacurso_course_ai_modal .modal-body {
+.local_coursegen_course_ai_modal .modal-body {
     overflow-y: auto;
     flex: 1;
     padding: 1rem;
@@ -293,12 +293,12 @@ span.local_datacurso-sparkles-icon.white {
     position: relative;
 }
 
-.local_datacurso_course_ai_modal .modal-footer {
+.local_coursegen_course_ai_modal .modal-footer {
     justify-content: center;
     padding: 0;
 }
 
-.local_datacurso_course_ai_modal .local_datacurso_ai_chat {
+.local_coursegen_course_ai_modal .local_coursegen_ai_chat {
     flex: 1 1 auto;
     min-height: 0;
     max-height: none;
@@ -306,7 +306,7 @@ span.local_datacurso-sparkles-icon.white {
     flex-direction: column;
 }
 
-.local_datacurso_course_ai_modal .local_datacurso_ai_messages {
+.local_coursegen_course_ai_modal .local_coursegen_ai_messages {
     flex: 1 1 auto;
     min-height: 0;
     display: flex;
@@ -315,35 +315,35 @@ span.local_datacurso-sparkles-icon.white {
     padding: 0.5rem;
 }
 
-.local_datacurso_course_chat {
+.local_coursegen_course_chat {
     flex: 1;
     display: flex;
     flex-direction: column;
 }
 
-.local_datacurso_course_ai_modal .local_datacurso_course_chat #course-planning-actions {
+.local_coursegen_course_ai_modal .local_coursegen_course_chat #course-planning-actions {
     margin-top: 1rem;
     margin-bottom: 0.5rem;
 }
 
-.local_datacurso_course_ai_modal .local_datacurso_course_chat #course-chat-interface {
+.local_coursegen_course_ai_modal .local_coursegen_course_chat #course-chat-interface {
     margin-top: 1rem;
     margin-bottom: 1rem;
 }
 
 /* Activity AI Modal Styles - Consistent with Course AI Modal */
-.local_datacurso_course_ai_modal .local_datacurso_ai_chat #activity-streaming-section {
+.local_coursegen_course_ai_modal .local_coursegen_ai_chat #activity-streaming-section {
     margin-bottom: 1rem;
 }
 
 /* Ensure streaming sections have consistent appearance */
-.local_datacurso_course_ai_modal [data-region="local_datacurso/course_streaming"] {
+.local_coursegen_course_ai_modal [data-region="local_coursegen/course_streaming"] {
     background: transparent;
     border: none;
     padding: 0;
 }
 
-.local_datacurso_course_ai_modal [data-region="local_datacurso/course_streaming/progress"] {
+.local_coursegen_course_ai_modal [data-region="local_coursegen/course_streaming/progress"] {
     background: var(--white);
     border: 1px solid rgba(0, 0, 0, .08);
     border-radius: .5rem;

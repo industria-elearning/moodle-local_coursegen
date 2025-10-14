@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace local_datacurso\external;
+namespace local_coursegen\external;
 
 use aiprovider_datacurso\httpclient\ai_course_api;
 use context_course;
@@ -22,8 +22,8 @@ use external_api;
 use external_function_parameters;
 use external_single_structure;
 use external_value;
-use local_datacurso\mod_settings\base_settings;
-use local_datacurso\utils\text_editor_parameter_cleaner;
+use local_coursegen\mod_settings\base_settings;
+use local_coursegen\utils\text_editor_parameter_cleaner;
 
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/externallib.php');
@@ -33,7 +33,7 @@ require_once($CFG->dirroot . '/course/modlib.php');
 /**
  * Class create_mod
  *
- * @package    local_datacurso
+ * @package    local_coursegen
  * @copyright  2025 Wilber Narvaez <https://datacurso.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -83,8 +83,8 @@ class create_mod extends external_api {
             self::validate_context($context);
 
             $aicontext = $DB->get_record_sql(
-                'SELECT cc.context_type, m.name FROM {local_datacurso_course_context} cc
-                    LEFT JOIN {local_datacurso_model} m
+                'SELECT cc.context_type, m.name FROM {local_coursegen_course_context} cc
+                    LEFT JOIN {local_coursegen_model} m
                 ON cc.model_id = m.id
                     WHERE cc.courseid = ?',
                 [$courseid]
@@ -100,7 +100,7 @@ class create_mod extends external_api {
             if (empty($jobid)) {
                 return [
                     'ok' => false,
-                    'message' => get_string('error_generating_resource', 'local_datacurso'),
+                    'message' => get_string('error_generating_resource', 'local_coursegen'),
                     'log' => 'Missing jobid for result endpoint.',
                 ];
             }
@@ -112,7 +112,7 @@ class create_mod extends external_api {
                 debugging("Invalid response from AI service (result). Response: " . json_encode($result));
                 return [
                     'ok' => false,
-                    'message' => get_string('error_generating_resource', 'local_datacurso'),
+                    'message' => get_string('error_generating_resource', 'local_coursegen'),
                     'log' => "Invalid response from AI service (result). Response: " . json_encode($result),
                 ];
             }
@@ -124,7 +124,7 @@ class create_mod extends external_api {
                 debugging("Form file not found for module: {$modname}");
                 return [
                     'ok' => false,
-                    'message' => get_string('error_generating_resource', 'local_datacurso'),
+                    'message' => get_string('error_generating_resource', 'local_coursegen'),
                     'log' => "Form file not found for module: {$modname}",
                 ];
             }
@@ -145,7 +145,7 @@ class create_mod extends external_api {
                 debugging("Missing parameters in service response: " . json_encode($result));
                 return [
                     'ok' => false,
-                    'message' => get_string('error_generating_resource', 'local_datacurso'),
+                    'message' => get_string('error_generating_resource', 'local_coursegen'),
                     'log' => "Missing parameters in service response: " . json_encode($result),
                 ];
             }
@@ -157,11 +157,11 @@ class create_mod extends external_api {
             $parameters->beforemod = $beforemod;
             $parameters->module = $module->id;
 
-            $paramclass = '\\local_datacurso\\mod_parameters\\' . $modname . '_parameters';
+            $paramclass = '\\local_coursegen\\mod_parameters\\' . $modname . '_parameters';
             $classexists = class_exists($paramclass);
-            $issubclass = is_subclass_of($paramclass, \local_datacurso\mod_parameters\base_parameters::class);
+            $issubclass = is_subclass_of($paramclass, \local_coursegen\mod_parameters\base_parameters::class);
             if ($classexists && $issubclass) {
-                /** @var \local_datacurso\mod_parameters\base_parameters $paraminstance */
+                /** @var \local_coursegen\mod_parameters\base_parameters $paraminstance */
                 $paraminstance = new $paramclass($parameters);
                 $parameters = $paraminstance->get_parameters();
             }
@@ -170,7 +170,7 @@ class create_mod extends external_api {
 
             $modsettings = $parameters->mod_settings;
 
-            $classpath = '\\local_datacurso\\mod_settings\\' . $modname . '_settings';
+            $classpath = '\\local_coursegen\\mod_settings\\' . $modname . '_settings';
             if (!empty($modsettings) && class_exists($classpath)) {
                 if (is_subclass_of($classpath, base_settings::class)) {
 
@@ -178,7 +178,7 @@ class create_mod extends external_api {
                     $modsettingsinstance = new $classpath($newcm, $modsettings);
                     $modsettingsinstance->add_settings();
                 } else {
-                    debugging("{$classpath} is not a subclass of \local_datacurso\mod_settings\base_settings");
+                    debugging("{$classpath} is not a subclass of \local_coursegen\mod_settings\base_settings");
                 }
             }
 
@@ -186,7 +186,7 @@ class create_mod extends external_api {
 
             return [
                 'ok' => true,
-                'message' => get_string('resource_created', 'local_datacurso', $modname),
+                'message' => get_string('resource_created', 'local_coursegen', $modname),
                 'data' => [
                     'activityurl' => $url->out(false),
                     'cmid' => $newcm->id,
@@ -197,7 +197,7 @@ class create_mod extends external_api {
             debugging("Unexpected error while creating resource: " . $e->getMessage());
             return [
                 'ok' => false,
-                'message' => get_string('error_generating_resource', 'local_datacurso'),
+                'message' => get_string('error_generating_resource', 'local_coursegen'),
                 'log' => $e->getMessage(),
             ];
         }
