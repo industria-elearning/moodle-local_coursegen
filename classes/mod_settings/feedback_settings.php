@@ -32,7 +32,7 @@ class feedback_settings extends base_settings {
     public function add_settings() {
         global $DB, $CFG;
 
-        require_once($CFG->dirroot.'/mod/feedback/lib.php');
+        require_once($CFG->dirroot . '/mod/feedback/lib.php');
 
         foreach ($this->modsettings['questions'] as $question) {
             $this->add_question($question);

@@ -45,5 +45,4 @@ abstract class base_settings {
      * Add specific settings for module.
      */
     abstract public function add_settings();
-
 }

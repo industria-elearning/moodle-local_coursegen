@@ -41,7 +41,6 @@ use moodle_exception;
  * External API for sending messages to AI course planning sessions.
  */
 class plan_course_message extends external_api {
-
     /**
      * Returns description of method parameters.
      *
@@ -114,7 +113,6 @@ class plan_course_message extends external_api {
                     'streamingurl' => $streamingurl,
                 ],
             ];
-
         } catch (\Exception $e) {
             return [
                 'success' => false,

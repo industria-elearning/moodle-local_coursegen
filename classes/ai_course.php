@@ -27,7 +27,6 @@ use aiprovider_datacurso\httpclient\ai_course_api;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class ai_course {
-
     /**
      * Start AI course planning session by calling the /plan-course/start endpoint..
      *
@@ -41,7 +40,6 @@ class ai_course {
         global $CFG, $DB;
 
         try {
-
             // Prepare request data.
             $requestdata = [
                 'course_id' => $courseid,
@@ -86,7 +84,6 @@ class ai_course {
                 'session_id' => $sessionid,
                 'message' => get_string('course_planning_started', 'local_datacurso'),
             ];
-
         } catch (\Exception $e) {
             debugging("Unexpected error while starting course planning: " . $e->getMessage());
             return [
@@ -128,7 +125,6 @@ class ai_course {
                 $sessiondata->timecreated = time();
                 return $DB->insert_record('local_datacurso_course_sessions', $sessiondata);
             }
-
         } catch (\Exception $e) {
             debugging("Error saving course session: " . $e->getMessage());
             return false;
@@ -172,7 +168,6 @@ class ai_course {
             $session->timemodified = time();
 
             return $DB->update_record('local_datacurso_course_sessions', $session);
-
         } catch (\Exception $e) {
             debugging("Error updating session status: " . $e->getMessage());
             return false;

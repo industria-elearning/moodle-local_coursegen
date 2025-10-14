@@ -153,7 +153,6 @@ class create_mod_stream extends external_api {
                 'message' => $result['message'] ?? get_string('course_planning_started', 'local_datacurso'),
                 'streamingurl' => $streamingurl,
             ];
-
         } catch (\Exception $e) {
             debugging("Unexpected error while starting resource generation (stream): " . $e->getMessage());
             return [

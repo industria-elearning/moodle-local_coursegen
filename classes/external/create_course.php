@@ -31,7 +31,7 @@ use local_datacurso\mod_settings\base_settings;
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/externallib.php');
-require_once($CFG->dirroot .'/course/lib.php');
+require_once($CFG->dirroot . '/course/lib.php');
 
 use external_api;
 use external_function_parameters;
@@ -45,7 +45,6 @@ use local_datacurso\mod_parameters\base_parameters;
  * External API for creating courses with AI assistance.
  */
 class create_course extends external_api {
-
     /**
      * Returns description of method parameters.
      *
@@ -145,7 +144,6 @@ class create_course extends external_api {
                 'message' => get_string('coursecreated', 'local_datacurso'),
                 'courseurl' => course_get_url($course->id)->out(),
             ];
-
         } catch (\Exception $e) {
             // Update session status to failed (4) if session exists.
             if (isset($session) && $session) {
@@ -333,7 +331,13 @@ class create_course extends external_api {
                 $sectionnum = $parameters['section'] ?? 0;
 
                 // Prepare module data.
-                list($module, $context, $cw, $cm, $data) = prepare_new_moduleinfo_data($course, $modname, $sectionnum);
+                [
+                    $module,
+                    $context,
+                    $cw,
+                    $cm,
+                    $data
+                ] = prepare_new_moduleinfo_data($course, $modname, $sectionnum);
 
                 $mformclassname = 'mod_' . $modname . '_mod_form';
                 $mform = new $mformclassname($data, $cw->section, $cm, $course);
@@ -366,7 +370,6 @@ class create_course extends external_api {
                         $settingsinstance->add_settings();
                     }
                 }
-
             } catch (\Exception $e) {
                 debugging("Error creating module {$modname}: " . $e->getMessage());
                 // Continue with next activity.

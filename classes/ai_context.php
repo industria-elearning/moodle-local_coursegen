@@ -45,9 +45,7 @@ class ai_context {
 
             $client = new ai_course_api();
             $client->request('POST', '/context/upload-model-context', $postdata);
-
         } catch (\Exception $e) {
-
             // Mostrar notificación de error al usuario.
             \core\notification::error(get_string('error_upload_failed_model', 'local_datacurso', $e->getMessage()));
         }
@@ -89,9 +87,7 @@ class ai_context {
 
             $client = new ai_course_api();
             $client->upload_file('/context/upload', $filepath, $file->get_mimetype(), $file->get_filename(), $postdata);
-
         } catch (\Exception $e) {
-
             // Mostrar notificación de error al usuario.
             \core\notification::error(get_string('error_upload_failed', 'local_datacurso', $e->getMessage()));
         }

@@ -28,7 +28,6 @@ namespace local_datacurso;
  * Model class for handling datacurso models.
  */
 class model {
-
     /** @var int Model ID */
     public $id;
 
