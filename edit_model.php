@@ -73,7 +73,6 @@ if ($modelobj && $modelobj->id > 0) {
 if ($form->is_cancelled()) {
     redirect(new moodle_url('/local/datacurso/manage_models.php'));
 } else if ($data = $form->get_data()) {
-
     // Update model object with form data.
     $modelobj->name = trim($data->name);
     $modelobj->content = $data->content_editor['text'];
@@ -82,8 +81,12 @@ if ($form->is_cancelled()) {
     $modelobj->save();
 
     ai_context::upload_model_to_ai($modelobj);
-    redirect(new moodle_url('/local/datacurso/manage_models.php'),
-            get_string('modelsaved', 'local_datacurso'), null, \core\output\notification::NOTIFY_SUCCESS);
+    redirect(
+        new moodle_url('/local/datacurso/manage_models.php'),
+        get_string('modelsaved', 'local_datacurso'),
+        null,
+        \core\output\notification::NOTIFY_SUCCESS
+    );
 }
 
 echo $OUTPUT->header();
