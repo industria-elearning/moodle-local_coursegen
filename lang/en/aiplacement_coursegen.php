@@ -119,3 +119,5 @@ $string['syllabus_pdf_field'] = 'Upload Syllabus PDF';
 $string['syllabus_pdf_field_help'] = 'Upload a PDF file containing the course syllabus. This will be sent to the AI for context analysis. Maximum file size: 10MB.';
 $string['unauthorized'] = 'Unauthorized access';
 $string['yesimages'] = 'Generate images';
+$string['aiplacementplugins'] = 'AI Placement Plugins';
+$string['coursecreatorai'] = 'Course Creator AI';

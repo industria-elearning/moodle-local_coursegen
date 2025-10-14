@@ -26,7 +26,22 @@
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
-    $ADMIN->add('ai', new admin_externalpage(
+    // Create the main category "AI Placement Plugins" under the "Plugins" section.
+    $maincat = 'aiplacement_plugins_cat';
+    $ADMIN->add('modules', new admin_category(
+        $maincat,
+        get_string('aiplacementplugins', 'aiplacement_coursegen')
+    ));
+
+    // Create the subcategory "Course Creator AI" inside the main category.
+    $subcategory = 'aiplacement_coursecreator_cat';
+    $ADMIN->add($maincat, new admin_category(
+        $subcategory,
+        get_string('coursecreatorai', 'aiplacement_coursegen')
+    ));
+
+    // Add the external admin page "Manage models" inside the "Course Creator AI" subcategory.
+    $ADMIN->add($subcategory, new admin_externalpage(
         'aiplacement_coursegen_manage_models',
         get_string('managemodels', 'aiplacement_coursegen'),
         new moodle_url('/ai/placement/coursegen/manage_models.php')
