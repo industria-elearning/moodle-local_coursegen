@@ -34,7 +34,7 @@ $confirm = optional_param('confirm', 0, PARAM_INT);
 $context = context_system::instance();
 require_capability('local/coursegen:managemodels', $context);
 
-$PAGE->set_url('/local/datacurso/manage_models.php');
+$PAGE->set_url('/ai/placement/coursegen/manage_models.php');
 $PAGE->set_title(get_string('managemodels', 'aiplacement_coursegen'));
 $PAGE->set_heading(get_string('managemodels', 'aiplacement_coursegen'));
 
@@ -68,7 +68,7 @@ if ($action === 'delete' && $id > 0) {
 echo $OUTPUT->header();
 
 // Add model button.
-$addurl = new moodle_url('/local/datacurso/edit_model.php');
+$addurl = new moodle_url('/ai/placement/coursegen/edit_model.php');
 echo html_writer::div(
     $OUTPUT->single_button($addurl, get_string('addmodel', 'aiplacement_coursegen'), 'get'),
     'mb-3'
@@ -94,7 +94,7 @@ if (empty($models)) {
     );
 } else {
     foreach ($models as $model) {
-        $editurl = new moodle_url('/local/datacurso/edit_model.php', ['id' => $model->id]);
+        $editurl = new moodle_url('/ai/placement/coursegen/edit_model.php', ['id' => $model->id]);
         $deleteurl = new moodle_url($PAGE->url, ['action' => 'delete', 'id' => $model->id]);
 
         $editicon = $OUTPUT->pix_icon('t/edit', get_string('edit', 'aiplacement_coursegen'));
