@@ -26,7 +26,6 @@ use mod_glossary_external;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class glossary_settings extends base_settings {
-
     /**
      * Add specific settings for glossary module.
      */

@@ -25,12 +25,13 @@
 namespace local_datacurso\external;
 
 use aiprovider_datacurso\httpclient\ai_course_api;
+use local_datacurso\mod_settings\base_settings;
 
 
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/externallib.php');
-require_once($CFG->dirroot .'/course/lib.php');
+require_once($CFG->dirroot . '/course/lib.php');
 
 use external_api;
 use external_function_parameters;
@@ -38,12 +39,12 @@ use external_value;
 use external_single_structure;
 use moodle_exception;
 use local_datacurso\utils\text_editor_parameter_cleaner;
+use local_datacurso\mod_parameters\base_parameters;
 
 /**
  * External API for creating courses with AI assistance.
  */
 class create_course extends external_api {
-
     /**
      * Returns description of method parameters.
      *
@@ -143,7 +144,6 @@ class create_course extends external_api {
                 'message' => get_string('coursecreated', 'local_datacurso'),
                 'courseurl' => course_get_url($course->id)->out(),
             ];
-
         } catch (\Exception $e) {
             // Update session status to failed (4) if session exists.
             if (isset($session) && $session) {
@@ -227,7 +227,8 @@ class create_course extends external_api {
         }
 
         // Get all sections except section 0.
-        $sections = $DB->get_records_select('course_sections',
+        $sections = $DB->get_records_select(
+            'course_sections',
             'course = ? AND section > 0',
             [$courseid],
             'section DESC' // Delete from highest to lowest to avoid numbering issues.
@@ -331,7 +332,13 @@ class create_course extends external_api {
                 $sectionnum = $parameters['section'] ?? 0;
 
                 // Prepare module data.
-                list($module, $context, $cw, $cm, $data) = prepare_new_moduleinfo_data($course, $modname, $sectionnum);
+                [
+                    $module,
+                    $context,
+                    $cw,
+                    $cm,
+                    $data
+                ] = prepare_new_moduleinfo_data($course, $modname, $sectionnum);
 
                 $mformclassname = 'mod_' . $modname . '_mod_form';
                 $mform = new $mformclassname($data, $cw->section, $cm, $course);
@@ -343,7 +350,10 @@ class create_course extends external_api {
 
                 // Process parameters through parameter class if exists.
                 $paramclass = '\\local_datacurso\\mod_parameters\\' . $modname . '_parameters';
-                if (class_exists($paramclass) && is_subclass_of($paramclass, \local_datacurso\mod_parameters\base_parameters::class)) {
+                if (
+                    class_exists($paramclass)
+                    && is_subclass_of($paramclass, base_parameters::class)
+                ) {
                     /** @var \local_datacurso\mod_parameters\base_parameters $paraminstance */
                     $paraminstance = new $paramclass($moduledata);
                     $moduledata = $paraminstance->get_parameters();
@@ -355,16 +365,16 @@ class create_course extends external_api {
                 // Process module settings if provided.
                 if (!empty($moduledata->mod_settings)) {
                     $settingsclass = '\\local_datacurso\\mod_settings\\' . $modname . '_settings';
-                    if (class_exists($settingsclass) && is_subclass_of($settingsclass, \local_datacurso\mod_settings\base_settings::class)) {
-                        /** @var \local_datacurso\mod_settings\base_settings $settingsinstance */
+                    if (class_exists($settingsclass) && is_subclass_of($settingsclass, base_settings::class)) {
+                        /** @var base_settings $settingsinstance */
                         $settingsinstance = new $settingsclass($newcm, $moduledata->mod_settings);
                         $settingsinstance->add_settings();
                     }
                 }
-
             } catch (\Exception $e) {
                 debugging("Error creating module {$modname}: " . $e->getMessage());
-                continue; // Continue with next activity
+                // Continue with next activity.
+                continue;
             }
         }
 

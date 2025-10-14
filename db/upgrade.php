@@ -90,7 +90,6 @@ function xmldb_local_datacurso_upgrade($oldversion) {
     }
 
     if ($oldversion < 2025092001) {
-
         // Define table local_datacurso_course_sessions to be created.
         $table = new xmldb_table('local_datacurso_course_sessions');
 

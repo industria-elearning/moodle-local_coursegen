@@ -31,7 +31,6 @@ use local_datacurso\model;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class course_form_hook {
-
     /**
      * Hook para agregar campos personalizados al formulario de curso.
      *
@@ -42,11 +41,14 @@ class course_form_hook {
         global $PAGE;
         $mform = $hook->mform;
 
-        // Agregar una sección para los campos personalizados.
-        $mform->addElement('header', 'local_datacurso_header',
-            get_string('custom_fields_header', 'local_datacurso'));
+        // Add a section for custom fields.
+        $mform->addElement(
+            'header',
+            'local_datacurso_header',
+            get_string('custom_fields_header', 'local_datacurso')
+        );
 
-        // Agregar selector de tipo de contexto.
+        // Add context type selector.
         $contexttypes = [
             'model' => get_string('context_type_model', 'local_datacurso'),
             'syllabus' => get_string('context_type_syllabus', 'local_datacurso'),

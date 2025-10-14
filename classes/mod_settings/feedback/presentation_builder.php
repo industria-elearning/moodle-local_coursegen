@@ -67,10 +67,10 @@ class presentation_builder {
             $subtype = substr($item->subtype, 0, 1);
         }
         if (isset($item->horizontal) && $item->horizontal == 1 && $subtype != 'd') {
-            $presentation .= FEEDBACK_MULTICHOICE_ADJUST_SEP.'1';
+            $presentation .= FEEDBACK_MULTICHOICE_ADJUST_SEP . '1';
         }
 
-        return $subtype.FEEDBACK_MULTICHOICE_TYPE_SEP.$presentation;
+        return $subtype . FEEDBACK_MULTICHOICE_TYPE_SEP . $presentation;
     }
 
     /**
@@ -96,9 +96,9 @@ class presentation_builder {
             $subtype = substr($item->subtype, 0, 1);
         }
         if (isset($item->horizontal) && $item->horizontal == 1 && $subtype != 'd') {
-            $presentation .= FEEDBACK_MULTICHOICERATED_ADJUST_SEP.'1';
+            $presentation .= FEEDBACK_MULTICHOICERATED_ADJUST_SEP . '1';
         }
-        return $subtype.FEEDBACK_MULTICHOICERATED_TYPE_SEP.$presentation;
+        return $subtype . FEEDBACK_MULTICHOICERATED_TYPE_SEP . $presentation;
     }
 
     /**
@@ -119,13 +119,13 @@ class presentation_builder {
         }
 
         if ($num1 === '-' || $num2 === '-') {
-            return $num1 . '|'. $num2;
+            return $num1 . '|' . $num2;
         }
 
         if ($num1 > $num2) {
-            return $num2 . '|'. $num1;
+            return $num2 . '|' . $num1;
         } else {
-            return $num1 . '|'. $num2;
+            return $num1 . '|' . $num2;
         }
     }
 
@@ -136,7 +136,7 @@ class presentation_builder {
      * @return string Presentation.
      */
     private function build_textarea($item): string {
-        return $item->itemwidth . '|'. $item->itemheight;
+        return $item->itemwidth . '|' . $item->itemheight;
     }
 
     /**
@@ -146,6 +146,6 @@ class presentation_builder {
      * @return string Presentation.
      */
     private function build_textfield($item): string {
-        return $item->itemsize . '|'. $item->itemmaxlength;
+        return $item->itemsize . '|' . $item->itemmaxlength;
     }
 }

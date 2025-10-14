@@ -32,7 +32,6 @@ require_once($CFG->libdir . '/formslib.php');
  * Model form class.
  */
 class model_form extends \moodleform {
-
     /**
      * Define the form.
      */
@@ -45,8 +44,13 @@ class model_form extends \moodleform {
         $mform->addRule('name', get_string('required'), 'required', null, 'client');
 
         // Model content field (rich text editor).
-        $mform->addElement('editor', 'content_editor', get_string('modelcontent', 'local_datacurso'),
-                          ['rows' => 15], $this->get_editor_options());
+        $mform->addElement(
+            'editor',
+            'content_editor',
+            get_string('modelcontent', 'local_datacurso'),
+            ['rows' => 15],
+            $this->get_editor_options()
+        );
         $mform->setType('content_editor', PARAM_RAW);
 
         // Hidden fields.

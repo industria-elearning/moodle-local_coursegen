@@ -60,17 +60,17 @@ function local_datacurso_pluginfile(
         return false;
     }
 
-    // The args is an array containing [itemid, path].
+    // Args is an array containing [itemid, path].
     // Fetch the itemid from the path.
     $itemid = array_shift($args);
 
     // Extract the filename / filepath from the $args array.
     $filename = array_pop($args); // The last item in the $args array.
     if (empty($args)) {
-        // $args is empty => the path is '/'.
+        // Args is empty => the path is '/'.
         $filepath = '/';
     } else {
-        // $args contains the remaining elements of the filepath.
+        // Args contains the remaining elements of the filepath.
         $filepath = '/' . implode('/', $args) . '/';
     }
 

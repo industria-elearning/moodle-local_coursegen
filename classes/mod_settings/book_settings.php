@@ -54,7 +54,8 @@ class book_settings extends base_settings {
             "SELECT * FROM {book_chapters}
              WHERE bookid = ?
              ORDER BY pagenum DESC",
-            [$book->id], IGNORE_MULTIPLE
+            [$book->id],
+            IGNORE_MULTIPLE
         );
 
         $chapter['content_editor']['itemid'] = file_get_unused_draft_itemid();

@@ -30,15 +30,12 @@ require_once($CFG->libdir . '/filelib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class scorm_parameters extends base_parameters {
-
     /**
      * Returns the adjusted parameters for the module scorm.
      *
      * @return object Adjusted parameters for the module scorm.
      */
     public function get_parameters() {
-        global $USER, $CFG;
-
         $modsettings = $this->parameters->mod_settings;
         $client = new ai_course_api();
         $endpoint = '/files/download?path=' . $modsettings['file_path'];

@@ -57,11 +57,19 @@ class create_mod_stream extends external_api {
      * Start streaming job to create module with AI.
      *
      * @param int $courseid Course id where the module will be created
+     * @param int|null $sectionnum Section number where the module will be created
      * @param string $prompt Prompt to create module
      * @param int $generateimages 1 indicates AI could generate images, 0 indicates AI could not generate images
+     * @param int|null $beforemod Before module id where the module will be created
      * @return array
      */
-    public static function execute(int $courseid, ?int $sectionnum, string $prompt, int $generateimages = 0, ?int $beforemod = null) {
+    public static function execute(
+        int $courseid,
+        ?int $sectionnum,
+        string $prompt,
+        int $generateimages = 0,
+        ?int $beforemod = null
+    ) {
         global $CFG, $DB;
 
         try {
@@ -147,7 +155,6 @@ class create_mod_stream extends external_api {
                 'message' => $result['message'] ?? get_string('course_planning_started', 'local_datacurso'),
                 'streamingurl' => $streamingurl,
             ];
-
         } catch (\Exception $e) {
             debugging("Unexpected error while starting resource generation (stream): " . $e->getMessage());
             return [

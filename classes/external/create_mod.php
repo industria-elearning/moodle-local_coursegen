@@ -55,10 +55,10 @@ class create_mod extends external_api {
     /**
      * Create course context for ask question to chatbot based in that information.
      *
-     * @param string $courseid Course id where the module will be created
+     * @param int $courseid Course id where the module will be created
      * @param int $sectionnum Section number where the module will be created
-     * @param int $beforemod Before module id where the module will be created
      * @param string $jobid Streaming job id to fetch result from AI service
+     * @param int|null $beforemod Before module id where the module will be created
      *
      * @return array
      */
@@ -87,7 +87,8 @@ class create_mod extends external_api {
                     LEFT JOIN {local_datacurso_model} m
                 ON cc.model_id = m.id
                     WHERE cc.courseid = ?',
-                [$courseid]);
+                [$courseid]
+            );
 
             // This request may take a long time depending on the complexity of the prompt that the AI ​​has to resolve.
             \core_php_time_limit::raise();
@@ -129,9 +130,15 @@ class create_mod extends external_api {
             }
             require_once($modmoodleform);
 
-            list($module, $context, $cw, $cm, $data) = prepare_new_moduleinfo_data($course, $modname, $sectionnum);
+            [
+                $module,
+                $context,
+                $cw,
+                $cm,
+                $data
+            ] = prepare_new_moduleinfo_data($course, $modname, $sectionnum);
 
-            $mformclassname = 'mod_'.$modname.'_mod_form';
+            $mformclassname = 'mod_' . $modname . '_mod_form';
             $mform = new $mformclassname($data, $cw->section, $cm, $course);
 
             if (!isset($result['result']['parameters'])) {
@@ -186,7 +193,6 @@ class create_mod extends external_api {
                     'modname' => $modname,
                 ],
             ];
-
         } catch (\Exception $e) {
             debugging("Unexpected error while creating resource: " . $e->getMessage());
             return [

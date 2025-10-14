@@ -41,7 +41,6 @@ use moodle_exception;
  * External API for executing AI course planning sessions.
  */
 class plan_course_execute extends external_api {
-
     /**
      * Returns description of method parameters.
      *
@@ -109,7 +108,6 @@ class plan_course_execute extends external_api {
                     'streamingurl' => $streamingurl,
                 ],
             ];
-
         } catch (\Exception $e) {
             debugging("Unexpected error while executing course planning: " . $e->getMessage(), DEBUG_DEVELOPER, $e->getTrace());
             return [

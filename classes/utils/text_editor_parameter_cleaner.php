@@ -36,7 +36,6 @@ require_once($CFG->libdir . '/filelib.php');
  * format and structure for text editor objects.
  */
 class text_editor_parameter_cleaner {
-
     /**
      * Clean text editor objects in activity parameters.
      *

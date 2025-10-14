@@ -32,4 +32,3 @@ $plugin->maturity = MATURITY_ALPHA;
 $plugin->dependencies = [
     'aiprovider_datacurso' => 2025100201,
 ];
-

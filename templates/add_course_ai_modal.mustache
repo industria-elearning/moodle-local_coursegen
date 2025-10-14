@@ -21,6 +21,12 @@
 
     Template for the course AI generation modal interface.
     Contains chat interface for AI-powered course creation.
+
+    Example context (json):
+    {
+        "courseid": 123,
+        "coursename": "Mathematics 101"
+    }
 }}
 <div class="local_datacurso_course_chat pb-4 container" aria-label="{{#str}} addcourseai_arialabel, local_datacurso {{/str}}">
     <!-- Planning Phase Collapsible Section -->
@@ -68,14 +74,14 @@
         <div class="card">
             <div class="card-header bg-light">
                 <button class="btn btn-link text-decoration-none p-0 w-100 text-start" type="button" id="toggle-planning-details">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div>
+                    <span class="d-flex align-items-center justify-content-between">
+                        <span>
                             <i class="fa fa-check-circle text-success me-2"></i>
                             <strong>{{#str}} planning_completed, local_datacurso {{/str}}</strong>
                             <small class="text-muted ms-2">{{#str}} click_to_view_details, local_datacurso {{/str}}</small>
-                        </div>
+                        </span>
                         <i class="fa fa-chevron-down" id="planning-toggle-icon"></i>
-                    </div>
+                    </span>
                 </button>
             </div>
             <div class="collapse" id="planning-details-collapse">

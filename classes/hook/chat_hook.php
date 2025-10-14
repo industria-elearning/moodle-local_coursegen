@@ -28,45 +28,47 @@ use local_datacurso\ai_course;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class chat_hook {
-
     /**
-     * Hook para cargar el chat antes del footer.
+     * Hook to add AI buttons and check AI course creation
      *
-     * @param before_footer_html_generation $hook El hook del evento.
+     * @param before_footer_html_generation $hook The hook event.
      */
     public static function before_footer_html_generation(before_footer_html_generation $hook): void {
-        global $PAGE;
         self::add_activity_ai_button();
         self::add_course_ai_button();
         self::check_ai_course_creation();
     }
 
     /**
-     * Verifica si estamos en un contexto de curso
+     * Check if we are in a course context
      */
     private static function is_course_context(): bool {
         global $PAGE, $COURSE;
 
-        // Verificar si estamos en una página de curso.
-        if ($PAGE->pagelayout === 'course' ||
+        // Check if we are in a course page.
+        if (
+            $PAGE->pagelayout === 'course' ||
             $PAGE->pagelayout === 'incourse' ||
             strpos($PAGE->pagetype, 'course-') === 0 ||
-            strpos($PAGE->pagetype, 'mod-') === 0) {
+            strpos($PAGE->pagetype, 'mod-') === 0
+        ) {
             return true;
         }
 
-        // Verificar si hay un curso válido.
+        // Check if we have a valid course.
         if (isset($COURSE) && $COURSE->id > 1) {
             return true;
         }
 
-        // Verificar contexto.
+        // Check context.
         $context = $PAGE->context;
         if (!$context) {
             return false;
         }
-        if ($context->contextlevel == CONTEXT_COURSE ||
-            $context->contextlevel == CONTEXT_MODULE) {
+        if (
+            $context->contextlevel == CONTEXT_COURSE ||
+            $context->contextlevel == CONTEXT_MODULE
+        ) {
             return true;
         }
 
@@ -85,9 +87,11 @@ class chat_hook {
 
         $context = \context_course::instance($COURSE->id);
 
-        // Verificar si es profesor o tiene permisos de edición.
-        if (!has_capability('moodle/course:update', $context) ||
-            !has_capability('moodle/course:manageactivities', $context)) {
+        // Check if user has permission to update course or manage activities.
+        if (
+            !has_capability('moodle/course:update', $context) ||
+            !has_capability('moodle/course:manageactivities', $context)
+        ) {
             return;
         }
 
