@@ -23,7 +23,7 @@ use aiprovider_datacurso\httpclient\ai_course_api;
  * AI Course class for managing AI-generated course planning sessions.
  *
  * @package    local_datacurso
- * @copyright  2025 Datacurso <josue@datacurso.com>
+ * @copyright  2025 Wilber Narvaez <https://datacurso.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class ai_course {

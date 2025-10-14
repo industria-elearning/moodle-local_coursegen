@@ -26,7 +26,7 @@ require_once($CFG->dirroot . "/mod/forum/externallib.php");
  * Class forum_settings
  *
  * @package    local_datacurso
- * @copyright  2025 Wilber Narvaez <soluciones@buendata.com>
+ * @copyright  2025 Wilber Narvaez <https://datacurso.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class forum_settings extends base_settings {
