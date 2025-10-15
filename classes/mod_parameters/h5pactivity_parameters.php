@@ -16,6 +16,8 @@
 
 namespace local_coursegen\mod_parameters;
 
+use aiprovider_datacurso\httpclient\ai_course_api;
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/filelib.php');
@@ -29,30 +31,15 @@ require_once($CFG->libdir . '/filelib.php');
  */
 class h5pactivity_parameters extends base_parameters {
     /**
-     * Returns the adjusted parameters for the module h5pactivity.
+     * Returns the adjusted parameters for the module scorm.
      *
-     * @return object Adjusted parameters for the module h5pactivity.
+     * @return object Adjusted parameters for the module scorm.
      */
     public function get_parameters() {
-        global $USER, $CFG;
-        $userid = $USER->id;
-        $draftid = file_get_unused_draft_itemid();
-
-        $filepath = $CFG->dirroot . '/local/coursegen/classes/mod_parameters/h5pactivity/h5pactivity-test.h5p';
-        $filename = basename($filepath);
-
-        // Store image in moodledata.
-        $fs = get_file_storage();
-        $context = \context_user::instance($userid);
-        $fileinfo = [
-            'contextid' => $context->id,
-            'component' => 'user',
-            'filearea' => 'draft',
-            'itemid' => $draftid,
-            'filepath' => '/',
-            'filename' => $filename,
-        ];
-        $file = $fs->create_file_from_pathname($fileinfo, $filepath);
+        $modsettings = $this->parameters->mod_settings;
+        $client = new ai_course_api();
+        $endpoint = '/files/download?path=' . $modsettings['file_path'];
+        $file = $client->download_file($endpoint, $modsettings['file_name']);
         $this->parameters->packagefile = $file->get_itemid();
         return $this->parameters;
     }
