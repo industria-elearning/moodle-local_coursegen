@@ -29,7 +29,7 @@ if ($hassiteconfig) {
     $pluginname = 'local_coursegen';
     $admincategory = new admin_category($pluginname, get_string('pluginname', $pluginname));
     $ADMIN->add('localplugins', $admincategory);
-    // Add manage models page.
+    // Add Manage instructional models page.
     $ADMIN->add($pluginname, new admin_externalpage(
         'local_coursegen_manage_models',
         get_string('managemodels', 'local_coursegen'),
