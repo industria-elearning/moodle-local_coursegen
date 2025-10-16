@@ -46,7 +46,7 @@ class quiz_settings extends base_settings {
 
         $DB->get_record('quiz', ['id' => $cm->instance], '*', MUST_EXIST);
 
-        $categoryinfo = question_get_default_category($context->id);
+        $categoryinfo = question_make_default_categories([$context]);
 
         $category = "{$categoryinfo->id},{$categoryinfo->contextid}";
         $aiquestiondata['category'] = $category;
@@ -62,5 +62,23 @@ class quiz_settings extends base_settings {
 
         // Purge this question from the cache.
         \question_bank::notify_question_edited($question->id);
+
+        require_capability('mod/quiz:manage', $context);
+
+        list($quiz, $cm) = get_module_from_cmid($cm->coursemodule);
+
+        // Get the course object and related bits.
+        $course = get_course($cm->course);
+        $quizobj = new \mod_quiz\quiz_settings($quiz, $cm, $course);
+        $structure = $quizobj->get_structure();
+        $gradecalculator = $quizobj->get_grade_calculator();
+
+        // Add a single question to the current quiz.
+        $structure->check_can_be_edited();
+        quiz_require_question_use($question->id);
+        $addonpage = optional_param('addonpage', 0, PARAM_INT);
+        quiz_add_quiz_question($question->id, $quiz, $addonpage);
+        quiz_delete_previews($quiz);
+        $gradecalculator->recompute_quiz_sumgrades();
     }
 }
