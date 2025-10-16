@@ -42,6 +42,7 @@ class model_form extends \moodleform {
         $mform->addElement('text', 'name', get_string('modelname', 'local_coursegen'), ['size' => 60]);
         $mform->setType('name', PARAM_TEXT);
         $mform->addRule('name', get_string('required'), 'required', null, 'client');
+        $mform->addHelpButton('name', 'modelname', 'local_coursegen');
 
         // Model content field (rich text editor).
         $mform->addElement(
@@ -52,6 +53,7 @@ class model_form extends \moodleform {
             $this->get_editor_options()
         );
         $mform->setType('content_editor', PARAM_RAW);
+        $mform->addHelpButton('content_editor', 'modelcontent', 'local_coursegen');
 
         // Hidden fields.
         $mform->addElement('hidden', 'id');
