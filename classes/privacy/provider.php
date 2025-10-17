@@ -41,17 +41,14 @@ defined('MOODLE_INTERNAL') || die();
  * Local userlist provider for local_coursegen.
  *
  */
-interface local_coursegen_userlist extends core_userlist_provider {
-};
 
 /**
  * Class provider
  */
 class provider implements
-    \core_privacy\local\request\plugin\provider,
     \core_privacy\local\metadata\provider,
-    local_coursegen_userlist {
-
+    \core_privacy\local\request\core_userlist_provider,
+    \core_privacy\local\request\plugin\provider {
     /**
      * Returns metadata about this plugin's stored data.
      *
