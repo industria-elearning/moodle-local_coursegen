@@ -30,12 +30,9 @@ use core_privacy\local\metadata\collection;
 use core_privacy\local\request\approved_contextlist;
 use core_privacy\local\request\approved_userlist;
 use core_privacy\local\request\contextlist;
-use core_privacy\local\request\core_userlist_provider;
 use core_privacy\local\request\userlist;
 use core_privacy\local\request\writer;
 use stdClass;
-
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Local userlist provider for local_coursegen.
