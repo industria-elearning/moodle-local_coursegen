@@ -94,9 +94,9 @@ jobs:
         if: ${{ !cancelled() }}
         run: moodle-plugin-ci grunt
 
-      # - name: PHPUnit tests
-      #   if: ${{ !cancelled() }}
-      #   run: moodle-plugin-ci phpunit
+      - name: PHPUnit tests
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci phpunit
 
       - name: Mark cancelled jobs as failed.
         if: ${{ cancelled() }}
