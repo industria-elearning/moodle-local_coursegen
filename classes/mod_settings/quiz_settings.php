@@ -65,7 +65,7 @@ class quiz_settings extends base_settings {
 
         require_capability('mod/quiz:manage', $context);
 
-        list($quiz, $cm) = get_module_from_cmid($cm->coursemodule);
+        [$quiz, $cm] = get_module_from_cmid($cm->coursemodule);
 
         // Get the course object and related bits.
         $course = get_course($cm->course);
