@@ -171,4 +171,27 @@ class ai_context {
             $DB->insert_record('local_coursegen_course_context', $record);
         }
     }
+
+    /**
+     * Get AI course context info from database.
+     *
+     * @param int $courseid Course ID
+     * @return mixed Course AI context info
+     */
+    public static function get_course_context_info($courseid): mixed {
+        global $DB;
+
+        $aicontext = $DB->get_record_sql(
+            'SELECT cc.context_type, m.name
+            FROM
+                {local_coursegen_course_context} cc
+                LEFT JOIN {local_coursegen_model} m ON cc.model_id = m.id
+            WHERE
+                cc.courseid = ?',
+            [$courseid]
+        );
+
+        return $aicontext;
+    }
+
 }
