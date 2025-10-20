@@ -71,7 +71,6 @@ class create_mod extends external_api {
         ]);
 
         try {
-
             $courseid = $params['courseid'];
             $sectionnum = $params['sectionnum'];
             $beforemod = $params['beforemod'];

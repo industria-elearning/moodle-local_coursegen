@@ -193,5 +193,4 @@ class ai_context {
 
         return $aicontext;
     }
-
 }

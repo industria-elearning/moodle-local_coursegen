@@ -244,5 +244,4 @@ class mod_manager {
         $issubclass = is_subclass_of($class, base_settings::class);
         return $classexists && $issubclass;
     }
-
 }
