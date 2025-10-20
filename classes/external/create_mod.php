@@ -22,8 +22,7 @@ use external_api;
 use external_function_parameters;
 use external_single_structure;
 use external_value;
-use local_coursegen\mod_settings\base_settings;
-use local_coursegen\utils\text_editor_parameter_cleaner;
+use local_coursegen\mod_manager;
 
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/externallib.php');
@@ -63,16 +62,15 @@ class create_mod extends external_api {
      * @return array
      */
     public static function execute(int $courseid, int $sectionnum, string $jobid, ?int $beforemod) {
-        global $CFG, $DB, $COURSE;
+        global $DB;
+        $params = self::validate_parameters(self::execute_parameters(), [
+            'courseid' => $courseid,
+            'sectionnum' => $sectionnum,
+            'jobid' => $jobid,
+            'beforemod' => $beforemod,
+        ]);
 
         try {
-            $params = self::validate_parameters(self::execute_parameters(), [
-                'courseid' => $courseid,
-                'sectionnum' => $sectionnum,
-                'jobid' => $jobid,
-                'beforemod' => $beforemod,
-            ]);
-
             $courseid = $params['courseid'];
             $sectionnum = $params['sectionnum'];
             $beforemod = $params['beforemod'];
@@ -81,14 +79,6 @@ class create_mod extends external_api {
             $course = $DB->get_record('course', ['id' => $courseid], '*', MUST_EXIST);
             $context = context_course::instance($course->id);
             self::validate_context($context);
-
-            $aicontext = $DB->get_record_sql(
-                'SELECT cc.context_type, m.name FROM {local_coursegen_course_context} cc
-                    LEFT JOIN {local_coursegen_model} m
-                ON cc.model_id = m.id
-                    WHERE cc.courseid = ?',
-                [$courseid]
-            );
 
             // This request may take a long time depending on the complexity of the prompt that the AI ​​has to resolve.
             \core_php_time_limit::raise();
@@ -108,97 +98,24 @@ class create_mod extends external_api {
             $client = new ai_course_api();
             $result = $client->request('GET', '/resources/create-mod/result?job_id=' . urlencode($jobid));
 
-            if (!isset($result['result']['resource_type'])) {
-                debugging("Invalid response from AI service (result). Response: " . json_encode($result));
-                return [
-                    'ok' => false,
-                    'message' => get_string('error_generating_resource', 'local_coursegen'),
-                    'log' => "Invalid response from AI service (result). Response: " . json_encode($result),
-                ];
-            }
+            $newcm = mod_manager::create_from_ai_result($result, $course, $sectionnum, $beforemod);
 
-            $modname = $result['result']['resource_type'];
-
-            $modmoodleform = "$CFG->dirroot/mod/$modname/mod_form.php";
-            if (!file_exists($modmoodleform)) {
-                debugging("Form file not found for module: {$modname}");
-                return [
-                    'ok' => false,
-                    'message' => get_string('error_generating_resource', 'local_coursegen'),
-                    'log' => "Form file not found for module: {$modname}",
-                ];
-            }
-            require_once($modmoodleform);
-
-            [
-                $module,
-                $context,
-                $cw,
-                $cm,
-                $data
-            ] = prepare_new_moduleinfo_data($course, $modname, $sectionnum);
-
-            $mformclassname = 'mod_' . $modname . '_mod_form';
-            $mform = new $mformclassname($data, $cw->section, $cm, $course);
-
-            if (!isset($result['result']['parameters'])) {
-                debugging("Missing parameters in service response: " . json_encode($result));
-                return [
-                    'ok' => false,
-                    'message' => get_string('error_generating_resource', 'local_coursegen'),
-                    'log' => "Missing parameters in service response: " . json_encode($result),
-                ];
-            }
-
-            // Clean text editor parameters before processing.
-            $cleanedparameters = text_editor_parameter_cleaner::clean_text_editor_objects($result['result']['parameters']);
-            $parameters = (object)$cleanedparameters;
-            $parameters->section = $sectionnum;
-            $parameters->beforemod = $beforemod;
-            $parameters->module = $module->id;
-
-            $paramclass = '\\local_coursegen\\mod_parameters\\' . $modname . '_parameters';
-            $classexists = class_exists($paramclass);
-            $issubclass = is_subclass_of($paramclass, \local_coursegen\mod_parameters\base_parameters::class);
-            if ($classexists && $issubclass) {
-                /** @var \local_coursegen\mod_parameters\base_parameters $paraminstance */
-                $paraminstance = new $paramclass($parameters);
-                $parameters = $paraminstance->get_parameters();
-            }
-
-            $newcm = add_moduleinfo($parameters, $course, $mform);
-
-            $modsettings = $parameters->mod_settings;
-
-            $classpath = '\\local_coursegen\\mod_settings\\' . $modname . '_settings';
-            if (!empty($modsettings) && class_exists($classpath)) {
-                if (is_subclass_of($classpath, base_settings::class)) {
-
-                    /** @var base_settings $modsettingsinstance */
-                    $modsettingsinstance = new $classpath($newcm, $modsettings);
-                    $modsettingsinstance->add_settings();
-                } else {
-                    debugging("{$classpath} is not a subclass of \local_coursegen\mod_settings\base_settings");
-                }
-            }
-
-            $url = new \moodle_url("/mod/$modname/view.php", ["id" => $newcm->coursemodule]);
+            $url = new \moodle_url("/mod/$newcm->modulename/view.php", ["id" => $newcm->coursemodule]);
 
             return [
                 'ok' => true,
-                'message' => get_string('resource_created', 'local_coursegen', $modname),
+                'message' => get_string('resource_created', 'local_coursegen', $newcm->modulename),
                 'data' => [
                     'activityurl' => $url->out(false),
                     'cmid' => $newcm->id,
-                    'modname' => $modname,
+                    'modname' => $newcm->modulename,
                 ],
             ];
         } catch (\Exception $e) {
             debugging("Unexpected error while creating resource: " . $e->getMessage());
             return [
                 'ok' => false,
-                'message' => get_string('error_generating_resource', 'local_coursegen'),
-                'log' => $e->getMessage(),
+                'message' => $e->getMessage(),
             ];
         }
     }
@@ -218,7 +135,6 @@ class create_mod extends external_api {
                 'cmid' => new external_value(PARAM_INT, 'Course module ID', VALUE_OPTIONAL),
                 'modname' => new external_value(PARAM_TEXT, 'Module name', VALUE_OPTIONAL),
             ], 'Activity data', VALUE_OPTIONAL),
-            'log' => new external_value(PARAM_RAW, 'Log from server', VALUE_OPTIONAL),
         ]);
     }
 }

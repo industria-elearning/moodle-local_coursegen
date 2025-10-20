@@ -25,7 +25,7 @@
 namespace local_coursegen\external;
 
 use aiprovider_datacurso\httpclient\ai_course_api;
-use local_coursegen\mod_settings\base_settings;
+use local_coursegen\mod_manager;
 
 
 defined('MOODLE_INTERNAL') || die();
@@ -39,7 +39,6 @@ use external_value;
 use external_single_structure;
 use moodle_exception;
 use local_coursegen\utils\text_editor_parameter_cleaner;
-use local_coursegen\mod_parameters\base_parameters;
 
 /**
  * External API for creating courses with AI assistance.
@@ -317,60 +316,17 @@ class create_course extends external_api {
         $course = get_course($courseid);
 
         foreach ($activities as $activity) {
-            $modname = $activity['resource_type'];
-            $parameters = $activity['parameters'];
+            $sectionnum = 0;
+            if (isset($activity['parameters']) && isset($activity['parameters']['section'])) {
+                $sectionnum = $activity['parameters']['section'];
+            }
+
+            $resultinfo = [
+                'result' => $activity,
+            ];
 
             try {
-                // Validate module exists.
-                $modmoodleform = "$CFG->dirroot/mod/$modname/mod_form.php";
-                if (!file_exists($modmoodleform)) {
-                    debugging("Form file not found for module: {$modname}");
-                    continue;
-                }
-                require_once($modmoodleform);
-
-                $sectionnum = $parameters['section'] ?? 0;
-
-                // Prepare module data.
-                [
-                    $module,
-                    $context,
-                    $cw,
-                    $cm,
-                    $data
-                ] = prepare_new_moduleinfo_data($course, $modname, $sectionnum);
-
-                $mformclassname = 'mod_' . $modname . '_mod_form';
-                $mform = new $mformclassname($data, $cw->section, $cm, $course);
-
-                // Convert parameters to object and add required fields.
-                $moduledata = (object)$parameters;
-                $moduledata->section = $sectionnum;
-                $moduledata->module = $module->id;
-
-                // Process parameters through parameter class if exists.
-                $paramclass = '\\local_coursegen\\mod_parameters\\' . $modname . '_parameters';
-                if (
-                    class_exists($paramclass)
-                    && is_subclass_of($paramclass, base_parameters::class)
-                ) {
-                    /** @var \local_coursegen\mod_parameters\base_parameters $paraminstance */
-                    $paraminstance = new $paramclass($moduledata);
-                    $moduledata = $paraminstance->get_parameters();
-                }
-
-                // Create the module.
-                $newcm = add_moduleinfo($moduledata, $course, $mform);
-
-                // Process module settings if provided.
-                if (!empty($moduledata->mod_settings)) {
-                    $settingsclass = '\\local_coursegen\\mod_settings\\' . $modname . '_settings';
-                    if (class_exists($settingsclass) && is_subclass_of($settingsclass, base_settings::class)) {
-                        /** @var base_settings $settingsinstance */
-                        $settingsinstance = new $settingsclass($newcm, $moduledata->mod_settings);
-                        $settingsinstance->add_settings();
-                    }
-                }
+                mod_manager::create_from_ai_result($resultinfo, $course, $sectionnum);
             } catch (\Exception $e) {
                 debugging("Error creating module {$modname}: " . $e->getMessage());
                 // Continue with next activity.

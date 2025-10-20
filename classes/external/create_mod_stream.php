@@ -22,6 +22,7 @@ use external_api;
 use external_function_parameters;
 use external_single_structure;
 use external_value;
+use local_coursegen\ai_context;
 
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/externallib.php');
@@ -91,13 +92,7 @@ class create_mod_stream extends external_api {
             $context = context_course::instance($course->id);
             self::validate_context($context);
 
-            $aicontext = $DB->get_record_sql(
-                'SELECT cc.context_type, m.name FROM {local_coursegen_course_context} cc
-                    LEFT JOIN {local_coursegen_model} m
-                       ON cc.model_id = m.id
-                 WHERE cc.courseid = ?',
-                [$courseid]
-            );
+            $aicontext = ai_context::get_course_context_info($courseid);
 
             // This request may take a long time depending on the complexity of the prompt that the AI has to resolve.
             \core_php_time_limit::raise();
@@ -106,10 +101,8 @@ class create_mod_stream extends external_api {
             \core\session\manager::write_close();
 
             $payload = [
-                'site_id' => md5($CFG->wwwroot),
                 'course_id' => $courseid,
                 'message' => $prompt,
-                'timezone' => \core_date::get_user_timezone(),
                 'generate_images' => ($generateimages == 1),
                 'context_type' => $aicontext ? $aicontext->context_type : null,
                 'model_name' => $aicontext ? $aicontext->name : null,
