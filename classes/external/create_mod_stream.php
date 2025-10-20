@@ -101,10 +101,8 @@ class create_mod_stream extends external_api {
             \core\session\manager::write_close();
 
             $payload = [
-                'site_id' => md5($CFG->wwwroot),
                 'course_id' => $courseid,
                 'message' => $prompt,
-                'timezone' => \core_date::get_user_timezone(),
                 'generate_images' => ($generateimages == 1),
                 'context_type' => $aicontext ? $aicontext->context_type : null,
                 'model_name' => $aicontext ? $aicontext->name : null,
