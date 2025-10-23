@@ -121,7 +121,7 @@ class chat_hook {
      * Check if course is being created with AI and open modal if needed
      */
     private static function check_ai_course_creation(): void {
-        global $PAGE, $COURSE, $CFG;
+        global $PAGE, $COURSE, $CFG, $SESSION;
 
         // Check if we are on course/view.php page.
         if ($PAGE->url->get_path() !== '/course/view.php') {
@@ -142,17 +142,28 @@ class chat_hook {
 
         // Check if session is in planning or creating status (1 or 2).
         if ($session->status == 1 || $session->status == 2) {
+            if (!isset($SESSION->local_coursegen_modal_shown)) {
+                $SESSION->local_coursegen_modal_shown = [];
+            }
+
+            $shown = $SESSION->local_coursegen_modal_shown[$COURSE->id] ?? false;
+
+            if ($shown) {
+                ai_course::update_session_status($session->id, 4);
+                return;
+            }
+
             $client = new ai_course_api();
-            // Build streaming URL with session ID using helper.
             $streamingurl = $client->get_streaming_url_for_session($session->session_id);
 
-            // Load the AI course modal with streaming URL.
             $PAGE->requires->js_call_amd('local_coursegen/add_course_ai_modal', 'init', [
                 [
                     'streamingurl' => $streamingurl,
                     'courseid' => $COURSE->id,
                 ],
             ]);
+
+            $SESSION->local_coursegen_modal_shown[$COURSE->id] = true;
         }
     }
 }
