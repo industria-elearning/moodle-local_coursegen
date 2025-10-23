@@ -14,29 +14,20 @@ All plugins in this suite are powered by the **Datacurso AI Provider**.
 
 ### Explore the Suite
 
-- **[Ranking Activities AI](#)**
+- **[Ranking Activities AI](https://moodle.org/plugins/local_datacurso_ratings)**
   Empower students to rate course activities while AI analyzes feedback and provides deep insights to educators.
 
-- **[Forum AI](#)**  
+- **[Forum AI](https://moodle.org/plugins/local_forum_ai)**  
   Introduce an AI assistant into your forums that contributes to discussions and keeps engagement alive.
 
-- **[Assign AI](#)**  
+- **[Assign AI](https://moodle.org/plugins/local_assign_ai)**  
   Let AI review student submissions, suggest feedback, and support teachers in the grading process.
 
-- **[Tutor AI](#)**  
-  Offer students a personal AI tutor that answers questions, explains concepts, and guides them through their learning path.
-
-- **[Share Certificate AI](#)**  
+- **[Share Certificate AI](https://moodle.org/plugins/local_socialcert)**  
   Celebrate achievements automatically! AI generates personalized social media posts when students earn certificates.
 
-- **[Student Life Story AI](#)**  
+- **[Student Life Story AI](https://moodle.org/plugins/report_lifestory)**  
   Gain a complete view of student performance with AI-generated summaries across all enrolled courses.
-
-- **[Course Creation AI](#)**  
-  Build full Moodle courses in minutes — complete with lessons, activities, and resources — guided by AI.
-
-- **[Activity Creation AI](#)**  
-  Design engaging, high-quality learning activities instantly using AI-generated suggestions and templates.
 
 ## Key Features
 

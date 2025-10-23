@@ -1,4 +1,3 @@
-/* eslint-disable */
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -59,11 +58,16 @@ const addAIButton = async () => {
 
 /**
  * Handle the AI button click event
+ * @param {Event} e - The click event
  */
 const handleAIButtonClick = async (e) => {
   e.preventDefault();
+  const btn = e.currentTarget;
+  if (btn) {
+    btn.setAttribute("disabled", "disabled");
+    btn.classList.add("disabled");
+  }
 
-  const form = document.querySelector('form[action*="course/edit.php"]');
   document.querySelector('input[name="local_coursegen_create_ai_course"]').value = 1;
   document.querySelector('input[name="saveanddisplay"]').click();
 };

@@ -155,28 +155,32 @@ class course_form_hook {
         // Get the context type selection.
         $contexttype = isset($data->local_coursegen_context_type) ? $data->local_coursegen_context_type : '';
 
-        if ($contexttype === 'syllabus') {
-            // Handle syllabus upload.
-            $draftitemid = $data->local_coursegen_syllabus_pdf;
+        try {
+            if ($contexttype === 'syllabus') {
+                // Handle syllabus upload.
+                $draftitemid = $data->local_coursegen_syllabus_pdf;
 
-            // Save syllabus PDF from draft area.
-            $success = ai_context::save_syllabus_from_draft($courseid, $draftitemid);
+                // Save syllabus PDF from draft area.
+                $success = ai_context::save_syllabus_from_draft($courseid, $draftitemid);
 
-            if ($success) {
-                ai_context::upload_syllabus_to_ai($courseid);
+                if ($success) {
+                    ai_context::upload_syllabus_to_ai($courseid);
+                }
             }
-        }
 
-        // Store the context type and selected option in the database.
-        ai_context::save_course_context($courseid, $contexttype, $data->local_coursegen_select_model);
+            // Store the context type and selected option in the database.
+            ai_context::save_course_context($courseid, $contexttype, $data->local_coursegen_select_model);
 
-        if (!empty($createaicourse)) {
-            ai_course::start_course_planning(
-                $courseid,
-                $contexttype,
-                $data->local_coursegen_select_model,
-                $data->fullname
-            );
+            if (!empty($createaicourse)) {
+                ai_course::start_course_planning(
+                    $courseid,
+                    $contexttype,
+                    $data->local_coursegen_select_model,
+                    $data->fullname
+                );
+            }
+        } catch (\Exception $e) {
+            \core\notification::error(get_string('error_upload_failed', 'local_coursegen', $e->getMessage()));
         }
     }
 }
