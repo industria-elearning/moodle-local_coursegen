@@ -182,6 +182,5 @@ class course_form_hook {
         } catch (\Exception $e) {
             \core\notification::error(get_string('error_upload_failed', 'local_coursegen', $e->getMessage()));
         }
-
     }
 }
