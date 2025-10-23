@@ -88,8 +88,7 @@ class ai_course {
             debugging("Unexpected error while starting course planning: " . $e->getMessage());
             return [
                 'ok' => false,
-                'message' => get_string('error_starting_course_planning', 'local_coursegen'),
-                'log' => $e->getMessage(),
+                'message' => get_string('error_starting_course_planning', 'local_coursegen', $e->getMessage()),
             ];
         }
     }
