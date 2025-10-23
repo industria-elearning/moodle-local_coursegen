@@ -25,6 +25,7 @@
 namespace local_coursegen\external;
 
 use aiprovider_datacurso\httpclient\ai_course_api;
+use local_coursegen\ai_course;
 use local_coursegen\mod_manager;
 
 
@@ -106,7 +107,7 @@ class create_course extends external_api {
             // Check if the plan is completed.
             if (empty($result['status']) || $result['status'] !== 'completed') {
                 // Update session status to failed (4).
-                self::update_session_status($session->id, 4);
+                ai_course::update_session_status($session->id, 4);
 
                 return [
                     'success' => false,
@@ -132,7 +133,7 @@ class create_course extends external_api {
             }
 
             // Update session status to created (3).
-            self::update_session_status($session->id, 3);
+            ai_course::update_session_status($session->id, 3);
 
             // Return success response.
             return [
@@ -146,7 +147,7 @@ class create_course extends external_api {
         } catch (\Exception $e) {
             // Update session status to failed (4) if session exists.
             if (isset($session) && $session) {
-                self::update_session_status($session->id, 4);
+                ai_course::update_session_status($session->id, 4);
             }
 
             return [
@@ -336,22 +337,5 @@ class create_course extends external_api {
 
         // Rebuild course cache after adding all activities.
         rebuild_course_cache($courseid, true);
-    }
-
-    /**
-     * Update the status of a course session.
-     *
-     * @param int $sessionid Session ID
-     * @param int $status Status code (1=planning, 2=creating, 3=created, 4=failed)
-     */
-    private static function update_session_status($sessionid, $status) {
-        global $DB;
-
-        $updatedata = new \stdClass();
-        $updatedata->id = $sessionid;
-        $updatedata->status = $status;
-        $updatedata->timemodified = time();
-
-        $DB->update_record('local_coursegen_course_sessions', $updatedata);
     }
 }

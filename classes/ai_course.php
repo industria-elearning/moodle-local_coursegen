@@ -149,28 +149,19 @@ class ai_course {
     }
 
     /**
-     * Update course session status.
+     * Update the status of a course session.
      *
-     * @param int $courseid Course ID
-     * @param string $status New status (planning, completed, failed)
-     * @return bool Success status
+     * @param int $sessionid Session ID
+     * @param int $status Status code (1=planning, 2=creating, 3=created, 4=failed)
      */
-    public static function update_session_status($courseid, $status) {
+    public static function update_session_status($sessionid, $status) {
         global $DB;
 
-        try {
-            $session = self::get_course_session($courseid);
-            if (!$session) {
-                return false;
-            }
+        $updatedata = new \stdClass();
+        $updatedata->id = $sessionid;
+        $updatedata->status = $status;
+        $updatedata->timemodified = time();
 
-            $session->status = $status;
-            $session->timemodified = time();
-
-            return $DB->update_record('local_coursegen_course_sessions', $session);
-        } catch (\Exception $e) {
-            debugging("Error updating session status: " . $e->getMessage());
-            return false;
-        }
+        $DB->update_record('local_coursegen_course_sessions', $updatedata);
     }
 }
