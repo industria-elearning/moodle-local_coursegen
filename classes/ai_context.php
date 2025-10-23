@@ -59,38 +59,33 @@ class ai_context {
     public static function upload_syllabus_to_ai(int $courseid): void {
         global $CFG;
 
-        try {
-            $fs = get_file_storage();
-            $context = \context_course::instance($courseid);
+        $fs = get_file_storage();
+        $context = \context_course::instance($courseid);
 
-            $files = $fs->get_area_files($context->id, 'local_coursegen', 'syllabus', 0, 'itemid', false);
+        $files = $fs->get_area_files($context->id, 'local_coursegen', 'syllabus', 0, 'itemid', false);
 
-            if (empty($files)) {
-                return;
-            }
-
-            $file = reset($files);
-            if (!$file) {
-                return;
-            }
-
-            $siteid = md5($CFG->wwwroot);
-
-            // Guardar el archivo temporalmente.
-            $filepath = $file->copy_content_to_temp();
-
-            $postdata = [
-                'title' => $file->get_filename(),
-                'site_id' => $siteid,
-                'course_id' => $courseid,
-            ];
-
-            $client = new ai_course_api();
-            $client->upload_file('/context/upload', $filepath, $file->get_mimetype(), $file->get_filename(), $postdata);
-        } catch (\Exception $e) {
-            // Mostrar notificación de error al usuario.
-            \core\notification::error(get_string('error_upload_failed', 'local_coursegen', $e->getMessage()));
+        if (empty($files)) {
+            return;
         }
+
+        $file = reset($files);
+        if (!$file) {
+            return;
+        }
+
+        $siteid = md5($CFG->wwwroot);
+
+        // Save the file temporarily.
+        $filepath = $file->copy_content_to_temp();
+
+        $postdata = [
+            'title' => $file->get_filename(),
+            'site_id' => $siteid,
+            'course_id' => $courseid,
+        ];
+
+        $client = new ai_course_api();
+        $client->upload_file('/context/upload', $filepath, $file->get_mimetype(), $file->get_filename(), $postdata);
     }
 
     /**
