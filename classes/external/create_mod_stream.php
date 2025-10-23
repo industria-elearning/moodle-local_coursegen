@@ -152,8 +152,7 @@ class create_mod_stream extends external_api {
             debugging("Unexpected error while starting resource generation (stream): " . $e->getMessage());
             return [
                 'ok' => false,
-                'message' => get_string('error_generating_resource', 'local_coursegen'),
-                'log' => $e->getMessage(),
+                'message' => $e->getMessage(),
             ];
         }
     }
@@ -166,11 +165,10 @@ class create_mod_stream extends external_api {
     public static function execute_returns() {
         return new external_single_structure([
             'ok' => new external_value(PARAM_BOOL, 'Response status from server'),
-            'message' => new external_value(PARAM_TEXT, 'Response message from server', VALUE_OPTIONAL),
+            'message' => new external_value(PARAM_RAW, 'Response message from server', VALUE_OPTIONAL),
             'status' => new external_value(PARAM_TEXT, 'Status message from server', VALUE_OPTIONAL),
             'job_id' => new external_value(PARAM_TEXT, 'Job id returned by the server', VALUE_OPTIONAL),
             'streamingurl' => new external_value(PARAM_URL, 'Streaming URL for real-time updates', VALUE_OPTIONAL),
-            'log' => new external_value(PARAM_RAW, 'Log from server', VALUE_OPTIONAL),
         ]);
     }
 }
