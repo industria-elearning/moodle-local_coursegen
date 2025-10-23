@@ -91,7 +91,6 @@ class create_mod extends external_api {
                 return [
                     'ok' => false,
                     'message' => get_string('error_generating_resource', 'local_coursegen'),
-                    'log' => 'Missing jobid for result endpoint.',
                 ];
             }
 
