@@ -27,19 +27,18 @@ namespace local_coursegen\external;
 use aiprovider_datacurso\httpclient\ai_course_api;
 use local_coursegen\ai_course;
 use local_coursegen\mod_manager;
-
-
-defined('MOODLE_INTERNAL') || die();
-
-require_once($CFG->libdir . '/externallib.php');
-require_once($CFG->dirroot . '/course/lib.php');
-
 use external_api;
 use external_function_parameters;
 use external_value;
 use external_single_structure;
 use moodle_exception;
 use local_coursegen\utils\text_editor_parameter_cleaner;
+
+
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->libdir . '/externallib.php');
+require_once($CFG->dirroot . '/course/lib.php');
 
 /**
  * External API for creating courses with AI assistance.
