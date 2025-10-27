@@ -26,10 +26,16 @@ use aiprovider_datacurso\httpclient\ai_course_api;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class ai_context {
+
+    /** @var string Context type model */
+    const CONTEXT_TYPE_MODEL = 'model';
+    /** @var string Context type syllabus */
+    const CONTEXT_TYPE_SYLLABUS = 'syllabus';
+
     /**
-     * Sube el contenido del modelo instruccional al endpoint de IA.
+     * Uploads the content of the instructional model to the AI endpoint.
      *
-     * @param model $model Modelo instruccional seleccionado.
+     * @param model $model The instructional model selected.
      */
     public static function upload_model_to_ai(model $model): void {
         global $CFG;
@@ -52,9 +58,9 @@ class ai_context {
     }
 
     /**
-     * Sube el archivo de sílabo al endpoint de IA.
+     * Uploads the syllabus file to the AI endpoint.
      *
-     * @param int $courseid ID del curso.
+     * @param int $courseid ID of the course.
      */
     public static function upload_syllabus_to_ai(int $courseid): void {
         global $CFG;
@@ -112,7 +118,7 @@ class ai_context {
                 $draftitemid,
                 \context_course::instance($courseid)->id,
                 'local_coursegen',
-                'syllabus',
+                self::CONTEXT_TYPE_SYLLABUS,
                 0,
                 [
                     'subdirs' => 0,
@@ -148,7 +154,7 @@ class ai_context {
             $record = new \stdClass();
             $record->id = $existingrecord->id;
             $record->context_type = $contexttype;
-            $record->model_id = ($contexttype === 'model') ? $modelid : null;
+            $record->model_id = ($contexttype === self::CONTEXT_TYPE_MODEL) ? $modelid : null;
             $record->timemodified = $now;
             $record->usermodified = $USER->id;
 
@@ -158,7 +164,7 @@ class ai_context {
             $record = new \stdClass();
             $record->courseid = $courseid;
             $record->context_type = $contexttype;
-            $record->model_id = ($contexttype === 'model') ? $modelid : null;
+            $record->model_id = ($contexttype === self::CONTEXT_TYPE_MODEL) ? $modelid : null;
             $record->timecreated = $now;
             $record->timemodified = $now;
             $record->usermodified = $USER->id;
