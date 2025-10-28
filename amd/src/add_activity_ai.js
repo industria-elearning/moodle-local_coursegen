@@ -127,7 +127,7 @@ define([
 
   const openChatModal = async (payload) => {
     try {
-      // Si ya hay un modal abierto, cerrarlo primero
+      // If there is already an open modal, close it first
       if (modal) {
         await modal.destroy();
         modal = null;
@@ -158,7 +158,7 @@ define([
       // Explicitly show after creation (no show: true in options).
       modal.show();
 
-      // Manejar el evento de cierre del modal
+      // Handle modal close event
       modal.getRoot().on("hidden.bs.modal", () => {
         if (modal) {
           modal.destroy();
@@ -178,7 +178,7 @@ define([
         setupScrollDetection(modalBody);
       }
 
-      // Handlers del chat
+      // Chat handlers
       const bodyEl = modal.getBody()[0];
       const footerEl = modal.getFooter()[0];
       wireChatHandlers(bodyEl, footerEl, payload);
@@ -198,7 +198,7 @@ define([
     const textarea = form.querySelector("textarea");
     const sendBtn = form.querySelector(".local_coursegen_ai_send");
 
-    // Enviar con submit.
+    // Send on submit.
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const prompt = textarea.value.trim();
@@ -295,7 +295,11 @@ define([
             const errorMsg =
               err.message ||
               (await Str.get_string("addactivityai_error", "local_coursegen"));
-            errorDiv.innerHTML = `<small>❌ Error: ${errorMsg}</small>`;
+            const errorLabel = await Str.get_string(
+              "error_label",
+              "local_coursegen"
+            );
+            errorDiv.innerHTML = `<small>❌ ${errorLabel}: ${errorMsg}</small>`;
             eventList.appendChild(errorDiv);
 
             // Auto-scroll to show error message - only if user hasn't scrolled
@@ -320,7 +324,7 @@ define([
       }
     });
 
-    // Enter para enviar (sin Ctrl, ya que es más común en chat)
+    // Press Enter to send (without Ctrl, as is more common in chat)
     textarea.addEventListener("keydown", (e) => {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();

@@ -84,7 +84,7 @@
     height: 64px;
     margin: 8px;
     border: 6px solid #1976d2;
-    /* color primario */
+    /* primary color */
     border-radius: 50%;
     animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
     border-color: #1976d2 transparent transparent transparent;
@@ -132,13 +132,13 @@ span.local_coursegen-sparkles-icon.white {
     display: inline-block;
 }
 
-/* Contenedor general */
+/* General container */
 .local_coursegen_ai_chat {
     display: flex;
     flex-direction: column;
 }
 
-/* Área de mensajes */
+/* Messages area */
 .local_coursegen_ai_messages {
     flex: 1 1 auto;
     overflow: auto;
@@ -148,7 +148,7 @@ span.local_coursegen-sparkles-icon.white {
     border: 1px solid rgba(0, 0, 0, .05);
 }
 
-/* Burbujas */
+/* Bubbles */
 .local_coursegen_ai_msg {
     display: flex;
     margin: .5rem 0;
@@ -178,7 +178,7 @@ span.local_coursegen-sparkles-icon.white {
     border-bottom-left-radius: .25rem;
 }
 
-/* “Escribiendo…” */
+/* “Typing…” */
 .local_coursegen_ai_typing .dot {
     display: inline-block;
     width: .35rem;
@@ -226,16 +226,16 @@ span.local_coursegen-sparkles-icon.white {
     min-width: 34px;
 }
 
-/* Nuevos estilos */
+/* New styles */
 
-/* Grupo de entrada */
+/* Input group */
 .local_coursegen_ai_input_group {
     display: flex;
     align-items: center;
     gap: 0.4rem;
 }
 
-/* Textarea ocupa todo el espacio */
+/* Textarea takes full width */
 .local_coursegen_ai_textarea {
     flex: 1;
     resize: none;
@@ -246,7 +246,7 @@ span.local_coursegen-sparkles-icon.white {
     color: var(--dark);
 }
 
-/* Botón de enviar con ancho fijo */
+/* Send button with fixed width */
 .local_coursegen_ai_send {
     flex: 0 0 42px;
     height: 42px;
@@ -265,7 +265,7 @@ span.local_coursegen-sparkles-icon.white {
     background-color: var(--blue);
 }
 
-/* Ícono */
+/* Icon */
 .local_coursegen_ai_send svg {
     pointer-events: none;
 }

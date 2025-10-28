@@ -21,7 +21,7 @@ use core\hook\output\before_footer_html_generation;
 use local_coursegen\ai_course;
 
 /**
- * Hook para cargar el chat flotante
+ * Hook to load the floating chat
  *
  * @package    local_coursegen
  * @copyright  2025 Wilber Narvaez <https://datacurso.com>

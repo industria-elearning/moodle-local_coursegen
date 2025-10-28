@@ -51,7 +51,7 @@ class ai_context {
             $client = new ai_course_api();
             $client->request('POST', '/context/upload-model-context', $postdata);
         } catch (\Exception $e) {
-            // Mostrar notificación de error al usuario.
+            // Show error notification to the user.
             \core\notification::error(get_string('error_upload_failed_model', 'local_coursegen', $e->getMessage()));
         }
     }

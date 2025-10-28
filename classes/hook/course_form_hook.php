@@ -25,7 +25,7 @@ use local_coursegen\ai_course;
 use local_coursegen\model;
 
 /**
- * Hook para extender el formulario de curso con campos personalizados.
+ * Hook to extend the course form with custom fields.
  *
  * @package    local_coursegen
  * @copyright  2025 Wilber Narvaez <https://datacurso.com>
@@ -33,9 +33,9 @@ use local_coursegen\model;
  */
 class course_form_hook {
     /**
-     * Hook para agregar campos personalizados al formulario de curso.
+     * Hook to add custom fields to the course form.
      *
-     * @param after_form_definition $hook Objeto del hook con el formulario.
+     * @param after_form_definition $hook Hook object with the form.
      * @throws \coding_exception
      */
     public static function after_form_definition(after_form_definition $hook): void {
@@ -63,7 +63,7 @@ class course_form_hook {
         );
         $mform->setDefault('local_coursegen_context_type', '');
 
-        // Obtener modelos de la base de datos.
+        // Get models from the database.
         $models = model::get_all();
         $hasmodels = !empty($models);
         if ($hasmodels) {
@@ -71,7 +71,7 @@ class course_form_hook {
                 $modeloptions[$model->id] = $model->name;
             }
 
-            // Agregar selector de modelo instruccional.
+            // Add instructional model selector.
             $mform->addElement(
                 'select',
                 'local_coursegen_select_model',
@@ -85,7 +85,7 @@ class course_form_hook {
                 ai_context::CONTEXT_TYPE_MODEL
             );
         } else {
-            // Mostrar aviso cuando no hay modelos configurados (solo si el contexto seleccionado es modelo).
+            // Show notice when there are no models configured (only if the selected context is model).
             $managemodelsurl = (new \moodle_url('/local/coursegen/manage_models.php'))->out();
             $mform->addElement(
                 'static',
@@ -101,7 +101,7 @@ class course_form_hook {
             );
         }
 
-        // Agregar campo para subir PDF del sílabo.
+        // Add field to upload syllabus PDF.
         $mform->addElement(
             'filepicker',
             'local_coursegen_syllabus_pdf',

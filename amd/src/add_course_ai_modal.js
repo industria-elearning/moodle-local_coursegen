@@ -203,14 +203,14 @@ const scrollToBottom = (wrap) => {
 };
 
 /**
- * Muestra texto con efecto "máquina de escribir" dentro de un elemento,
- * manteniendo el scroll automático si el usuario no ha intervenido.
+ * Displays text with a typewriter effect inside an element,
+ * keeping auto-scroll if the user has not intervened.
  *
- * @param {HTMLElement} element - Elemento destino donde se escribe el texto.
- * @param {string} text - Texto completo a mostrar.
- * @param {number} speed - Intervalo en milisegundos entre cada carácter.
- * @param {HTMLElement} [scrollContainer=document.querySelector('.modal-body')] - Contenedor a auto-scroll.
- * @returns {Promise<void>} - Se resuelve al completar la escritura.
+ * @param {HTMLElement} element - Target element where the text is written.
+ * @param {string} text - Full text to display.
+ * @param {number} speed - Interval in milliseconds between each character.
+ * @param {HTMLElement} [scrollContainer=document.querySelector('.modal-body')] - Container to auto-scroll.
+ * @returns {Promise<void>} - Resolves when writing is complete.
  */
 async function typeWriter(
   element,
@@ -225,7 +225,7 @@ async function typeWriter(
   let index = 0;
   let userHasScrolled = false;
 
-  // Detecta si el usuario ha hecho scroll manualmente
+  // Detect if the user has manually scrolled
   if (scrollContainer) {
     const onUserScroll = () => {
       userHasScrolled = true;
@@ -234,7 +234,7 @@ async function typeWriter(
     scrollContainer.addEventListener("scroll", onUserScroll);
   }
 
-  // Escribe carácter por carácter
+  // Type character by character
   while (index < text.length) {
     element.textContent += text[index++];
 
