@@ -26,7 +26,6 @@ use aiprovider_datacurso\httpclient\ai_course_api;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class ai_context {
-
     /** @var string Context type model */
     const CONTEXT_TYPE_MODEL = 'model';
     /** @var string Context type syllabus */

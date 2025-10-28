@@ -78,7 +78,12 @@ class course_form_hook {
                 get_string('custom_model_select_field', 'local_coursegen'),
                 $modeloptions
             );
-            $mform->hideIf('local_coursegen_select_model', 'local_coursegen_context_type', 'neq', ai_context::CONTEXT_TYPE_MODEL);
+            $mform->hideIf(
+                'local_coursegen_select_model',
+                'local_coursegen_context_type',
+                'neq',
+                ai_context::CONTEXT_TYPE_MODEL
+            );
         } else {
             // Mostrar aviso cuando no hay modelos configurados (solo si el contexto seleccionado es modelo).
             $managemodelsurl = (new \moodle_url('/local/coursegen/manage_models.php'))->out();
@@ -88,7 +93,12 @@ class course_form_hook {
                 get_string('custom_model_select_field', 'local_coursegen'),
                 get_string('no_models_configured_notice', 'local_coursegen', $managemodelsurl)
             );
-            $mform->hideIf('local_coursegen_select_model_notice', 'local_coursegen_context_type', 'neq', ai_context::CONTEXT_TYPE_MODEL);
+            $mform->hideIf(
+                'local_coursegen_select_model_notice',
+                'local_coursegen_context_type',
+                'neq',
+                ai_context::CONTEXT_TYPE_MODEL
+            );
         }
 
         // Agregar campo para subir PDF del sílabo.
