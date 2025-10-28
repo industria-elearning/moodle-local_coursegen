@@ -73,11 +73,11 @@ class mod_manager {
      */
     private static function validate_resultinfo($resultinfo) {
         if (!isset($resultinfo['result']['resource_type'])) {
-            throw new \Exception("Could not get resource type from response of AI service. Please try again.");
+            throw new \Exception(\get_string('error_missing_resource_type', 'local_coursegen'));
         }
 
         if (!isset($resultinfo['result']['parameters'])) {
-            throw new \Exception("Could not get parameters to create module from response of AI service. Please try again.");
+            throw new \Exception(\get_string('error_missing_parameters', 'local_coursegen'));
         }
     }
 
@@ -113,7 +113,7 @@ class mod_manager {
     private static function validate_mod_existence($modname) {
         $modmoodleform = self::get_mod_form_file_path($modname);
         if (!file_exists($modmoodleform)) {
-            throw new \Exception("Could not find a valid resource type from response of AI service: {$modname}. Please try again.");
+            throw new \Exception(\get_string('error_invalid_resource_type', 'local_coursegen', $modname));
         }
     }
 

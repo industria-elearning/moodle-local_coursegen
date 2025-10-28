@@ -295,7 +295,11 @@ define([
             const errorMsg =
               err.message ||
               (await Str.get_string("addactivityai_error", "local_coursegen"));
-            errorDiv.innerHTML = `<small>❌ Error: ${errorMsg}</small>`;
+            const errorLabel = await Str.get_string(
+              "error_label",
+              "local_coursegen"
+            );
+            errorDiv.innerHTML = `<small>❌ ${errorLabel}: ${errorMsg}</small>`;
             eventList.appendChild(errorDiv);
 
             // Auto-scroll to show error message - only if user hasn't scrolled
