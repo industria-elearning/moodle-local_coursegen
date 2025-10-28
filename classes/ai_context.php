@@ -194,4 +194,44 @@ class ai_context {
 
         return $aicontext;
     }
+
+    /**
+     * Returns a valid course AI context or null if not properly configured.
+     * - For context type 'model': requires a non-empty model name.
+     * - For context type 'syllabus': requires at least one syllabus file saved in course context.
+     *
+     * @param int $courseid Course ID
+     * @return \stdClass|null Object with properties context_type and model_name (or null)
+     */
+    public static function get_valid_course_context(int $courseid): ?\stdClass {
+        $aicontext = self::get_course_context_info($courseid);
+        if (!$aicontext || empty($aicontext->context_type)) {
+            return null;
+        }
+
+        if ($aicontext->context_type === self::CONTEXT_TYPE_MODEL) {
+            if (empty($aicontext->name)) {
+                return null;
+            }
+            return (object) [
+                'context_type' => self::CONTEXT_TYPE_MODEL,
+                'model_name' => $aicontext->name,
+            ];
+        }
+
+        if ($aicontext->context_type === self::CONTEXT_TYPE_SYLLABUS) {
+            $fs = get_file_storage();
+            $context = \context_course::instance($courseid);
+            $files = $fs->get_area_files($context->id, 'local_coursegen', 'syllabus', 0, 'itemid', false);
+            if (empty($files)) {
+                return null;
+            }
+            return (object) [
+                'context_type' => self::CONTEXT_TYPE_SYLLABUS,
+                'model_name' => null,
+            ];
+        }
+
+        return null;
+    }
 }
