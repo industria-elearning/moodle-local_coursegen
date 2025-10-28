@@ -45,4 +45,9 @@ $callbacks = [
         'callback' => 'local_coursegen\hook\chat_hook::before_footer_html_generation',
         'priority' => 900,
     ],
+    [
+        'hook' => core_course\hook\after_form_validation::class,
+        'callback' => 'local_coursegen\hook\course_form_hook::after_form_validation',
+        'priority' => 100,
+    ],
 ];

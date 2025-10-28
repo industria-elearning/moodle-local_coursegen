@@ -22,6 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_coursegen\ai_context;
+
 /**
  * Serve the files from the local_bboard file areas.
  *
@@ -56,7 +58,7 @@ function local_coursegen_pluginfile(
     }
 
     // Make sure the filearea is the expected one.
-    if ($filearea !== 'syllabus') {
+    if ($filearea !== ai_context::CONTEXT_TYPE_SYLLABUS) {
         return false;
     }
 

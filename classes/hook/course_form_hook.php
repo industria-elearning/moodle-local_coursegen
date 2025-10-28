@@ -19,6 +19,7 @@ namespace local_coursegen\hook;
 use core_course\hook\after_form_definition;
 use core_course\hook\after_form_definition_after_data;
 use core_course\hook\after_form_submission;
+use core_course\hook\after_form_validation;
 use local_coursegen\ai_context;
 use local_coursegen\ai_course;
 use local_coursegen\model;
@@ -50,8 +51,9 @@ class course_form_hook {
 
         // Add context type selector.
         $contexttypes = [
-            'model' => get_string('context_type_model', 'local_coursegen'),
-            'syllabus' => get_string('context_type_syllabus', 'local_coursegen'),
+            '' => get_string('choosedots'),
+            ai_context::CONTEXT_TYPE_MODEL => get_string('context_type_model', 'local_coursegen'),
+            ai_context::CONTEXT_TYPE_SYLLABUS => get_string('context_type_syllabus', 'local_coursegen'),
         ];
         $mform->addElement(
             'select',
@@ -59,21 +61,45 @@ class course_form_hook {
             get_string('context_type_field', 'local_coursegen'),
             $contexttypes
         );
+        $mform->setDefault('local_coursegen_context_type', '');
 
         // Obtener modelos de la base de datos.
         $models = model::get_all();
-        foreach ($models as $model) {
-            $modeloptions[$model->id] = $model->name;
-        }
+        $hasmodels = !empty($models);
+        if ($hasmodels) {
+            foreach ($models as $model) {
+                $modeloptions[$model->id] = $model->name;
+            }
 
-        // Agregar selector de modelo instruccional.
-        $mform->addElement(
-            'select',
-            'local_coursegen_select_model',
-            get_string('custom_model_select_field', 'local_coursegen'),
-            $modeloptions
-        );
-        $mform->hideIf('local_coursegen_select_model', 'local_coursegen_context_type', 'neq', 'model');
+            // Agregar selector de modelo instruccional.
+            $mform->addElement(
+                'select',
+                'local_coursegen_select_model',
+                get_string('custom_model_select_field', 'local_coursegen'),
+                $modeloptions
+            );
+            $mform->hideIf(
+                'local_coursegen_select_model',
+                'local_coursegen_context_type',
+                'neq',
+                ai_context::CONTEXT_TYPE_MODEL
+            );
+        } else {
+            // Mostrar aviso cuando no hay modelos configurados (solo si el contexto seleccionado es modelo).
+            $managemodelsurl = (new \moodle_url('/local/coursegen/manage_models.php'))->out();
+            $mform->addElement(
+                'static',
+                'local_coursegen_select_model_notice',
+                get_string('custom_model_select_field', 'local_coursegen'),
+                get_string('no_models_configured_notice', 'local_coursegen', $managemodelsurl)
+            );
+            $mform->hideIf(
+                'local_coursegen_select_model_notice',
+                'local_coursegen_context_type',
+                'neq',
+                ai_context::CONTEXT_TYPE_MODEL
+            );
+        }
 
         // Agregar campo para subir PDF del sílabo.
         $mform->addElement(
@@ -88,7 +114,7 @@ class course_form_hook {
             ]
         );
         $mform->addHelpButton('local_coursegen_syllabus_pdf', 'syllabus_pdf_field', 'local_coursegen');
-        $mform->hideIf('local_coursegen_syllabus_pdf', 'local_coursegen_context_type', 'neq', 'syllabus');
+        $mform->hideIf('local_coursegen_syllabus_pdf', 'local_coursegen_context_type', 'neq', ai_context::CONTEXT_TYPE_SYLLABUS);
 
         // Add hidden field for AI creation to identify the form submission.
         $mform->addElement('hidden', 'local_coursegen_create_ai_course', 0);
@@ -114,7 +140,7 @@ class course_form_hook {
                 $draftitemid,
                 $context->id,
                 'local_coursegen',
-                'syllabus',
+                ai_context::CONTEXT_TYPE_SYLLABUS,
                 0,
                 ['subdirs' => 0, 'maxfiles' => 1, 'accepted_types' => ['.pdf']]
             );
@@ -156,7 +182,7 @@ class course_form_hook {
         $contexttype = isset($data->local_coursegen_context_type) ? $data->local_coursegen_context_type : '';
 
         try {
-            if ($contexttype === 'syllabus') {
+            if ($contexttype === ai_context::CONTEXT_TYPE_SYLLABUS) {
                 // Handle syllabus upload.
                 $draftitemid = $data->local_coursegen_syllabus_pdf;
 
@@ -181,6 +207,48 @@ class course_form_hook {
             }
         } catch (\Exception $e) {
             \core\notification::error(get_string('error_upload_failed', 'local_coursegen', $e->getMessage()));
+        }
+    }
+
+    /**
+     * Hook to validate the form data.
+     *
+     * @param after_form_validation $hook Hook object with the form data.
+     */
+    public static function after_form_validation(after_form_validation $hook): void {
+        $data = $hook->get_data();
+
+        $createaicourse = isset($data['local_coursegen_create_ai_course']) ? (int)$data['local_coursegen_create_ai_course'] : 0;
+        if ($createaicourse !== 1) {
+            return;
+        }
+
+        $errors = [];
+        $contexttype = isset($data['local_coursegen_context_type']) ? (string)$data['local_coursegen_context_type'] : '';
+        $allowed = [ai_context::CONTEXT_TYPE_MODEL, ai_context::CONTEXT_TYPE_SYLLABUS];
+        if ($contexttype === '' || !in_array($contexttype, $allowed, true)) {
+            $errors['local_coursegen_context_type'] = get_string('error_context_type_required', 'local_coursegen');
+        } else if ($contexttype === ai_context::CONTEXT_TYPE_MODEL) {
+            $models = model::get_all();
+            if (empty($models)) {
+                $errors['local_coursegen_context_type'] = get_string('error_no_models_configured', 'local_coursegen');
+            } else {
+                $modelid = $data['local_coursegen_select_model'] ?? null;
+                if (empty($modelid)) {
+                    $errors['local_coursegen_select_model'] = get_string('error_model_required', 'local_coursegen');
+                }
+            }
+        } else if ($contexttype === ai_context::CONTEXT_TYPE_SYLLABUS) {
+            $draftitemid = $data['local_coursegen_syllabus_pdf'] ?? 0;
+            $info = $draftitemid ? file_get_draft_area_info($draftitemid) : null;
+            $filecount = is_array($info) && array_key_exists('filecount', $info) ? (int)$info['filecount'] : 0;
+            if (empty($draftitemid) || $filecount < 1) {
+                $errors['local_coursegen_syllabus_pdf'] = get_string('error_syllabus_pdf_required', 'local_coursegen');
+            }
+        }
+
+        if (!empty($errors)) {
+            $hook->add_errors($errors);
         }
     }
 }
