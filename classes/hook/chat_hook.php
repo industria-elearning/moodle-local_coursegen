@@ -80,22 +80,9 @@ class chat_hook {
      */
     private static function add_activity_ai_button(): void {
         global $PAGE, $COURSE;
-
-        if (!self::is_course_context()) {
-            return;
+        if (self::can_create_activity()) {
+            $PAGE->requires->js_call_amd('local_coursegen/add_activity_ai_button', 'init', ['courseid' => $COURSE->id]);
         }
-
-        $context = \context_course::instance($COURSE->id);
-
-        // Check if user has permission to update course or manage activities.
-        if (
-            !has_capability('moodle/course:update', $context) ||
-            !has_capability('moodle/course:manageactivities', $context)
-        ) {
-            return;
-        }
-
-        $PAGE->requires->js_call_amd('local_coursegen/add_activity_ai_button', 'init', ['courseid' => $COURSE->id]);
     }
 
     /**
@@ -103,18 +90,11 @@ class chat_hook {
      */
     private static function add_course_ai_button(): void {
         global $PAGE;
-        $iseditpage = $PAGE->url->get_path() === '/course/edit.php';
 
-        if (!$iseditpage) {
-            return;
+        if (self::can_create_course()) {
+            $PAGE->requires->js_call_amd('local_coursegen/add_course_ai_button', 'init', []);
         }
 
-        $courseid = $PAGE->url->get_param('id');
-        if ($courseid) {
-            return;
-        }
-
-        $PAGE->requires->js_call_amd('local_coursegen/add_course_ai_button', 'init', []);
     }
 
     /**
@@ -165,5 +145,58 @@ class chat_hook {
 
             $SESSION->local_coursegen_modal_shown[$COURSE->id] = true;
         }
+    }
+
+    /**
+     * Check if user can create an activity
+     */
+    private static function can_create_activity(): bool {
+        global $COURSE;
+
+        if (!self::is_course_context()) {
+            return false;
+        }
+
+        $context = \context_course::instance($COURSE->id);
+
+        return has_all_capabilities([
+            'moodle/course:update',
+            'moodle/course:manageactivities',
+            'local/coursegen:createactivitywithai',
+        ], $context);
+    }
+
+    /**
+     * Check if user can create a course
+     */
+    private static function can_create_course(): bool {
+        global $PAGE, $DB;
+
+        $iseditpage = $PAGE->url->get_path() === '/course/edit.php';
+
+        if (!$iseditpage) {
+            return false;
+        }
+
+        // Not allowed when editing a course.
+        $courseid = $PAGE->url->get_param('id');
+        if ($courseid) {
+            return false;
+        }
+
+        $categoryid = $PAGE->url->get_param('category');
+        $categorycontext = null;
+        if ($categoryid) {
+            $category = $DB->get_record('course_categories', ['id' => $categoryid], '*', MUST_EXIST);
+            $categorycontext = \context_coursecat::instance($category->id);
+        } else {
+            $category = \core_course_category::get_default();
+            $categorycontext = \context_coursecat::instance($category->id);
+        }
+
+        return has_all_capabilities([
+            'moodle/course:create',
+            'local/coursegen:createcoursewithai',
+        ], $categorycontext);
     }
 }
