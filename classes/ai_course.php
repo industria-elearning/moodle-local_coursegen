@@ -34,62 +34,33 @@ class ai_course {
      * @param string $contexttype Context type (model or syllabus)
      * @param string $modelname Model name for AI processing
      * @param string $coursename Course name
-     * @return array Response from the AI service
      */
     public static function start_course_planning($courseid, $contexttype, $modelname, $coursename) {
         global $CFG, $DB;
 
-        try {
-            // Prepare request data.
-            $requestdata = [
-                'course_id' => $courseid,
-                'site_id' => md5($CFG->wwwroot),
-                'context_type' => $contexttype,
-                'model_name' => $modelname,
-                'course_name' => $coursename,
-            ];
+        // Prepare request data.
+        $requestdata = [
+            'course_id' => $courseid,
+            'site_id' => md5($CFG->wwwroot),
+            'context_type' => $contexttype,
+            'model_name' => $modelname,
+            'course_name' => $coursename,
+        ];
 
-            // This request may take a long time depending on the AI processing..
-            \core_php_time_limit::raise();
-            raise_memory_limit(MEMORY_EXTRA);
-            // Release the session so other tabs in the same session are not blocked.
-            \core\session\manager::write_close();
+        $client = new ai_course_api();
+        $result = $client->request('POST', '/course/start', $requestdata);
 
-            $client = new ai_course_api();
-            $result = $client->request('POST', '/course/start', $requestdata);
+        if (!isset($result['session_id'])) {
+            throw new \moodle_exception('error_starting_course_planning', 'local_coursegen');
+        }
 
-            if (!isset($result['session_id'])) {
-                return [
-                    'ok' => false,
-                    'message' => get_string('error_starting_course_planning', 'local_coursegen'),
-                    'log' => "Invalid response from AI service. Response: " . json_encode($result),
-                ];
-            }
+        $sessionid = $result['session_id'];
 
-            $sessionid = $result['session_id'];
+        // Store session_id in database.
+        $success = self::save_course_session($courseid, $sessionid);
 
-            // Store session_id in database.
-            $success = self::save_course_session($courseid, $sessionid);
-
-            if (!$success) {
-                return [
-                    'ok' => false,
-                    'message' => get_string('error_saving_session', 'local_coursegen'),
-                    'log' => 'Failed to save session ID to database',
-                ];
-            }
-
-            return [
-                'ok' => true,
-                'session_id' => $sessionid,
-                'message' => get_string('course_planning_started', 'local_coursegen'),
-            ];
-        } catch (\Exception $e) {
-            debugging("Unexpected error while starting course planning: " . $e->getMessage());
-            return [
-                'ok' => false,
-                'message' => get_string('error_starting_course_planning', 'local_coursegen', $e->getMessage()),
-            ];
+        if (!$success) {
+            throw new \moodle_exception('error_saving_session', 'local_coursegen');
         }
     }
 
