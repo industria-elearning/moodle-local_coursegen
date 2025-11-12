@@ -58,6 +58,7 @@ $string['coursecreated'] = 'Курс успешно создан';
 $string['createwithai'] = 'Создать с ИИ';
 $string['creating_course'] = 'Создание курса...';
 $string['custom_fields_header'] = 'Данные курса';
+$string['error'] = 'Ошибка: {$a}';
 $string['modelcontent'] = 'Содержание модели';
 $string['modelcontent_help'] = 'Укажите полное описание обучающей модели, включая её фазы/этапы, назначение и то, как она должна направлять проектирование курса.';
 $string['modelname'] = 'Название модели';
