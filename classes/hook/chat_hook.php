@@ -94,7 +94,6 @@ class chat_hook {
         if (self::can_create_course()) {
             $PAGE->requires->js_call_amd('local_coursegen/add_course_ai_button', 'init', []);
         }
-
     }
 
     /**
