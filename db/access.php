@@ -51,7 +51,6 @@ $capabilities = [
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSECAT,
         'archetypes' => [
-            'coursecreator' => CAP_ALLOW,
             'manager' => CAP_ALLOW,
         ],
         'clonepermissionsfrom' => 'moodle/course:create',
@@ -64,7 +63,6 @@ $capabilities = [
         'archetypes' => [
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW,
-            'coursecreator' => CAP_ALLOW,
         ],
         'clonepermissionsfrom' => 'moodle/course:manageactivities',
     ],
