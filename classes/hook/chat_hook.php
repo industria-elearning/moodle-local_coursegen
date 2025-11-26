@@ -171,7 +171,8 @@ class chat_hook {
     private static function can_create_course(): bool {
         global $PAGE, $DB;
 
-        $iseditpage = $PAGE->url->get_path() === '/course/edit.php';
+        $path = $PAGE->url->get_path();
+        $iseditpage = strpos($path, '/course/edit.php') !== false;
 
         if (!$iseditpage) {
             return false;
