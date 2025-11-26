@@ -143,7 +143,7 @@ span.local_coursegen-sparkles-icon.white {
     flex: 1 1 auto;
     overflow: auto;
     padding: 0.5rem;
-    background: var(--light);
+    background: var(--bs-light, var(--light, #f8f9fa));
     border-radius: .5rem;
     border: 1px solid rgba(0, 0, 0, .05);
 }
@@ -167,13 +167,13 @@ span.local_coursegen-sparkles-icon.white {
 }
 
 .local_coursegen_ai_msg.user .bubble {
-    background: var(--primary);
-    color: var(--white);
+    background: var(--bs-primary, var(--primary, #0d6efd));
+    color: var(--bs-white, var(--white, #fff));
     border-bottom-right-radius: .25rem;
 }
 
 .local_coursegen_ai_msg.ai .bubble {
-    background: var(--white);
+    background: var(--bs-white, var(--white, #fff));
     border: 1px solid rgba(0, 0, 0, .08);
     border-bottom-left-radius: .25rem;
 }
@@ -242,8 +242,8 @@ span.local_coursegen-sparkles-icon.white {
     border-radius: .5rem;
     padding: .6rem .75rem;
     font-size: 0.95rem;
-    background: var(--white);
-    color: var(--dark);
+    background: var(--bs-white, var(--white, #fff));
+    color: var(--bs-dark, var(--dark, #212529));
 }
 
 /* Send button with fixed width */
@@ -252,8 +252,8 @@ span.local_coursegen-sparkles-icon.white {
     height: 42px;
     border: none;
     border-radius: .5rem;
-    background-color: var(--primary);
-    color: var(--white);
+    background-color: var(--bs-primary, var(--primary, #0d6efd));
+    color: var(--bs-white, var(--white, #fff));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -262,7 +262,7 @@ span.local_coursegen-sparkles-icon.white {
 }
 
 .local_coursegen_ai_send:hover {
-    background-color: var(--blue);
+    background-color: var(--bs-blue, var(--blue, #0d6efd));
 }
 
 /* Icon */
@@ -343,7 +343,7 @@ span.local_coursegen-sparkles-icon.white {
 }
 
 .local_coursegen_course_ai_modal [data-region="local_coursegen/course_streaming/progress"] {
-    background: var(--white);
-    border: 1px solid rgba(0, 0, 0, .08);
+    background: var(--bs-white, var(--white, #fff));
+    border: 1px solid var(--bs-border-color, var(--border-color, rgba(0, 0, 0, .08)));
     border-radius: .5rem;
 }
