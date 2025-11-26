@@ -176,15 +176,13 @@ class course_form_hook {
 
         $data = $hook->get_data();
         $courseid = $data->id;
-        $createaicourse = $data->local_coursegen_create_ai_course;
-
-        // Get the context type selection.
-        $contexttype = isset($data->local_coursegen_context_type) ? $data->local_coursegen_context_type : '';
+        $createaicourse = $data->local_coursegen_create_ai_course ?? 0;
+        $contexttype = $data->local_coursegen_context_type ?? '';
+        $draftitemid = $data->local_coursegen_syllabus_pdf ?? 0;
+        $modelid = $data->local_coursegen_select_model ?? null;
 
         try {
             if ($contexttype === ai_context::CONTEXT_TYPE_SYLLABUS) {
-                // Handle syllabus upload.
-                $draftitemid = $data->local_coursegen_syllabus_pdf;
 
                 // Save syllabus PDF from draft area.
                 $success = ai_context::save_syllabus_from_draft($courseid, $draftitemid);
@@ -195,13 +193,13 @@ class course_form_hook {
             }
 
             // Store the context type and selected option in the database.
-            ai_context::save_course_context($courseid, $contexttype, $data->local_coursegen_select_model);
+            ai_context::save_course_context($courseid, $contexttype, $modelid);
 
             if (!empty($createaicourse)) {
                 ai_course::start_course_planning(
                     $courseid,
                     $contexttype,
-                    $data->local_coursegen_select_model,
+                    $modelid,
                     $data->fullname
                 );
             }
