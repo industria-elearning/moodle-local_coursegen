@@ -183,7 +183,6 @@ class course_form_hook {
 
         try {
             if ($contexttype === ai_context::CONTEXT_TYPE_SYLLABUS) {
-
                 // Save syllabus PDF from draft area.
                 $success = ai_context::save_syllabus_from_draft($courseid, $draftitemid);
 
