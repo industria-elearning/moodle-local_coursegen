@@ -23,7 +23,17 @@ import {openChatModal} from 'local_coursegen/add_activity_ai';
  * @copyright  2025 Wilber Narvaez <https://datacurso.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-export function init(courseid) {
+let IS_MOODLE_45 = false;
+
+/**
+ * Initialize the add activity AI button.
+ *
+ * @param {number} courseid - The course ID to add activity AI button for
+ * @param {boolean} ismoodle45 - Whether the Moodle version is 4.5
+ */
+export function init(courseid, ismoodle45) {
+    IS_MOODLE_45 = Boolean(ismoodle45);
+
     const containers = document.querySelectorAll('.divider-content:has([data-action="open-chooser"])');
     containers.forEach(container => {
         injectButton(container, courseid);
@@ -44,6 +54,8 @@ export async function injectButton(container, courseid) {
     const sectionnum = openChooserButton.dataset.sectionnum;
     const beforemod = openChooserButton.dataset.beforemod;
     const arialabel = openChooserButton.getAttribute('aria-label');
+    const hasBeforeMod = Boolean(beforemod);
+    const showFullText = !hasBeforeMod && IS_MOODLE_45;
 
     const {html} = await Templates.renderForPromise(
         'local_coursegen/add_activity_ai_button',
@@ -51,6 +63,7 @@ export async function injectButton(container, courseid) {
             sectionnum,
             beforemod,
             arialabel,
+            showfulltext: showFullText,
         }
     );
 

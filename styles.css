@@ -132,6 +132,10 @@ span.local_coursegen-sparkles-icon.white {
     display: inline-block;
 }
 
+.local_coursegen-add-activity-ai-button span.local_coursegen-sparkles-icon img.icon {
+    display: block;
+}
+
 /* General container */
 .local_coursegen_ai_chat {
     display: flex;
