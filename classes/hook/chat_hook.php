@@ -76,12 +76,26 @@ class chat_hook {
     }
 
     /**
+     * Determine if the site Moodle version is exactly 4.5
+     */
+    private static function is_moodle_45(): bool {
+        global $CFG;
+        if (!empty($CFG->branch)) {
+            return (int)$CFG->branch === 405;
+        }
+        return !empty($CFG->release) && strpos((string)$CFG->release, '4.5') === 0;
+    }
+
+    /**
      * Add activity AI button
      */
     private static function add_activity_ai_button(): void {
         global $PAGE, $COURSE;
         if (self::can_create_activity()) {
-            $PAGE->requires->js_call_amd('local_coursegen/add_activity_ai_button', 'init', ['courseid' => $COURSE->id]);
+            $PAGE->requires->js_call_amd('local_coursegen/add_activity_ai_button', 'init', [
+                $COURSE->id,
+                self::is_moodle_45(),
+            ]);
         }
     }
 

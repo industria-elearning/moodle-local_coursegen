@@ -21,6 +21,7 @@
 
     Example context (json):
     {
+        "ismoodle45": true,
         "sectionnum": 2,
         "beforemod": 193,
         "arialabel": "Insert an activity or resource before 'Q &amp;amp; A Forum for Students'"
@@ -46,6 +47,7 @@
         </span>
     {{/beforemod}}
     {{^beforemod}}
+        {{#showfulltext}}
         <div class="px-1">
             <span class="local_coursegen-sparkles-icon">
                 {{#pix}} sparkles, local_coursegen {{/pix}}
@@ -55,6 +57,15 @@
             </span>
             <span class="activity-add-text pr-1">{{#str}}addactivitywithia, local_coursegen{{/str}}</span>
         </div>
+        {{/showfulltext}}
+        {{^showfulltext}}
+        <span class="local_coursegen-sparkles-icon" title="{{#str}} addactivitywithia, local_coursegen {{/str}}">
+            {{#pix}} sparkles, local_coursegen {{/pix}}
+        </span>
+        <span class="local_coursegen-sparkles-icon white" title="{{#str}} addactivitywithia, local_coursegen {{/str}}">
+            {{#pix}} sparkles-white, local_coursegen {{/pix}}
+        </span>
+        {{/showfulltext}}
     {{/beforemod}}
 </button>
 </div>
