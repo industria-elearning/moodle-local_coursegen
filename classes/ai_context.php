@@ -155,9 +155,7 @@ class ai_context {
 
         $now = time();
 
-        $iscustomprompt = ($contexttype === self::CONTEXT_TYPE_CUSTOM_PROMPT);
-        $prompttext = $iscustomprompt ? $prompttext : null;
-        $promptformat = $iscustomprompt ? ($promptformat ?? FORMAT_HTML) : null;
+        $promptformat = $promptformat ?? FORMAT_HTML;
 
         // Check if record already exists.
         $existingrecord = $DB->get_record('local_coursegen_course_context', ['courseid' => $courseid]);
