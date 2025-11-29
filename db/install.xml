@@ -46,8 +46,10 @@
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
                 <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" />
-                <FIELD NAME="context_type" TYPE="char" LENGTH="20" NOTNULL="false" SEQUENCE="false" COMMENT="Type of context: model or syllabus" />
+                <FIELD NAME="context_type" TYPE="char" LENGTH="20" NOTNULL="false" SEQUENCE="false" COMMENT="Type of context: model, syllabus or customprompt" />
                 <FIELD NAME="model_id" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Selected model ID if context_type is model" />
+                <FIELD NAME="prompt_text" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Custom prompt text when context_type is customprompt" />
+                <FIELD NAME="prompt_format" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Format of the custom prompt text" />
                 <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" />
                 <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" />
                 <FIELD NAME="usermodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" />

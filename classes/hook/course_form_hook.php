@@ -52,6 +52,7 @@ class course_form_hook {
         // Add context type selector.
         $contexttypes = [
             '' => get_string('choosedots'),
+            ai_context::CONTEXT_TYPE_CUSTOM_PROMPT => get_string('context_type_customprompt', 'local_coursegen'),
             ai_context::CONTEXT_TYPE_MODEL => get_string('context_type_model', 'local_coursegen'),
             ai_context::CONTEXT_TYPE_SYLLABUS => get_string('context_type_syllabus', 'local_coursegen'),
         ];
@@ -62,6 +63,29 @@ class course_form_hook {
             $contexttypes
         );
         $mform->setDefault('local_coursegen_context_type', '');
+
+        $editoroptions = [
+            'maxfiles' => 0,
+            'subdirs' => 0,
+            'trusttext' => false,
+            'context' => $PAGE->context,
+        ];
+
+        $mform->addElement(
+            'editor',
+            'local_coursegen_custom_prompt',
+            get_string('custom_prompt_field', 'local_coursegen'),
+            null,
+            $editoroptions
+        );
+        $mform->addHelpButton('local_coursegen_custom_prompt', 'custom_prompt_field', 'local_coursegen');
+        $mform->setType('local_coursegen_custom_prompt', PARAM_RAW);
+        $mform->hideIf(
+            'local_coursegen_custom_prompt',
+            'local_coursegen_context_type',
+            'neq',
+            ai_context::CONTEXT_TYPE_CUSTOM_PROMPT
+        );
 
         // Get models from the database.
         $models = model::get_all();
@@ -156,12 +180,23 @@ class course_form_hook {
                 $selectedmodel = $contextdata->model_id;
             }
 
+            $prompttext = '';
+            $promptformat = FORMAT_HTML;
+            if (!empty($contextdata->prompt_text)) {
+                $prompttext = $contextdata->prompt_text;
+                $promptformat = $contextdata->prompt_format ?? FORMAT_HTML;
+            }
+
             $editform = $hook->formwrapper;
 
             $editform->set_data([
                 'local_coursegen_syllabus_pdf' => $draftitemid,
                 'local_coursegen_context_type' => $contexttype,
                 'local_coursegen_select_model' => $selectedmodel,
+                'local_coursegen_custom_prompt' => [
+                    'text' => $prompttext,
+                    'format' => $promptformat,
+                ],
             ]);
         }
     }
@@ -191,15 +226,44 @@ class course_form_hook {
                 }
             }
 
+            $selectedmodel = $data->local_coursegen_select_model ?? null;
+            $prompttext = null;
+            $promptformat = null;
+            $promptmessage = null;
+
+            if ($contexttype === ai_context::CONTEXT_TYPE_CUSTOM_PROMPT) {
+                $customprompt = $data->local_coursegen_custom_prompt ?? null;
+                if (is_array($customprompt)) {
+                    $prompttext = $customprompt['text'] ?? '';
+                    $promptformat = $customprompt['format'] ?? FORMAT_HTML;
+                } else if ($customprompt instanceof \stdClass) {
+                    $prompttext = $customprompt->text ?? '';
+                    $promptformat = $customprompt->format ?? FORMAT_HTML;
+                }
+
+                if ($prompttext !== null) {
+                    $promptformat = $promptformat ?? FORMAT_HTML;
+                    $prompttext = clean_text($prompttext, $promptformat);
+                    if ($prompttext === '') {
+                        $prompttext = null;
+                        $promptformat = null;
+                    } else {
+                        $promptmessage = trim(html_to_text($prompttext, 0, false));
+                    }
+                }
+            }
+
             // Store the context type and selected option in the database.
-            ai_context::save_course_context($courseid, $contexttype, $modelid);
+            ai_context::save_course_context($courseid, $contexttype, $selectedmodel, $prompttext, $promptformat);
 
             if (!empty($createaicourse)) {
                 ai_course::start_course_planning(
                     $courseid,
                     $contexttype,
-                    $modelid,
-                    $data->fullname
+                    $selectedmodel,
+                    $data->fullname,
+                    $prompttext,
+                    $promptmessage
                 );
             }
         } catch (\Exception $e) {
@@ -222,7 +286,11 @@ class course_form_hook {
 
         $errors = [];
         $contexttype = isset($data['local_coursegen_context_type']) ? (string)$data['local_coursegen_context_type'] : '';
-        $allowed = [ai_context::CONTEXT_TYPE_MODEL, ai_context::CONTEXT_TYPE_SYLLABUS];
+        $allowed = [
+            ai_context::CONTEXT_TYPE_MODEL,
+            ai_context::CONTEXT_TYPE_SYLLABUS,
+            ai_context::CONTEXT_TYPE_CUSTOM_PROMPT,
+        ];
         if ($contexttype === '' || !in_array($contexttype, $allowed, true)) {
             $errors['local_coursegen_context_type'] = get_string('error_context_type_required', 'local_coursegen');
         } else if ($contexttype === ai_context::CONTEXT_TYPE_MODEL) {
@@ -241,6 +309,23 @@ class course_form_hook {
             $filecount = is_array($info) && array_key_exists('filecount', $info) ? (int)$info['filecount'] : 0;
             if (empty($draftitemid) || $filecount < 1) {
                 $errors['local_coursegen_syllabus_pdf'] = get_string('error_syllabus_pdf_required', 'local_coursegen');
+            }
+        } else if ($contexttype === ai_context::CONTEXT_TYPE_CUSTOM_PROMPT) {
+            $customprompt = $data['local_coursegen_custom_prompt'] ?? null;
+            $prompttext = '';
+            $promptformat = FORMAT_HTML;
+            if (is_array($customprompt)) {
+                $prompttext = $customprompt['text'] ?? '';
+                $promptformat = $customprompt['format'] ?? FORMAT_HTML;
+            } else if (is_object($customprompt)) {
+                $prompttext = $customprompt->text ?? '';
+                $promptformat = $customprompt->format ?? FORMAT_HTML;
+            }
+
+            $prompttext = clean_text($prompttext, $promptformat);
+            $plainprompt = trim(html_to_text($prompttext, 0, false));
+            if ($plainprompt === '') {
+                $errors['local_coursegen_custom_prompt'] = get_string('error_prompt_required', 'local_coursegen');
             }
         }
 

@@ -30,6 +30,8 @@ class ai_context {
     const CONTEXT_TYPE_MODEL = 'model';
     /** @var string Context type syllabus */
     const CONTEXT_TYPE_SYLLABUS = 'syllabus';
+    /** @var string Context type custom prompt */
+    const CONTEXT_TYPE_CUSTOM_PROMPT = 'prompt';
 
     /**
      * Uploads the content of the instructional model to the AI endpoint.
@@ -137,13 +139,25 @@ class ai_context {
      * Save course context data to database.
      *
      * @param int $courseid Course ID
-     * @param string $contexttype Context type (model or syllabus)
+     * @param string $contexttype Context type (model, syllabus or customprompt)
      * @param int|null $modelid Selected model ID (if context type is model)
+     * @param string|null $prompttext Custom prompt text (if context type is custom prompt)
+     * @param int|null $promptformat Format of the custom prompt text
      */
-    public static function save_course_context($courseid, $contexttype, $modelid = null): void {
+    public static function save_course_context(
+        int $courseid,
+        string $contexttype,
+        ?int $modelid = null,
+        ?string $prompttext = null,
+        ?int $promptformat = null
+    ): void {
         global $DB, $USER;
 
         $now = time();
+
+        $iscustomprompt = ($contexttype === self::CONTEXT_TYPE_CUSTOM_PROMPT);
+        $prompttext = $iscustomprompt ? $prompttext : null;
+        $promptformat = $iscustomprompt ? ($promptformat ?? FORMAT_HTML) : null;
 
         // Check if record already exists.
         $existingrecord = $DB->get_record('local_coursegen_course_context', ['courseid' => $courseid]);
@@ -154,6 +168,8 @@ class ai_context {
             $record->id = $existingrecord->id;
             $record->context_type = $contexttype;
             $record->model_id = ($contexttype === self::CONTEXT_TYPE_MODEL) ? $modelid : null;
+            $record->prompt_text = $prompttext;
+            $record->prompt_format = $promptformat;
             $record->timemodified = $now;
             $record->usermodified = $USER->id;
 
@@ -164,6 +180,8 @@ class ai_context {
             $record->courseid = $courseid;
             $record->context_type = $contexttype;
             $record->model_id = ($contexttype === self::CONTEXT_TYPE_MODEL) ? $modelid : null;
+            $record->prompt_text = $prompttext;
+            $record->prompt_format = $promptformat;
             $record->timecreated = $now;
             $record->timemodified = $now;
             $record->usermodified = $USER->id;
@@ -182,7 +200,7 @@ class ai_context {
         global $DB;
 
         $aicontext = $DB->get_record_sql(
-            'SELECT cc.context_type, m.name
+            'SELECT cc.context_type, cc.prompt_text, cc.prompt_format, m.name AS model_name
             FROM
                 {local_coursegen_course_context} cc
                 LEFT JOIN {local_coursegen_model} m ON cc.model_id = m.id
@@ -190,6 +208,10 @@ class ai_context {
                 cc.courseid = ?',
             [$courseid]
         );
+
+        if ($aicontext && !isset($aicontext->name)) {
+            $aicontext->name = $aicontext->model_name;
+        }
 
         return $aicontext;
     }
@@ -228,6 +250,19 @@ class ai_context {
             return (object) [
                 'context_type' => self::CONTEXT_TYPE_SYLLABUS,
                 'model_name' => null,
+            ];
+        }
+
+        if ($aicontext->context_type === self::CONTEXT_TYPE_CUSTOM_PROMPT) {
+            $prompttext = $aicontext->prompt_text ?? '';
+            $stripped = trim(strip_tags($prompttext));
+            if ($prompttext === null || $stripped === '') {
+                return null;
+            }
+            return (object) [
+                'context_type' => self::CONTEXT_TYPE_CUSTOM_PROMPT,
+                'prompt_text' => $prompttext,
+                'prompt_format' => $aicontext->prompt_format ?? FORMAT_HTML,
             ];
         }
 
