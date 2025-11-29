@@ -157,11 +157,6 @@ function xmldb_local_coursegen_upgrade($oldversion) {
             $dbman->add_field($table, $prompttext);
         }
 
-        $promptformat = new xmldb_field('prompt_format', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'prompt_text');
-        if (!$dbman->field_exists($table, $promptformat)) {
-            $dbman->add_field($table, $promptformat);
-        }
-
         upgrade_plugin_savepoint(true, 2025112801, 'local', 'coursegen');
     }
 

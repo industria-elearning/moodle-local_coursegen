@@ -142,20 +142,16 @@ class ai_context {
      * @param string $contexttype Context type (model, syllabus or customprompt)
      * @param int|null $modelid Selected model ID (if context type is model)
      * @param string|null $prompttext Custom prompt text (if context type is custom prompt)
-     * @param int|null $promptformat Format of the custom prompt text
      */
     public static function save_course_context(
         int $courseid,
         string $contexttype,
         ?int $modelid = null,
-        ?string $prompttext = null,
-        ?int $promptformat = null
+        ?string $prompttext = null
     ): void {
         global $DB, $USER;
 
         $now = time();
-
-        $promptformat = $promptformat ?? FORMAT_HTML;
 
         // Check if record already exists.
         $existingrecord = $DB->get_record('local_coursegen_course_context', ['courseid' => $courseid]);
@@ -167,7 +163,6 @@ class ai_context {
             $record->context_type = $contexttype;
             $record->model_id = ($contexttype === self::CONTEXT_TYPE_MODEL) ? $modelid : null;
             $record->prompt_text = $prompttext;
-            $record->prompt_format = $promptformat;
             $record->timemodified = $now;
             $record->usermodified = $USER->id;
 
@@ -179,7 +174,6 @@ class ai_context {
             $record->context_type = $contexttype;
             $record->model_id = ($contexttype === self::CONTEXT_TYPE_MODEL) ? $modelid : null;
             $record->prompt_text = $prompttext;
-            $record->prompt_format = $promptformat;
             $record->timecreated = $now;
             $record->timemodified = $now;
             $record->usermodified = $USER->id;
@@ -198,7 +192,7 @@ class ai_context {
         global $DB;
 
         $aicontext = $DB->get_record_sql(
-            'SELECT cc.context_type, cc.prompt_text, cc.prompt_format, m.name AS model_name
+            'SELECT cc.context_type, cc.prompt_text, m.name AS model_name
             FROM
                 {local_coursegen_course_context} cc
                 LEFT JOIN {local_coursegen_model} m ON cc.model_id = m.id
@@ -260,7 +254,6 @@ class ai_context {
             return (object) [
                 'context_type' => self::CONTEXT_TYPE_CUSTOM_PROMPT,
                 'prompt_text' => $prompttext,
-                'prompt_format' => $aicontext->prompt_format ?? FORMAT_HTML,
             ];
         }
 

@@ -136,7 +136,6 @@ $string['privacy:metadata:local_coursegen_course_context'] = 'Context preference
 $string['privacy:metadata:local_coursegen_course_context:context_type'] = 'The selected context type for the course.';
 $string['privacy:metadata:local_coursegen_course_context:courseid'] = 'The ID of the course whose context preferences are stored.';
 $string['privacy:metadata:local_coursegen_course_context:model_id'] = 'The selected instructional model ID for the course.';
-$string['privacy:metadata:local_coursegen_course_context:prompt_format'] = 'The format of the custom prompt text provided for the course.';
 $string['privacy:metadata:local_coursegen_course_context:prompt_text'] = 'The custom prompt text provided for the course.';
 $string['privacy:metadata:local_coursegen_course_context:timecreated'] = 'The time when the course context record was created.';
 $string['privacy:metadata:local_coursegen_course_context:timemodified'] = 'The time when the course context record was last updated.';

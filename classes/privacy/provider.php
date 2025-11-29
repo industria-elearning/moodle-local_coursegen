@@ -62,8 +62,7 @@ class provider implements
                 'name', 'content', 'deleted', 'timecreated', 'timemodified', 'usermodified',
             ],
             'local_coursegen_course_context' => [
-                'courseid', 'context_type', 'model_id', 'prompt_text', 'prompt_format', 'timecreated', 'timemodified',
-                'usermodified',
+                'courseid', 'context_type', 'model_id', 'prompt_text', 'timecreated', 'timemodified', 'usermodified',
             ],
             'local_coursegen_course_sessions' => [
                 'courseid', 'userid', 'session_id', 'status', 'timecreated', 'timemodified',

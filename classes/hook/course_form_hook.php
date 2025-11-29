@@ -64,22 +64,14 @@ class course_form_hook {
         );
         $mform->setDefault('local_coursegen_context_type', '');
 
-        $editoroptions = [
-            'maxfiles' => 0,
-            'subdirs' => 0,
-            'trusttext' => false,
-            'context' => $PAGE->context,
-        ];
-
         $mform->addElement(
-            'editor',
+            'textarea',
             'local_coursegen_custom_prompt',
             get_string('custom_prompt_field', 'local_coursegen'),
-            null,
-            $editoroptions
+            ['rows' => 6, 'cols' => 60]
         );
         $mform->addHelpButton('local_coursegen_custom_prompt', 'custom_prompt_field', 'local_coursegen');
-        $mform->setType('local_coursegen_custom_prompt', PARAM_RAW);
+        $mform->setType('local_coursegen_custom_prompt', PARAM_TEXT);
         $mform->hideIf(
             'local_coursegen_custom_prompt',
             'local_coursegen_context_type',
@@ -180,12 +172,7 @@ class course_form_hook {
                 $selectedmodel = $contextdata->model_id;
             }
 
-            $prompttext = '';
-            $promptformat = FORMAT_HTML;
-            if (!empty($contextdata->prompt_text)) {
-                $prompttext = $contextdata->prompt_text;
-                $promptformat = $contextdata->prompt_format ?? FORMAT_HTML;
-            }
+            $prompttext = !empty($contextdata->prompt_text) ? $contextdata->prompt_text : '';
 
             $editform = $hook->formwrapper;
 
@@ -193,10 +180,7 @@ class course_form_hook {
                 'local_coursegen_syllabus_pdf' => $draftitemid,
                 'local_coursegen_context_type' => $contexttype,
                 'local_coursegen_select_model' => $selectedmodel,
-                'local_coursegen_custom_prompt' => [
-                    'text' => $prompttext,
-                    'format' => $promptformat,
-                ],
+                'local_coursegen_custom_prompt' => $prompttext,
             ]);
         }
     }
@@ -228,33 +212,19 @@ class course_form_hook {
 
             $selectedmodel = $data->local_coursegen_select_model ?? null;
             $prompttext = null;
-            $promptformat = null;
             $promptmessage = null;
 
             if ($contexttype === ai_context::CONTEXT_TYPE_CUSTOM_PROMPT) {
-                $customprompt = $data->local_coursegen_custom_prompt ?? null;
-                if (is_array($customprompt)) {
-                    $prompttext = $customprompt['text'] ?? '';
-                    $promptformat = $customprompt['format'] ?? FORMAT_HTML;
-                } else if ($customprompt instanceof \stdClass) {
-                    $prompttext = $customprompt->text ?? '';
-                    $promptformat = $customprompt->format ?? FORMAT_HTML;
-                }
-
-                if ($prompttext !== null) {
-                    $promptformat = $promptformat ?? FORMAT_HTML;
-                    $prompttext = clean_text($prompttext, $promptformat);
-                    if ($prompttext === '') {
-                        $prompttext = null;
-                        $promptformat = null;
-                    } else {
-                        $promptmessage = trim(html_to_text($prompttext, 0, false));
-                    }
+                $prompttext = trim((string)($data->local_coursegen_custom_prompt ?? ''));
+                if ($prompttext !== '') {
+                    $promptmessage = $prompttext;
+                } else {
+                    $prompttext = null;
                 }
             }
 
             // Store the context type and selected option in the database.
-            ai_context::save_course_context($courseid, $contexttype, $selectedmodel, $prompttext, $promptformat);
+            ai_context::save_course_context($courseid, $contexttype, $selectedmodel, $prompttext);
 
             if (!empty($createaicourse)) {
                 ai_course::start_course_planning(
@@ -311,20 +281,8 @@ class course_form_hook {
                 $errors['local_coursegen_syllabus_pdf'] = get_string('error_syllabus_pdf_required', 'local_coursegen');
             }
         } else if ($contexttype === ai_context::CONTEXT_TYPE_CUSTOM_PROMPT) {
-            $customprompt = $data['local_coursegen_custom_prompt'] ?? null;
-            $prompttext = '';
-            $promptformat = FORMAT_HTML;
-            if (is_array($customprompt)) {
-                $prompttext = $customprompt['text'] ?? '';
-                $promptformat = $customprompt['format'] ?? FORMAT_HTML;
-            } else if (is_object($customprompt)) {
-                $prompttext = $customprompt->text ?? '';
-                $promptformat = $customprompt->format ?? FORMAT_HTML;
-            }
-
-            $prompttext = clean_text($prompttext, $promptformat);
-            $plainprompt = trim(html_to_text($prompttext, 0, false));
-            if ($plainprompt === '') {
+            $prompttext = trim((string)($data['local_coursegen_custom_prompt'] ?? ''));
+            if ($prompttext === '') {
                 $errors['local_coursegen_custom_prompt'] = get_string('error_prompt_required', 'local_coursegen');
             }
         }
