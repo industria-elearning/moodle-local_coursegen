@@ -149,5 +149,16 @@ function xmldb_local_coursegen_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025092401, 'local', 'coursegen');
     }
 
+    if ($oldversion < 2025112801) {
+        $table = new xmldb_table('local_coursegen_course_context');
+
+        $prompttext = new xmldb_field('prompt_text', XMLDB_TYPE_TEXT, null, null, null, null, null, 'model_id');
+        if (!$dbman->field_exists($table, $prompttext)) {
+            $dbman->add_field($table, $prompttext);
+        }
+
+        upgrade_plugin_savepoint(true, 2025112801, 'local', 'coursegen');
+    }
+
     return true;
 }

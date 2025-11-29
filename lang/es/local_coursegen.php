@@ -129,6 +129,7 @@ $string['privacy:metadata:local_coursegen_course_context'] = 'Preferencias de co
 $string['privacy:metadata:local_coursegen_course_context:context_type'] = 'El tipo de contexto seleccionado para el curso.';
 $string['privacy:metadata:local_coursegen_course_context:courseid'] = 'El ID del curso cuyas preferencias de contexto se almacenan.';
 $string['privacy:metadata:local_coursegen_course_context:model_id'] = 'El ID del modelo instruccional seleccionado para el curso.';
+$string['privacy:metadata:local_coursegen_course_context:prompt_text'] = 'El texto del prompt personalizado proporcionado para el curso.';
 $string['privacy:metadata:local_coursegen_course_context:timecreated'] = 'La hora en que se creó el registro de contexto del curso.';
 $string['privacy:metadata:local_coursegen_course_context:timemodified'] = 'La hora en que se actualizó por última vez el registro de contexto del curso.';
 $string['privacy:metadata:local_coursegen_course_context:usermodified'] = 'El ID del usuario que modificó por última vez el contexto del curso.';

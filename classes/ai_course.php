@@ -31,21 +31,42 @@ class ai_course {
      * Start AI course planning session by calling the /plan-course/start endpoint..
      *
      * @param int $courseid Course ID
-     * @param string $contexttype Context type (model or syllabus)
-     * @param string $modelname Model name for AI processing
+     * @param string $contexttype Context type (model, syllabus or customprompt)
+     * @param string|null $modelname Model name for AI processing
      * @param string $coursename Course name
+     * @param string|null $prompttext Custom prompt HTML content when context type is customprompt
+     * @param string|null $promptmessage Plain text prompt summary when context type is customprompt
      */
-    public static function start_course_planning($courseid, $contexttype, $modelname, $coursename) {
-        global $CFG, $DB;
+    public static function start_course_planning(
+        int $courseid,
+        string $contexttype,
+        ?string $modelname,
+        string $coursename,
+        ?string $prompttext = null,
+        ?string $promptmessage = null
+    ): void {
+        global $CFG;
 
         // Prepare request data.
         $requestdata = [
             'course_id' => $courseid,
             'site_id' => md5($CFG->wwwroot),
             'context_type' => $contexttype,
-            'model_name' => $modelname,
             'course_name' => $coursename,
         ];
+
+        if (!empty($modelname)) {
+            $requestdata['model_name'] = $modelname;
+        }
+
+        if ($contexttype === ai_context::CONTEXT_TYPE_CUSTOM_PROMPT) {
+            if (!empty($prompttext)) {
+                $requestdata['prompt'] = $prompttext;
+            }
+            if (!empty($promptmessage)) {
+                $requestdata['prompt_message'] = $promptmessage;
+            }
+        }
 
         $client = new ai_course_api();
         $result = $client->request('POST', '/course/start', $requestdata);
