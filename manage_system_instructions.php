@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Manage instructional models page for DataCurso plugin.
+ * Manage system instructions page for DataCurso plugin.
  *
  * @package    local_coursegen
  * @copyright  2025 Wilber Narvaez <https://datacurso.com>
@@ -25,37 +25,37 @@
 require_once('../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 
-admin_externalpage_setup('local_coursegen_manage_models');
+admin_externalpage_setup('local_coursegen_manage_system_instructions');
 
 $action = optional_param('action', '', PARAM_ALPHA);
 $id = optional_param('id', 0, PARAM_INT);
 $confirm = optional_param('confirm', 0, PARAM_INT);
 
 $context = context_system::instance();
-require_capability('local/coursegen:managemodels', $context);
+require_capability('local/coursegen:managesysteminstructions', $context);
 
-$PAGE->set_url('/local/coursegen/manage_models.php');
-$PAGE->set_title(get_string('managemodels', 'local_coursegen'));
-$PAGE->set_heading(get_string('managemodels', 'local_coursegen'));
+$PAGE->set_url('/local/coursegen/manage_system_instructions.php');
+$PAGE->set_title(get_string('managesysteminstructions', 'local_coursegen'));
+$PAGE->set_heading(get_string('managesysteminstructions', 'local_coursegen'));
 
 // Handle delete action.
 if ($action === 'delete' && $id > 0) {
     if ($confirm && confirm_sesskey()) {
-        // Soft delete the model.
-        $DB->set_field('local_coursegen_model', 'deleted', 1, ['id' => $id]);
-        redirect($PAGE->url, get_string('modeldeleted', 'local_coursegen'), null, \core\output\notification::NOTIFY_SUCCESS);
+        // Soft delete the system instruction.
+        $DB->set_field('local_coursegen_system_instruction', 'deleted', 1, ['id' => $id]);
+        redirect($PAGE->url, get_string('systeminstructiondeleted', 'local_coursegen'), null, \core\output\notification::NOTIFY_SUCCESS);
     } else {
         // Show confirmation dialog.
-        $model = $DB->get_record('local_coursegen_model', ['id' => $id, 'deleted' => 0], '*', MUST_EXIST);
+        $model = $DB->get_record('local_coursegen_system_instruction', ['id' => $id, 'deleted' => 0], '*', MUST_EXIST);
 
         echo $OUTPUT->header();
-        echo $OUTPUT->heading(get_string('deletemodel', 'local_coursegen'));
+        echo $OUTPUT->heading(get_string('deletesysteminstruction', 'local_coursegen'));
 
         $confirmurl = new moodle_url($PAGE->url, ['action' => 'delete', 'id' => $id, 'confirm' => 1, 'sesskey' => sesskey()]);
         $cancelurl = $PAGE->url;
 
         echo $OUTPUT->confirm(
-            get_string('confirmdelete', 'local_coursegen') . '<br><strong>' . format_string($model->name) . '</strong>',
+            get_string('confirmdeletesysteminstruction', 'local_coursegen') . '<br><strong>' . format_string($model->name) . '</strong>',
             $confirmurl,
             $cancelurl
         );
@@ -67,34 +67,34 @@ if ($action === 'delete' && $id > 0) {
 
 echo $OUTPUT->header();
 
-// Add model button.
-$addurl = new moodle_url('/local/coursegen/edit_model.php');
+// Add system instruction button.
+$addurl = new moodle_url('/local/coursegen/edit_system_instruction.php');
 echo html_writer::div(
-    $OUTPUT->single_button($addurl, get_string('addmodel', 'local_coursegen'), 'get'),
+    $OUTPUT->single_button($addurl, get_string('addsysteminstruction', 'local_coursegen'), 'get'),
     'mb-3'
 );
 
-// Create table to display models.
+// Create table to display system instructions.
 $table = new html_table();
 $table->head = [
-    get_string('modelname', 'local_coursegen'),
-    get_string('modelcreated', 'local_coursegen'),
-    get_string('modelmodified', 'local_coursegen'),
+    get_string('systeminstructionname', 'local_coursegen'),
+    get_string('systeminstructioncreated', 'local_coursegen'),
+    get_string('systeminstructionmodified', 'local_coursegen'),
     get_string('actions', 'local_coursegen'),
 ];
 $table->attributes['class'] = 'table table-striped';
 
-// Get models from database.
-$models = $DB->get_records('local_coursegen_model', ['deleted' => 0], 'timecreated DESC');
+// Get system instructions from database.
+$models = $DB->get_records('local_coursegen_system_instruction', ['deleted' => 0], 'timecreated DESC');
 
 if (empty($models)) {
     echo html_writer::div(
-        html_writer::tag('p', get_string('nomodels', 'local_coursegen'), ['class' => 'alert alert-info']),
+        html_writer::tag('p', get_string('nosysteminstructions', 'local_coursegen'), ['class' => 'alert alert-info']),
         'mt-3'
     );
 } else {
     foreach ($models as $model) {
-        $editurl = new moodle_url('/local/coursegen/edit_model.php', ['id' => $model->id]);
+        $editurl = new moodle_url('/local/coursegen/edit_system_instruction.php', ['id' => $model->id]);
         $deleteurl = new moodle_url($PAGE->url, ['action' => 'delete', 'id' => $model->id]);
 
         $editicon = $OUTPUT->pix_icon('t/edit', get_string('edit', 'local_coursegen'));

@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Edit model page for DataCurso plugin.
+ * Edit system instruction page for DataCurso plugin.
  *
  * @package    local_coursegen
  * @copyright  2025 Wilber Narvaez <https://datacurso.com>
@@ -25,35 +25,36 @@
 require_once('../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 
-use local_coursegen\form\model_form;
-use local_coursegen\model;
+use local_coursegen\form\system_instruction_form;
+use local_coursegen\system_instruction;
 use local_coursegen\ai_context;
 
 
-admin_externalpage_setup('local_coursegen_manage_models');
+admin_externalpage_setup('local_coursegen_manage_system_instructions');
 
 $id = optional_param('id', 0, PARAM_INT);
 
-$context = context_system::instance();
-require_capability('local/coursegen:managemodels', $context);
 
-$PAGE->set_url('/local/coursegen/edit_model.php', ['id' => $id]);
+$context = context_system::instance();
+require_capability('local/coursegen:managesysteminstructions', $context);
+
+$PAGE->set_url('/local/coursegen/edit_system_instruction.php', ['id' => $id]);
 
 $modelobj = null;
 if ($id > 0) {
-    $modelobj = model::get_by_id($id);
+    $modelobj = system_instruction::get_by_id($id);
     if (!$modelobj) {
-        throw new moodle_exception('invalidmodel', 'local_coursegen');
+        throw new moodle_exception('invalidsysteminstruction', 'local_coursegen');
     }
-    $PAGE->set_title(get_string('editmodel', 'local_coursegen'));
-    $PAGE->set_heading(get_string('editmodel', 'local_coursegen'));
+    $PAGE->set_title(get_string('editsysteminstruction', 'local_coursegen'));
+    $PAGE->set_heading(get_string('editsysteminstruction', 'local_coursegen'));
 } else {
-    $modelobj = new model();
-    $PAGE->set_title(get_string('addmodel', 'local_coursegen'));
-    $PAGE->set_heading(get_string('addmodel', 'local_coursegen'));
+    $modelobj = new system_instruction();
+    $PAGE->set_title(get_string('addsysteminstruction', 'local_coursegen'));
+    $PAGE->set_heading(get_string('addsysteminstruction', 'local_coursegen'));
 }
 
-$form = new model_form();
+$form = new system_instruction_form();
 
 // Set form data if editing.
 if ($modelobj && $modelobj->id > 0) {
@@ -71,19 +72,19 @@ if ($modelobj && $modelobj->id > 0) {
 }
 
 if ($form->is_cancelled()) {
-    redirect(new moodle_url('/local/coursegen/manage_models.php'));
+    redirect(new moodle_url('/local/coursegen/manage_system_instructions.php'));
 } else if ($data = $form->get_data()) {
     // Update model object with form data.
     $modelobj->name = trim($data->name);
     $modelobj->content = $data->content_editor['text'];
 
-    // Save the model.
+    // Save the system instruction.
     $modelobj->save();
 
     ai_context::upload_model_to_ai($modelobj);
     redirect(
-        new moodle_url('/local/coursegen/manage_models.php'),
-        get_string('modelsaved', 'local_coursegen'),
+        new moodle_url('/local/coursegen/manage_system_instructions.php'),
+        get_string('systeminstructionsaved', 'local_coursegen'),
         null,
         \core\output\notification::NOTIFY_SUCCESS
     );

@@ -29,10 +29,10 @@ if ($hassiteconfig) {
     $pluginname = 'local_coursegen';
     $admincategory = new admin_category($pluginname, get_string('pluginname', $pluginname));
     $ADMIN->add('localplugins', $admincategory);
-    // Add Manage instructional models page.
+    // Add Manage system instructions page.
     $ADMIN->add($pluginname, new admin_externalpage(
-        'local_coursegen_manage_models',
-        get_string('managemodels', 'local_coursegen'),
-        new moodle_url('/local/coursegen/manage_models.php')
+        'local_coursegen_manage_system_instructions',
+        get_string('managesysteminstructions', 'local_coursegen'),
+        new moodle_url('/local/coursegen/manage_system_instructions.php')
     ));
 }

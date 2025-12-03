@@ -26,35 +26,35 @@ use aiprovider_datacurso\httpclient\ai_course_api;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class ai_context {
-    /** @var string Context type model */
-    const CONTEXT_TYPE_MODEL = 'model';
+    /** @var string Context type system instruction */
+    const CONTEXT_TYPE_SYSTEM_INSTRUCTION = 'system_instruction';
     /** @var string Context type syllabus */
     const CONTEXT_TYPE_SYLLABUS = 'syllabus';
     /** @var string Context type custom prompt */
     const CONTEXT_TYPE_CUSTOM_PROMPT = 'prompt';
 
     /**
-     * Uploads the content of the instructional model to the AI endpoint.
+     * Uploads the content of the system instruction to the AI endpoint.
      *
-     * @param model $model The instructional model selected.
+     * @param system_instruction $model The system instruction selected.
      */
-    public static function upload_model_to_ai(model $model): void {
+    public static function upload_model_to_ai(system_instruction $model): void {
         global $CFG;
 
         try {
             $siteid = md5($CFG->wwwroot);
 
             $postdata = [
-                'model_name' => $model->name,
-                'model_context' => $model->content,
+                'system_instruction_name' => $model->name,
+                'system_instruction_context' => $model->content,
                 'site_id' => $siteid,
             ];
 
             $client = new ai_course_api();
-            $client->request('POST', '/context/upload-model-context', $postdata);
+            $client->request('POST', '/context/upload-system-instruction-context', $postdata);
         } catch (\Exception $e) {
             // Show error notification to the user.
-            \core\notification::error(get_string('error_upload_failed_model', 'local_coursegen', $e->getMessage()));
+            \core\notification::error(get_string('error_upload_failed_system_instruction', 'local_coursegen', $e->getMessage()));
         }
     }
 
@@ -139,8 +139,8 @@ class ai_context {
      * Save course context data to database.
      *
      * @param int $courseid Course ID
-     * @param string $contexttype Context type (model, syllabus or customprompt)
-     * @param int|null $modelid Selected model ID (if context type is model)
+     * @param string $contexttype Context type (system_instruction, syllabus or customprompt)
+     * @param int|null $modelid Selected system instruction ID (if context type is system instruction)
      * @param string|null $prompttext Custom prompt text (if context type is custom prompt)
      */
     public static function save_course_context(
@@ -161,7 +161,7 @@ class ai_context {
             $record = new \stdClass();
             $record->id = $existingrecord->id;
             $record->context_type = $contexttype;
-            $record->model_id = ($contexttype === self::CONTEXT_TYPE_MODEL) ? $modelid : null;
+            $record->system_instruction_id = ($contexttype === self::CONTEXT_TYPE_SYSTEM_INSTRUCTION) ? $modelid : null;
             $record->prompt_text = $prompttext;
             $record->timemodified = $now;
             $record->usermodified = $USER->id;
@@ -172,7 +172,7 @@ class ai_context {
             $record = new \stdClass();
             $record->courseid = $courseid;
             $record->context_type = $contexttype;
-            $record->model_id = ($contexttype === self::CONTEXT_TYPE_MODEL) ? $modelid : null;
+            $record->system_instruction_id = ($contexttype === self::CONTEXT_TYPE_SYSTEM_INSTRUCTION) ? $modelid : null;
             $record->prompt_text = $prompttext;
             $record->timecreated = $now;
             $record->timemodified = $now;
@@ -192,17 +192,17 @@ class ai_context {
         global $DB;
 
         $aicontext = $DB->get_record_sql(
-            'SELECT cc.context_type, cc.prompt_text, m.name AS model_name
+            'SELECT cc.context_type, cc.prompt_text, si.name AS system_instruction_name
             FROM
                 {local_coursegen_course_context} cc
-                LEFT JOIN {local_coursegen_model} m ON cc.model_id = m.id
+                LEFT JOIN {local_coursegen_system_instruction} si ON cc.system_instruction_id = si.id
             WHERE
                 cc.courseid = ?',
             [$courseid]
         );
 
         if ($aicontext && !isset($aicontext->name)) {
-            $aicontext->name = $aicontext->model_name;
+            $aicontext->name = $aicontext->system_instruction_name;
         }
 
         return $aicontext;
@@ -214,7 +214,7 @@ class ai_context {
      * - For context type 'syllabus': requires at least one syllabus file saved in course context.
      *
      * @param int $courseid Course ID
-     * @return \stdClass|null Object with properties context_type and model_name (or null)
+     * @return \stdClass|null Object with properties context_type and system_instruction_name (or null)
      */
     public static function get_valid_course_context(int $courseid): ?\stdClass {
         $aicontext = self::get_course_context_info($courseid);
@@ -222,13 +222,13 @@ class ai_context {
             return null;
         }
 
-        if ($aicontext->context_type === self::CONTEXT_TYPE_MODEL) {
+        if ($aicontext->context_type === self::CONTEXT_TYPE_SYSTEM_INSTRUCTION) {
             if (empty($aicontext->name)) {
                 return null;
             }
             return (object) [
-                'context_type' => self::CONTEXT_TYPE_MODEL,
-                'model_name' => $aicontext->name,
+                'context_type' => self::CONTEXT_TYPE_SYSTEM_INSTRUCTION,
+                'system_instruction_name' => $aicontext->name,
             ];
         }
 
@@ -241,7 +241,6 @@ class ai_context {
             }
             return (object) [
                 'context_type' => self::CONTEXT_TYPE_SYLLABUS,
-                'model_name' => null,
             ];
         }
 

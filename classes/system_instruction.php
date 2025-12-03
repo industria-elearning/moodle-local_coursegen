@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Model class for DataCurso plugin.
+ * System instruction class for DataCurso plugin.
  *
  * @package    local_coursegen
  * @copyright  2025 Wilber Narvaez <https://datacurso.com>
@@ -25,16 +25,16 @@
 namespace local_coursegen;
 
 /**
- * Model class for handling datacurso models.
+ * System instruction class for handling DataCurso system instructions.
  */
-class model {
-    /** @var int Model ID */
+class system_instruction {
+    /** @var int System instruction ID */
     public $id;
 
-    /** @var string Model name */
+    /** @var string System instruction name */
     public $name;
 
-    /** @var string Model content */
+    /** @var string System instruction content */
     public $content;
 
     /** @var int Deleted flag */
@@ -52,7 +52,7 @@ class model {
     /**
      * Constructor.
      *
-     * @param int $id Model ID
+     * @param int $id System instruction ID
      */
     public function __construct($id = 0) {
         if ($id > 0) {
@@ -61,7 +61,7 @@ class model {
     }
 
     /**
-     * Load model from database.
+     * Load system instruction from database.
      *
      * @param int $id Model ID
      * @return bool
@@ -69,7 +69,7 @@ class model {
     public function load($id) {
         global $DB;
 
-        $record = $DB->get_record('local_coursegen_model', ['id' => $id, 'deleted' => 0]);
+        $record = $DB->get_record('local_coursegen_system_instruction', ['id' => $id, 'deleted' => 0]);
         if ($record) {
             $this->id = $record->id;
             $this->name = $record->name;
@@ -84,7 +84,7 @@ class model {
     }
 
     /**
-     * Save model to database.
+     * Save system instruction to database.
      *
      * @return bool
      * @throws \moodle_exception
@@ -94,13 +94,13 @@ class model {
 
         // Validate name uniqueness.
         if (!$this->validate_unique_name()) {
-            throw new \moodle_exception('modelnameexists', 'local_coursegen');
+            throw new \moodle_exception('systeminstructionnameexists', 'local_coursegen');
         }
 
         $now = time();
 
         if (empty($this->id)) {
-            // Create new model.
+            // Create new system instruction.
             $record = new \stdClass();
             $record->name = $this->name;
             $record->content = $this->content;
@@ -109,13 +109,13 @@ class model {
             $record->timemodified = $now;
             $record->usermodified = $USER->id;
 
-            $this->id = $DB->insert_record('local_coursegen_model', $record);
+            $this->id = $DB->insert_record('local_coursegen_system_instruction', $record);
             $this->timecreated = $now;
             $this->timemodified = $now;
             $this->usermodified = $USER->id;
             $this->deleted = 0;
         } else {
-            // Update existing model.
+            // Update existing system instruction.
             $record = new \stdClass();
             $record->id = $this->id;
             $record->name = $this->name;
@@ -123,7 +123,7 @@ class model {
             $record->timemodified = $now;
             $record->usermodified = $USER->id;
 
-            $DB->update_record('local_coursegen_model', $record);
+            $DB->update_record('local_coursegen_system_instruction', $record);
             $this->timemodified = $now;
             $this->usermodified = $USER->id;
         }
@@ -132,7 +132,7 @@ class model {
     }
 
     /**
-     * Validate that the model name is unique.
+     * Validate that the system instruction name is unique.
      *
      * @return bool
      */
@@ -146,12 +146,12 @@ class model {
         $name = trim($this->name);
 
         if (!empty($this->id)) {
-            // Editing existing model - exclude current record.
-            $sql = "SELECT id FROM {local_coursegen_model} WHERE name = ? AND deleted = 0 AND id != ?";
+            // Editing existing system instruction - exclude current record.
+            $sql = "SELECT id FROM {local_coursegen_system_instruction} WHERE name = ? AND deleted = 0 AND id != ?";
             $params = [$name, $this->id];
         } else {
-            // Creating new model.
-            $sql = "SELECT id FROM {local_coursegen_model} WHERE name = ? AND deleted = 0";
+            // Creating new system instruction.
+            $sql = "SELECT id FROM {local_coursegen_system_instruction} WHERE name = ? AND deleted = 0";
             $params = [$name];
         }
 
@@ -159,7 +159,7 @@ class model {
     }
 
     /**
-     * Delete model (soft delete).
+     * Delete system instruction (soft delete).
      *
      * @return bool
      */
@@ -167,7 +167,7 @@ class model {
         global $DB;
 
         if (!empty($this->id)) {
-            $DB->set_field('local_coursegen_model', 'deleted', 1, ['id' => $this->id]);
+            $DB->set_field('local_coursegen_system_instruction', 'deleted', 1, ['id' => $this->id]);
             $this->deleted = 1;
             return true;
         }
@@ -175,38 +175,38 @@ class model {
     }
 
     /**
-     * Get all active models.
+     * Get all active system instructions.
      *
      * @return array
      */
     public static function get_all() {
         global $DB;
 
-        return $DB->get_records('local_coursegen_model', ['deleted' => 0], 'timecreated DESC');
+        return $DB->get_records('local_coursegen_system_instruction', ['deleted' => 0], 'timecreated DESC');
     }
 
     /**
-     * Get model by ID.
+     * Get system instruction by ID.
      *
-     * @param int $id Model ID
-     * @return model|null
+     * @param int $id System instruction ID
+     * @return system_instruction|null
      */
     public static function get_by_id($id) {
-        $model = new self();
-        if ($model->load($id)) {
-            return $model;
+        $systeminstruction = new self();
+        if ($systeminstruction->load($id)) {
+            return $systeminstruction;
         }
         return null;
     }
 
     /**
-     * Get model by course ID.
+     * Get system instruction by course ID.
      *
      * @param int $courseid Course ID
      * @return model|null
      */
     public static function get_by_course($courseid) {
         global $DB;
-        return $DB->get_record('local_coursegen_model', ['courseid' => $courseid, 'deleted' => 0]);
+        return $DB->get_record('local_coursegen_system_instruction', ['courseid' => $courseid, 'deleted' => 0]);
     }
 }

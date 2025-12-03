@@ -26,7 +26,7 @@
             </KEYS>
         </TABLE>
         
-        <TABLE NAME="local_coursegen_model" COMMENT="Store models for datacurso">
+        <TABLE NAME="local_coursegen_system_instruction" COMMENT="Store system instructions for datacurso">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
                 <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" />
@@ -42,12 +42,12 @@
             </KEYS>
         </TABLE>
         
-        <TABLE NAME="local_coursegen_course_context" COMMENT="Store course context type and model selection">
+        <TABLE NAME="local_coursegen_course_context" COMMENT="Store course context type and system instruction selection">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
                 <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" />
-                <FIELD NAME="context_type" TYPE="char" LENGTH="20" NOTNULL="false" SEQUENCE="false" COMMENT="Type of context: model, syllabus or customprompt" />
-                <FIELD NAME="model_id" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Selected model ID if context_type is model" />
+                <FIELD NAME="context_type" TYPE="char" LENGTH="20" NOTNULL="false" SEQUENCE="false" COMMENT="Type of context: system_instruction, syllabus or customprompt" />
+                <FIELD NAME="system_instruction_id" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Selected system instruction ID if context_type is system_instruction" />
                 <FIELD NAME="prompt_text" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Custom prompt text when context_type is customprompt" />
                 <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" />
                 <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" />
@@ -56,7 +56,7 @@
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id" />
                 <KEY NAME="courseid" TYPE="foreign" FIELDS="courseid" REFTABLE="course" REFFIELDS="id" />
-                <KEY NAME="model_id" TYPE="foreign" FIELDS="model_id" REFTABLE="local_coursegen_model" REFFIELDS="id" />
+                <KEY NAME="system_instruction_id" TYPE="foreign" FIELDS="system_instruction_id" REFTABLE="local_coursegen_system_instruction" REFFIELDS="id" />
                 <KEY NAME="usermodified" TYPE="foreign" FIELDS="usermodified" REFTABLE="user" REFFIELDS="id" />
             </KEYS>
         </TABLE>
@@ -87,7 +87,7 @@
                 <FIELD NAME="status" TYPE="char" LENGTH="50" NOTNULL="false" SEQUENCE="false" COMMENT="Latest job status e.g. execution_started" />
                 <FIELD NAME="generate_images" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
                 <FIELD NAME="context_type" TYPE="char" LENGTH="20" NOTNULL="false" SEQUENCE="false" />
-                <FIELD NAME="model_name" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" />
+                <FIELD NAME="system_instruction_name" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" />
                 <FIELD NAME="sectionnum" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" />
                 <FIELD NAME="beforemod" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" />
                 <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" />

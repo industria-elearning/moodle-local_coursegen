@@ -136,7 +136,7 @@ final class privacy_provider_test extends provider_testcase {
 
         // There should be one record per user in each table.
         $userfieldmap = [
-            'local_coursegen_model' => 'usermodified',
+            'local_coursegen_system_instruction' => 'usermodified',
             'local_coursegen_course_context' => 'usermodified',
             'local_coursegen_course_sessions' => 'userid',
             'local_coursegen_module_jobs' => 'userid',
@@ -149,7 +149,7 @@ final class privacy_provider_test extends provider_testcase {
 
         provider::delete_data_for_all_users_in_context($user1context);
 
-        $this->assertCount(0, $DB->get_records('local_coursegen_model', ['usermodified' => $user1->id]));
+        $this->assertCount(0, $DB->get_records('local_coursegen_system_instruction', ['usermodified' => $user1->id]));
         $this->assertCount(0, $DB->get_records('local_coursegen_course_context', ['usermodified' => $user1->id]));
         $this->assertCount(0, $DB->get_records('local_coursegen_course_sessions', ['userid' => $user1->id]));
         $this->assertCount(0, $DB->get_records('local_coursegen_module_jobs', ['userid' => $user1->id]));
@@ -192,7 +192,7 @@ final class privacy_provider_test extends provider_testcase {
         $approvedlist = new approved_contextlist($user1, 'local_coursegen', [$user1context->id]);
         provider::delete_data_for_user($approvedlist);
 
-        $this->assertCount(0, $DB->get_records('local_coursegen_model', ['usermodified' => $user1->id]));
+        $this->assertCount(0, $DB->get_records('local_coursegen_system_instruction', ['usermodified' => $user1->id]));
         $this->assertCount(0, $DB->get_records('local_coursegen_course_context', ['usermodified' => $user1->id]));
         $this->assertCount(0, $DB->get_records('local_coursegen_course_sessions', ['userid' => $user1->id]));
         $this->assertCount(0, $DB->get_records('local_coursegen_module_jobs', ['userid' => $user1->id]));
@@ -260,13 +260,13 @@ final class privacy_provider_test extends provider_testcase {
      */
     private function create_userdata(int $userid): array {
         $course = $this->course();
-        $model = $this->create_model($userid);
-        $context = $this->create_course_context($course->id, $model->id, $userid);
+        $systeminstruction = $this->create_system_instruction($userid);
+        $context = $this->create_course_context($course->id, $systeminstruction->id, $userid);
         $session = $this->create_course_session($course->id, $userid);
         $job = $this->create_module_job($course->id, $userid);
 
         return [
-            'local_coursegen_model' => $model,
+            'local_coursegen_system_instruction' => $systeminstruction,
             'local_coursegen_course_context' => $context,
             'local_coursegen_course_sessions' => $session,
             'local_coursegen_module_jobs' => $job,
@@ -292,28 +292,28 @@ final class privacy_provider_test extends provider_testcase {
         $data = (object) [
             'local_coursegen_create_ai_course' => 0,
             'local_coursegen_context_type' => '',
-            'local_coursegen_select_model' => null,
+            'local_coursegen_select_system_instruction' => null,
             'local_coursegen_syllabus_pdf' => 0,
         ];
         return $gen->create_course($data);
     }
 
     /**
-     * Create a model (local_coursegen_model) for a user.
+     * Create a system instruction (local_coursegen_system_instruction) for a user.
      *
      * @param int $userid
      * @return stdClass
      */
-    private function create_model(int $userid): stdClass {
+    private function create_system_instruction(int $userid): stdClass {
         global $DB;
         $record = new stdClass();
-        $record->name = 'Test model';
-        $record->content = 'Model content';
+        $record->name = 'Test system instruction';
+        $record->content = 'System instruction content';
         $record->deleted = 0;
         $record->timecreated = time();
         $record->timemodified = time();
         $record->usermodified = $userid;
-        $record->id = $DB->insert_record('local_coursegen_model', $record);
+        $record->id = $DB->insert_record('local_coursegen_system_instruction', $record);
         return $record;
     }
 
@@ -321,16 +321,16 @@ final class privacy_provider_test extends provider_testcase {
      * Create a course_context record.
      *
      * @param int $courseid
-     * @param int $modelid
+     * @param int $systeminstructionid
      * @param int $userid
      * @return stdClass
      */
-    private function create_course_context(int $courseid, int $modelid, int $userid): stdClass {
+    private function create_course_context(int $courseid, int $systeminstructionid, int $userid): stdClass {
         global $DB;
         $record = new stdClass();
         $record->courseid = $courseid;
-        $record->context_type = ai_context::CONTEXT_TYPE_MODEL;
-        $record->model_id = $modelid;
+        $record->context_type = ai_context::CONTEXT_TYPE_SYSTEM_INSTRUCTION;
+        $record->system_instruction_id = $systeminstructionid;
         $record->timecreated = time();
         $record->timemodified = time();
         $record->usermodified = $userid;
@@ -373,8 +373,8 @@ final class privacy_provider_test extends provider_testcase {
         $record->job_id = 'job_' . bin2hex(random_bytes(4));
         $record->status = 'execution_started';
         $record->generate_images = 0;
-        $record->context_type = ai_context::CONTEXT_TYPE_MODEL;
-        $record->model_name = 'Test model';
+        $record->context_type = ai_context::CONTEXT_TYPE_SYSTEM_INSTRUCTION;
+        $record->system_instruction_name = 'Test system instruction';
         $record->sectionnum = 1;
         $record->beforemod = null;
         $record->timecreated = time();
