@@ -45,13 +45,13 @@ class ai_context {
             $siteid = md5($CFG->wwwroot);
 
             $postdata = [
-                'system_instruction_name' => $model->name,
-                'system_instruction_context' => $model->content,
+                'model_name' => $model->id,
+                'model_context' => $model->content,
                 'site_id' => $siteid,
             ];
 
             $client = new ai_course_api();
-            $client->request('POST', '/context/upload-system-instruction-context', $postdata);
+            $client->request('POST', '/context/upload-model-context', $postdata);
         } catch (\Exception $e) {
             // Show error notification to the user.
             \core\notification::error(get_string('error_upload_failed_system_instruction', 'local_coursegen', $e->getMessage()));
@@ -140,13 +140,13 @@ class ai_context {
      *
      * @param int $courseid Course ID
      * @param string $contexttype Context type (system_instruction, syllabus or customprompt)
-     * @param int|null $modelid Selected system instruction ID (if context type is system instruction)
+     * @param int|null $systeminstructionid Selected system instruction ID (if context type is system instruction)
      * @param string|null $prompttext Custom prompt text (if context type is custom prompt)
      */
     public static function save_course_context(
         int $courseid,
         string $contexttype,
-        ?int $modelid = null,
+        ?int $systeminstructionid = null,
         ?string $prompttext = null
     ): void {
         global $DB, $USER;
@@ -161,7 +161,7 @@ class ai_context {
             $record = new \stdClass();
             $record->id = $existingrecord->id;
             $record->context_type = $contexttype;
-            $record->system_instruction_id = ($contexttype === self::CONTEXT_TYPE_SYSTEM_INSTRUCTION) ? $modelid : null;
+            $record->system_instruction_id = $systeminstructionid;
             $record->prompt_text = $prompttext;
             $record->timemodified = $now;
             $record->usermodified = $USER->id;
@@ -172,7 +172,7 @@ class ai_context {
             $record = new \stdClass();
             $record->courseid = $courseid;
             $record->context_type = $contexttype;
-            $record->system_instruction_id = ($contexttype === self::CONTEXT_TYPE_SYSTEM_INSTRUCTION) ? $modelid : null;
+            $record->system_instruction_id = $systeminstructionid;
             $record->prompt_text = $prompttext;
             $record->timecreated = $now;
             $record->timemodified = $now;

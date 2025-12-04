@@ -34,7 +34,6 @@ class ai_course {
      * @param string $contexttype Context type (model, syllabus or customprompt)
      * @param string|null $modelname Model name for AI processing
      * @param string $coursename Course name
-     * @param string|null $prompttext Custom prompt HTML content when context type is customprompt
      * @param string|null $promptmessage Plain text prompt summary when context type is customprompt
      */
     public static function start_course_planning(
@@ -42,7 +41,6 @@ class ai_course {
         string $contexttype,
         ?string $modelname,
         string $coursename,
-        ?string $prompttext = null,
         ?string $promptmessage = null
     ): void {
         global $CFG;
@@ -60,16 +58,13 @@ class ai_course {
         }
 
         if ($contexttype === ai_context::CONTEXT_TYPE_CUSTOM_PROMPT) {
-            if (!empty($prompttext)) {
-                $requestdata['prompt'] = $prompttext;
-            }
             if (!empty($promptmessage)) {
                 $requestdata['prompt_message'] = $promptmessage;
             }
         }
 
         $client = new ai_course_api();
-        $result = $client->request('POST', '/course/start', $requestdata);
+        $result = $client->request('POST', '/course/v2/start', $requestdata);
 
         if (!isset($result['session_id'])) {
             throw new \moodle_exception('error_starting_course_planning', 'local_coursegen');
