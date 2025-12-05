@@ -178,7 +178,7 @@ final class privacy_provider_test extends provider_testcase {
 
         // There should be one record per user in each table.
         $userfieldmap = [
-            'local_coursegen_model' => 'usermodified',
+            'local_coursegen_system_instruction' => 'usermodified',
             'local_coursegen_course_context' => 'usermodified',
             'local_coursegen_course_sessions' => 'userid',
             'local_coursegen_module_jobs' => 'userid',
