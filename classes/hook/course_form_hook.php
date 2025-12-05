@@ -117,7 +117,11 @@ class course_form_hook {
                 get_string('custom_system_instruction_select_field', 'local_coursegen'),
                 $instructionoptions
             );
-            $mform->addHelpButton('local_coursegen_select_system_instruction', 'custom_system_instruction_select_field', 'local_coursegen');
+            $mform->addHelpButton(
+                'local_coursegen_select_system_instruction',
+                'custom_system_instruction_select_field',
+                'local_coursegen'
+            );
             $mform->hideIf(
                 'local_coursegen_select_system_instruction',
                 'local_coursegen_use_system_instruction',

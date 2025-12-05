@@ -43,7 +43,12 @@ if ($action === 'delete' && $id > 0) {
     if ($confirm && confirm_sesskey()) {
         // Soft delete the system instruction.
         $DB->set_field('local_coursegen_system_instruction', 'deleted', 1, ['id' => $id]);
-        redirect($PAGE->url, get_string('systeminstructiondeleted', 'local_coursegen'), null, \core\output\notification::NOTIFY_SUCCESS);
+        redirect(
+            $PAGE->url,
+            get_string('systeminstructiondeleted', 'local_coursegen'),
+            null,
+            \core\output\notification::NOTIFY_SUCCESS
+        );
     } else {
         // Show confirmation dialog.
         $model = $DB->get_record('local_coursegen_system_instruction', ['id' => $id, 'deleted' => 0], '*', MUST_EXIST);
@@ -51,7 +56,10 @@ if ($action === 'delete' && $id > 0) {
         echo $OUTPUT->header();
         echo $OUTPUT->heading(get_string('deletesysteminstruction', 'local_coursegen'));
 
-        $confirmurl = new moodle_url($PAGE->url, ['action' => 'delete', 'id' => $id, 'confirm' => 1, 'sesskey' => sesskey()]);
+        $confirmurl = new moodle_url(
+            $PAGE->url,
+            ['action' => 'delete', 'id' => $id, 'confirm' => 1, 'sesskey' => sesskey()]
+        );
         $cancelurl = $PAGE->url;
 
         echo $OUTPUT->confirm(
