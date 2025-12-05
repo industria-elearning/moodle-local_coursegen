@@ -58,18 +58,18 @@ class provider implements
                 'courseid', 'custom_text', 'custom_select', 'custom_checkbox', 'custom_textarea', 'custom_date',
                 'timecreated', 'timemodified',
             ],
-            'local_coursegen_model' => [
+            'local_coursegen_system_instruction' => [
                 'name', 'content', 'deleted', 'timecreated', 'timemodified', 'usermodified',
             ],
             'local_coursegen_course_context' => [
-                'courseid', 'context_type', 'model_id', 'prompt_text', 'timecreated', 'timemodified', 'usermodified',
+                'courseid', 'context_type', 'system_instruction_id', 'prompt_text', 'timecreated', 'timemodified', 'usermodified',
             ],
             'local_coursegen_course_sessions' => [
                 'courseid', 'userid', 'session_id', 'status', 'timecreated', 'timemodified',
             ],
             'local_coursegen_module_jobs' => [
                 'courseid', 'userid', 'job_id', 'status', 'generate_images',
-                'context_type', 'model_name', 'sectionnum', 'beforemod',
+                'context_type', 'system_instruction_name', 'sectionnum', 'beforemod',
                 'timecreated', 'timemodified',
             ],
         ];
@@ -229,7 +229,7 @@ class provider implements
     protected static function get_table_user_map(stdClass $user): array {
         // Only include tables with direct user references.
         $tables = [
-            'local_coursegen_model' => ['usermodified' => $user->id],
+            'local_coursegen_system_instruction' => ['usermodified' => $user->id],
             'local_coursegen_course_context' => ['usermodified' => $user->id],
             'local_coursegen_course_sessions' => ['userid' => $user->id],
             'local_coursegen_module_jobs' => ['userid' => $user->id],

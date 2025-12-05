@@ -29,7 +29,7 @@ class module_jobs {
      *
      * @param int $courseid
      * @param string $jobid
-     * @param array $data Additional fields: userid,status,generate_images,context_type,model_name,sectionnum,beforemod
+     * @param array $data Additional fields: userid,status,generate_images,context_type,system_instruction_name,sectionnum,beforemod
      * @return bool
      */
     public static function save_job(int $courseid, string $jobid, array $data = []): bool {
@@ -45,7 +45,7 @@ class module_jobs {
             'status' => $data['status'] ?? null,
             'generate_images' => $data['generate_images'],
             'context_type' => $data['context_type'] ?? null,
-            'model_name' => $data['model_name'] ?? null,
+            'system_instruction_name' => $data['system_instruction_name'] ?? null,
             'sectionnum' => $data['sectionnum'] ?? null,
             'beforemod' => $data['beforemod'] ?? null,
             'timemodified' => $now,

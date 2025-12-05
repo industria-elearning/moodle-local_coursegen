@@ -22,7 +22,7 @@ use core_course\hook\after_form_submission;
 use core_course\hook\after_form_validation;
 use local_coursegen\ai_context;
 use local_coursegen\ai_course;
-use local_coursegen\model;
+use local_coursegen\system_instruction;
 
 /**
  * Hook to extend the course form with custom fields.
@@ -53,7 +53,6 @@ class course_form_hook {
         $contexttypes = [
             '' => get_string('choosedots'),
             ai_context::CONTEXT_TYPE_CUSTOM_PROMPT => get_string('context_type_customprompt', 'local_coursegen'),
-            ai_context::CONTEXT_TYPE_MODEL => get_string('context_type_model', 'local_coursegen'),
             ai_context::CONTEXT_TYPE_SYLLABUS => get_string('context_type_syllabus', 'local_coursegen'),
         ];
         $mform->addElement(
@@ -64,6 +63,7 @@ class course_form_hook {
         );
         $mform->setDefault('local_coursegen_context_type', '');
 
+        // Add custom prompt field (shown only when context type is custom prompt).
         $mform->addElement(
             'textarea',
             'local_coursegen_custom_prompt',
@@ -79,45 +79,7 @@ class course_form_hook {
             ai_context::CONTEXT_TYPE_CUSTOM_PROMPT
         );
 
-        // Get models from the database.
-        $models = model::get_all();
-        $hasmodels = !empty($models);
-        if ($hasmodels) {
-            foreach ($models as $model) {
-                $modeloptions[$model->id] = $model->name;
-            }
-
-            // Add instructional model selector.
-            $mform->addElement(
-                'select',
-                'local_coursegen_select_model',
-                get_string('custom_model_select_field', 'local_coursegen'),
-                $modeloptions
-            );
-            $mform->hideIf(
-                'local_coursegen_select_model',
-                'local_coursegen_context_type',
-                'neq',
-                ai_context::CONTEXT_TYPE_MODEL
-            );
-        } else {
-            // Show notice when there are no models configured (only if the selected context is model).
-            $managemodelsurl = (new \moodle_url('/local/coursegen/manage_models.php'))->out();
-            $mform->addElement(
-                'static',
-                'local_coursegen_select_model_notice',
-                get_string('custom_model_select_field', 'local_coursegen'),
-                get_string('no_models_configured_notice', 'local_coursegen', $managemodelsurl)
-            );
-            $mform->hideIf(
-                'local_coursegen_select_model_notice',
-                'local_coursegen_context_type',
-                'neq',
-                ai_context::CONTEXT_TYPE_MODEL
-            );
-        }
-
-        // Add field to upload syllabus PDF.
+        // Add field to upload syllabus PDF (shown only when context type is syllabus).
         $mform->addElement(
             'filepicker',
             'local_coursegen_syllabus_pdf',
@@ -131,6 +93,55 @@ class course_form_hook {
         );
         $mform->addHelpButton('local_coursegen_syllabus_pdf', 'syllabus_pdf_field', 'local_coursegen');
         $mform->hideIf('local_coursegen_syllabus_pdf', 'local_coursegen_context_type', 'neq', ai_context::CONTEXT_TYPE_SYLLABUS);
+
+        // Add checkbox to enable the use of a system instruction as a complement.
+        $mform->addElement(
+            'advcheckbox',
+            'local_coursegen_use_system_instruction',
+            get_string('use_system_instruction_field', 'local_coursegen')
+        );
+        $mform->addHelpButton('local_coursegen_use_system_instruction', 'use_system_instruction_field', 'local_coursegen');
+
+        // Get system instructions from the database.
+        $instructions = system_instruction::get_all();
+        $hasinstructions = !empty($instructions);
+        if ($hasinstructions) {
+            foreach ($instructions as $instruction) {
+                $instructionoptions[$instruction->id] = $instruction->name;
+            }
+
+            // Add system instruction selector (shown only when the checkbox is enabled).
+            $mform->addElement(
+                'select',
+                'local_coursegen_select_system_instruction',
+                get_string('custom_system_instruction_select_field', 'local_coursegen'),
+                $instructionoptions
+            );
+            $mform->addHelpButton(
+                'local_coursegen_select_system_instruction',
+                'custom_system_instruction_select_field',
+                'local_coursegen'
+            );
+            $mform->hideIf(
+                'local_coursegen_select_system_instruction',
+                'local_coursegen_use_system_instruction',
+                'notchecked'
+            );
+        } else {
+            // Show notice when there are no system instructions configured (only if the checkbox is enabled).
+            $manageinstructionsurl = (new \moodle_url('/local/coursegen/manage_system_instructions.php'))->out();
+            $mform->addElement(
+                'static',
+                'local_coursegen_select_system_instruction_notice',
+                get_string('custom_system_instruction_select_field', 'local_coursegen'),
+                get_string('no_system_instructions_configured_notice', 'local_coursegen', $manageinstructionsurl)
+            );
+            $mform->hideIf(
+                'local_coursegen_select_system_instruction_notice',
+                'local_coursegen_use_system_instruction',
+                'notchecked'
+            );
+        }
 
         // Add hidden field for AI creation to identify the form submission.
         $mform->addElement('hidden', 'local_coursegen_create_ai_course', 0);
@@ -161,15 +172,19 @@ class course_form_hook {
                 ['subdirs' => 0, 'maxfiles' => 1, 'accepted_types' => ['.pdf']]
             );
 
-            // Get saved context type and model selection from database.
+            // Get saved context type and system instruction selection from database.
             $contexttype = '';
-            $selectedmodel = '';
+            $selectedinstruction = '';
+            $useinstruction = 0;
 
             // Get existing course context data from database.
             $contextdata = $DB->get_record('local_coursegen_course_context', ['courseid' => $courseid]);
             if ($contextdata) {
                 $contexttype = $contextdata->context_type;
-                $selectedmodel = $contextdata->model_id;
+                $selectedinstruction = $contextdata->system_instruction_id;
+                if (!empty($selectedinstruction)) {
+                    $useinstruction = 1;
+                }
             }
 
             $prompttext = !empty($contextdata->prompt_text) ? $contextdata->prompt_text : '';
@@ -179,8 +194,9 @@ class course_form_hook {
             $editform->set_data([
                 'local_coursegen_syllabus_pdf' => $draftitemid,
                 'local_coursegen_context_type' => $contexttype,
-                'local_coursegen_select_model' => $selectedmodel,
                 'local_coursegen_custom_prompt' => $prompttext,
+                'local_coursegen_use_system_instruction' => $useinstruction,
+                'local_coursegen_select_system_instruction' => $selectedinstruction,
             ]);
         }
     }
@@ -198,7 +214,7 @@ class course_form_hook {
         $createaicourse = $data->local_coursegen_create_ai_course ?? 0;
         $contexttype = $data->local_coursegen_context_type ?? '';
         $draftitemid = $data->local_coursegen_syllabus_pdf ?? 0;
-        $modelid = $data->local_coursegen_select_model ?? null;
+        $useinstruction = !empty($data->local_coursegen_use_system_instruction);
 
         try {
             if ($contexttype === ai_context::CONTEXT_TYPE_SYLLABUS) {
@@ -210,29 +226,26 @@ class course_form_hook {
                 }
             }
 
-            $selectedmodel = $data->local_coursegen_select_model ?? null;
-            $prompttext = null;
             $promptmessage = null;
 
             if ($contexttype === ai_context::CONTEXT_TYPE_CUSTOM_PROMPT) {
-                $prompttext = trim((string)($data->local_coursegen_custom_prompt ?? ''));
-                if ($prompttext !== '') {
-                    $promptmessage = $prompttext;
-                } else {
-                    $prompttext = null;
-                }
+                $promptmessage = trim($data->local_coursegen_custom_prompt ?? '');
+            }
+
+            $selectedinstruction = null;
+            if ($useinstruction) {
+                $selectedinstruction = $data->local_coursegen_select_system_instruction ?? null;
             }
 
             // Store the context type and selected option in the database.
-            ai_context::save_course_context($courseid, $contexttype, $selectedmodel, $prompttext);
+            ai_context::save_course_context($courseid, $contexttype, $selectedinstruction, $promptmessage);
 
             if (!empty($createaicourse)) {
                 ai_course::start_course_planning(
                     $courseid,
                     $contexttype,
-                    $selectedmodel,
+                    $selectedinstruction,
                     $data->fullname,
-                    $prompttext,
                     $promptmessage
                 );
             }
@@ -256,23 +269,13 @@ class course_form_hook {
 
         $errors = [];
         $contexttype = isset($data['local_coursegen_context_type']) ? (string)$data['local_coursegen_context_type'] : '';
+        $useinstruction = !empty($data['local_coursegen_use_system_instruction']);
         $allowed = [
-            ai_context::CONTEXT_TYPE_MODEL,
             ai_context::CONTEXT_TYPE_SYLLABUS,
             ai_context::CONTEXT_TYPE_CUSTOM_PROMPT,
         ];
         if ($contexttype === '' || !in_array($contexttype, $allowed, true)) {
             $errors['local_coursegen_context_type'] = get_string('error_context_type_required', 'local_coursegen');
-        } else if ($contexttype === ai_context::CONTEXT_TYPE_MODEL) {
-            $models = model::get_all();
-            if (empty($models)) {
-                $errors['local_coursegen_context_type'] = get_string('error_no_models_configured', 'local_coursegen');
-            } else {
-                $modelid = $data['local_coursegen_select_model'] ?? null;
-                if (empty($modelid)) {
-                    $errors['local_coursegen_select_model'] = get_string('error_model_required', 'local_coursegen');
-                }
-            }
         } else if ($contexttype === ai_context::CONTEXT_TYPE_SYLLABUS) {
             $draftitemid = $data['local_coursegen_syllabus_pdf'] ?? 0;
             $info = $draftitemid ? file_get_draft_area_info($draftitemid) : null;
@@ -281,9 +284,26 @@ class course_form_hook {
                 $errors['local_coursegen_syllabus_pdf'] = get_string('error_syllabus_pdf_required', 'local_coursegen');
             }
         } else if ($contexttype === ai_context::CONTEXT_TYPE_CUSTOM_PROMPT) {
-            $prompttext = trim((string)($data['local_coursegen_custom_prompt'] ?? ''));
-            if ($prompttext === '') {
+            $prompttext = trim($data['local_coursegen_custom_prompt'] ?? '');
+            if (empty($prompttext)) {
                 $errors['local_coursegen_custom_prompt'] = get_string('error_prompt_required', 'local_coursegen');
+            }
+        }
+
+        if ($useinstruction) {
+            $instructions = system_instruction::get_all();
+            $instructionid = $data['local_coursegen_select_system_instruction'] ?? null;
+
+            if (empty($instructions)) {
+                $errors['local_coursegen_use_system_instruction'] = get_string(
+                    'error_no_system_instructions_configured',
+                    'local_coursegen'
+                );
+            } else if (empty($instructionid)) {
+                $errors['local_coursegen_select_system_instruction'] = get_string(
+                    'error_system_instruction_required',
+                    'local_coursegen'
+                );
             }
         }
 

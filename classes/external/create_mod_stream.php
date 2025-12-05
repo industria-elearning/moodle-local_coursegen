@@ -105,7 +105,7 @@ class create_mod_stream extends external_api {
                 'message' => $prompt,
                 'generate_images' => ($generateimages == 1),
                 'context_type' => $aicontext ? $aicontext->context_type : null,
-                'model_name' => $aicontext ? $aicontext->name : null,
+                'system_instruction_name' => $aicontext ? $aicontext->name : null,
             ];
 
             $client = new ai_course_api();
@@ -127,7 +127,7 @@ class create_mod_stream extends external_api {
                 'status' => $result['status'] ?? null,
                 'generate_images' => $generateimages,
                 'context_type' => $aicontext ? $aicontext->context_type : null,
-                'model_name' => $aicontext ? $aicontext->name : null,
+                'system_instruction_name' => $aicontext ? $aicontext->name : null,
                 'sectionnum' => $sectionnum,
                 'beforemod' => $beforemod,
             ]);

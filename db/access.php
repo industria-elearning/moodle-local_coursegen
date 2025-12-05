@@ -37,7 +37,7 @@ $capabilities = [
             'editingteacher' => CAP_ALLOW,
         ],
     ],
-    'local/coursegen:managemodels' => [
+    'local/coursegen:managesysteminstructions' => [
         'riskbitmask' => RISK_CONFIG,
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,

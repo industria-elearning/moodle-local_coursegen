@@ -160,5 +160,53 @@ function xmldb_local_coursegen_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025112801, 'local', 'coursegen');
     }
 
+    if ($oldversion < 2025120300) {
+        // Define table local_coursegen_model to be renamed to local_coursegen_system_instruction.
+        $table = new xmldb_table('local_coursegen_model');
+
+        // Launch rename table for local_coursegen_system_instruction.
+        $dbman->rename_table($table, 'local_coursegen_system_instruction');
+
+        // Rename field model_id on table local_coursegen_course_context to system_instruction_id.
+        $table = new xmldb_table('local_coursegen_course_context');
+        $field = new xmldb_field('model_id', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'context_type');
+
+        // Launch rename field system_instruction_id.
+        $dbman->rename_field($table, $field, 'system_instruction_id');
+
+        // Coursegen savepoint reached.
+        upgrade_plugin_savepoint(true, 2025120300, 'local', 'coursegen');
+    }
+
+    if ($oldversion < 2025120302) {
+        // Define key model_id (foreign) to be dropped form local_coursegen_course_context.
+        $table = new xmldb_table('local_coursegen_course_context');
+        $key = new xmldb_key('model_id', XMLDB_KEY_FOREIGN, ['model_id'], 'local_coursegen_system_instruction', ['id']);
+
+        // Launch drop key model_id.
+        $dbman->drop_key($table, $key);
+
+        // Coursegen savepoint reached.
+        upgrade_plugin_savepoint(true, 2025120302, 'local', 'coursegen');
+    }
+
+    if ($oldversion < 2025120303) {
+        // Define key system_instruction_id (foreign) to be added to local_coursegen_course_context.
+        $table = new xmldb_table('local_coursegen_course_context');
+        $key = new xmldb_key(
+            'system_instruction_id',
+            XMLDB_KEY_FOREIGN,
+            ['system_instruction_id'],
+            'local_coursegen_system_instruction',
+            ['id']
+        );
+
+        // Launch add key system_instruction_id.
+        $dbman->add_key($table, $key);
+
+        // Coursegen savepoint reached.
+        upgrade_plugin_savepoint(true, 2025120303, 'local', 'coursegen');
+    }
+
     return true;
 }

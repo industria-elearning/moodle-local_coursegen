@@ -69,31 +69,31 @@ php admin/cli/upgrade.php
 
 to complete the installation from the command line.
 
-## Manage instructional models
+## Manage system instructions
 
-With instructional models, you can define the structure and content of your courses.
-They serve as reusable blueprints (e.g., ADDIE, Gagné) that guide the AI during planning and generation, specifying phases, steps, and constraints the assistant should follow when producing sections, activities, and content.
+System instructions let you define reusable guidance that reinforces the selected context (`Syllabus` or `Custom prompt`) when creating a course.
+They describe how the AI should generate content: tone, structure, level of detail, constraints, and specific rules that must always be respected while producing sections, activities, and resources.
 
-To manage instructional models:
+To manage system instructions:
 
-1. Log in to your Moodle site as an admin and go to `Site administration > Plugins > Course Creator AI > Manage models`.
+1. Log in to your Moodle site as an admin and go to `Site administration > Plugins > Course Creator AI > Manage system instructions`.
    
-  ![Manage models](./_docs/images/local_coursegen_manage_models.png)
+  ![Manage system instructions](./_docs/images/local_coursegen_manage_system_instructions.png)
 
-1. Click on `Add new model` to create a new model.
+1. Click on `Add new system instruction` to create a new instruction.
 
-  ![Add model](./_docs/images/local_coursegen_add_model.png)
+  ![Add system instruction](./_docs/images/local_coursegen_add_system_instruction.png)
 
 2. Fill in the form fields:
-   - **Name**: Enter the name of the instructional model you will use for course design. For example: ADDIE, Gagne, or another recognized framework.
-   - **Description**: Provide the full description of the instructional model, including its phases/steps, purpose, and how it should guide course design.
+   - **Name**: Enter a clear name for the system instruction you will reuse across courses.
+   - **Description**: Provide detailed rules and guidelines the AI must follow when generating course content (e.g. structure of sections and activities, constraints, etc.).
    - Click on `Save changes`.
 
-  ![Model form](./_docs/images/local_coursegen_model_form.png)
+![System instruction form](./_docs/images/local_coursegen_system_instruction_form.png)
 
-3. You can edit or delete models at any time with the `Edit` and `Delete` buttons from the ***Manage models*** page.
+1. You can edit or delete system instructions at any time with the `Edit` and `Delete` buttons from the ***Manage system instructions*** page.
 
-  ![Edit or delete models](./_docs/images/local_coursegen_edit_delete_models.png)
+  ![Edit or delete system instructions](./_docs/images/local_coursegen_edit_or_delete_system_instructions.png)
 
 
 ## Create a Course with Datacurso AI
@@ -110,22 +110,48 @@ Follow these steps to create a new course using the Datacurso AI workflow:
     ![Create course path B](./_docs/images/local_coursegen_create_course_path_b.png)
 
 ### Fill in basic course details
-- Complete standard fields like `Course full name`, `Course short name`, `Course category`, and any other required fields.
+- Complete standard fields like `Course full name`, `Course short name`, `Course category`, `Course format`, and any other  required fields.
 
   ![Fill in basic course details](./_docs/images/local_coursegen_fill_in_basic_course_details.png) 
 
 ### Configure the Datacurso section
-- In the `Datacurso` section, select the **Context Type**:
-  - **Instructional Model** (default): Choose from models created in the section [Manage instructional mode](#manage-instructional-models). A selector labeled **Choose the model to use** will appear, listing yo available models.
-  
-    ![Instructional Model](./_docs/images/local_coursegen_instructional_model.png) 
-  
-  - **Upload Syllabus (PDF)**: Switch to this option to show a file picker labeled **Upload Syllabus PDF** a upload your syllabus.
-  
-    ![Upload Syllabus](./_docs/images/local_coursegen_upload_syllabus.png) 
+
+The `Datacurso` section controls how the AI will understand the course you want to create. It is divided into three main parts:
+
+- **1. Context type**
+  - Use the **Context Type** selector to choose how you will provide the main context for the course:
+    - **Custom prompt**: You describe the course context manually.
+    - **Upload Syllabus (PDF)**: You provide an existing syllabus document.
+
+    ![Context type](./_docs/images/local_coursegen_context_type.png)
+
+- **2. Context details**
+  - **If you choose Custom prompt**
+    - A textarea labeled **Prompt for AI** appears.
+    - Enter a clear and detailed prompt that describes how you want the course to be generated (objectives, student profile, content, level, constraints, examples, etc.).
+    
+    ![Custom prompt](./_docs/images/local_coursegen_custom_prompt.png)
+
+  - **If you choose Upload Syllabus (PDF)**
+    - A file picker labeled **Upload Syllabus PDF** appears.
+    - Upload a PDF with the course syllabus. It will be sent to the AI for context analysis.
+    
+    ![Upload Syllabus](./_docs/images/local_coursegen_upload_syllabus.png)
+
+- **3. Optional system instructions (for any context type)**
+  - You can reinforce **either** context type (`Custom prompt` or `Syllabus`) with a reusable system instruction.
+  - Tick the checkbox **Activate to use a system instruction** to enable this feature.
+  - If there are system instructions configured (see [Manage system instructions](#manage-system-instructions)):
+    - A selector labeled **System instruction to apply** appears with the available options.
+    - The selected system instruction will be applied together with the chosen context (prompt or syllabus) when generating the course.
+  - If there are no system instructions configured:
+    - A notice is shown with a link to the ***Manage system instructions*** page so you can create them.
+
+  ![System instruction to apply](./_docs/images/local_coursegen_system_instruction_to_apply.png)
       
 
 ### Plan with AI
+
 - Click **Create with AI** to start the AI planning process.
 
   ![Create with AI button](./_docs/images/local_coursegen_create_with_ai_button.png)
@@ -173,16 +199,27 @@ If the course **does not have a context yet**, you can set it from the course se
 
 ![Edit settings](./_docs/images/local_coursegen_edit_settings.png)
 
-3. Go to the **Datacurso** section.  
-4. In **Context Type**, choose one of the following options:
+3. Go to the **Datacurso** section. The following options will be displayed:  
 
-  - **Instructional Model** (default): Choose from models created in the section [Manage instructional mode](#manage-instructional-models). A selector labeled **Choose the model to use** will appear, listing yo available models.
-  
-    ![Instructional Model](./_docs/images/local_coursegen_instructional_model.png) 
-  
-  - **Upload Syllabus (PDF)**: Switch to this option to show a file picker labeled **Upload Syllabus PDF** a upload your syllabus.
-  
-    ![Upload Syllabus](./_docs/images/local_coursegen_upload_syllabus.png)  
+- **1. Context type**
+  - Use the **Context Type** selector to choose how you will provide the main context for the course:
+    - **Custom prompt**: You describe the course context manually.
+    - **Upload Syllabus (PDF)**: You provide an existing syllabus document.
+
+    ![Context type](./_docs/images/local_coursegen_context_type.png)
+
+- **2. Context details**
+  - **If you choose Custom prompt**
+    - A textarea labeled **Prompt for AI** appears.
+    - Enter a clear and detailed prompt that describes how you want the course to be generated (objectives, student profile, content, level, constraints, examples, etc.).
+    
+    ![Custom prompt](./_docs/images/local_coursegen_custom_prompt.png)
+
+  - **If you choose Upload Syllabus (PDF)**
+    - A file picker labeled **Upload Syllabus PDF** appears.
+    - Upload a PDF with the course syllabus. It will be sent to the AI for context analysis.
+    
+    ![Upload Syllabus](./_docs/images/local_coursegen_upload_syllabus.png)
 
 Once the Datacurso context is set at the course level, it will be automatically reused for all AI-generated activities within that course.
 
