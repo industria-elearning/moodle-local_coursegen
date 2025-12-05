@@ -35,4 +35,12 @@ if ($hassiteconfig) {
         get_string('managesysteminstructions', 'local_coursegen'),
         new moodle_url('/local/coursegen/manage_system_instructions.php')
     ));
+
+    $ADMIN->add($pluginname, new admin_externalpage(
+        'local_coursegen_edit_system_instruction',
+        get_string('editsysteminstruction', 'local_coursegen'),
+        new moodle_url('/local/coursegen/edit_system_instruction.php'),
+        'moodle/site:config',
+        true
+    ));
 }

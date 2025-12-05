@@ -30,7 +30,7 @@ use local_coursegen\system_instruction;
 use local_coursegen\ai_context;
 
 
-admin_externalpage_setup('local_coursegen_manage_system_instructions');
+admin_externalpage_setup('local_coursegen_edit_system_instruction');
 
 $id = optional_param('id', 0, PARAM_INT);
 
@@ -39,6 +39,8 @@ $context = context_system::instance();
 require_capability('local/coursegen:managesysteminstructions', $context);
 
 $PAGE->set_url('/local/coursegen/edit_system_instruction.php', ['id' => $id]);
+$PAGE->set_pagelayout('admin');
+$PAGE->navigation->override_active_url(new moodle_url('/local/coursegen/manage_system_instructions.php'));
 
 $modelobj = null;
 if ($id > 0) {
@@ -48,10 +50,14 @@ if ($id > 0) {
     }
     $PAGE->set_title(get_string('editsysteminstruction', 'local_coursegen'));
     $PAGE->set_heading(get_string('editsysteminstruction', 'local_coursegen'));
+    // Set navigation breadcrumb.
+    $PAGE->navbar->add(get_string('editsysteminstruction', 'local_coursegen'));
 } else {
     $modelobj = new system_instruction();
     $PAGE->set_title(get_string('addsysteminstruction', 'local_coursegen'));
     $PAGE->set_heading(get_string('addsysteminstruction', 'local_coursegen'));
+    // Set navigation breadcrumb.
+    $PAGE->navbar->add(get_string('addsysteminstruction', 'local_coursegen'));
 }
 
 $form = new system_instruction_form();
