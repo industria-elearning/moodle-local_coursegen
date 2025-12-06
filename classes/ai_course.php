@@ -35,13 +35,15 @@ class ai_course {
      * @param string|null $modelname Model name for AI processing
      * @param string $coursename Course name
      * @param string|null $promptmessage Plain text prompt summary when context type is customprompt
+     * @param string|null $lang Language code to use in the AI request
      */
     public static function start_course_planning(
         int $courseid,
         string $contexttype,
         ?string $modelname,
         string $coursename,
-        ?string $promptmessage = null
+        ?string $promptmessage = null,
+        ?string $lang = null
     ): void {
         global $CFG;
 
@@ -61,6 +63,10 @@ class ai_course {
             if (!empty($promptmessage)) {
                 $requestdata['prompt_message'] = $promptmessage;
             }
+        }
+
+        if (!empty($lang)) {
+            $requestdata['lang'] = $lang;
         }
 
         $client = new ai_course_api();
