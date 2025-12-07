@@ -177,6 +177,7 @@ const clearServerErrors = (form) => {
 };
 
 const showServerErrors = (form, errors) => {
+  let focusField = null;
   Object.entries(errors).forEach(([field, msg]) => {
     if (field === "_general") {
       return;
@@ -199,5 +200,20 @@ const showServerErrors = (form, errors) => {
     feedback.setAttribute("data-from-aicourse", "1");
     feedback.textContent = msg;
     feedback.style.display = "block";
+
+    if (!focusField) {
+      focusField = input;
+    }
   });
+
+  if (focusField) {
+    focusField.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+
+    setTimeout(() => {
+      focusField.focus({preventScroll: true});
+    }, 0);
+  }
 };
