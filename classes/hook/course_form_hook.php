@@ -52,6 +52,7 @@ class course_form_hook {
             'local_coursegen_header',
             get_string('custom_fields_header', 'local_coursegen')
         );
+        $mform->setExpanded('local_coursegen_header', true);
 
         // Add context type selector.
         $contexttypes = [
