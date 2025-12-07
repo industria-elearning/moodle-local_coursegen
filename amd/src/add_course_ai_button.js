@@ -21,7 +21,14 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+import Ajax from "core/ajax";
 import Templates from "core/templates";
+
+const OTHER_FLAG = "data-aicourse-pending";
+const BYPASS_FLAG = "data-aicourse-bypass";
+const VALIDATE_WS = "local_coursegen_validate_course_form";
+const NEW_ACTION_URL =
+  M.cfg.wwwroot + "/local/coursegen/createcourseai.php";
 
 /**
  * Initialize the AI button functionality
@@ -34,6 +41,11 @@ export const init = () => {
  * Add the AI button before the submit button
  */
 const addAIButton = async () => {
+  const form = document.querySelector("form.mform");
+  if (!form) {
+    return;
+  }
+
   // Find the submit form element
   const submitElement = document.querySelector(".mb-3.fitem.form-submit");
 
@@ -53,23 +65,82 @@ const addAIButton = async () => {
   const button = document.querySelector(
     '[data-action="local_coursegen/add_ai_course"]'
   );
-  button.addEventListener("click", handleAIButtonClick);
+  if (!button) {
+    return;
+  }
+
+  const originalAction = form.getAttribute("action") || window.location.href;
+
+  button.addEventListener("click", () => {
+    form.setAttribute(OTHER_FLAG, "1");
+    form.addEventListener(
+      "submit",
+      (e) => onAICourseSubmit(e, form, originalAction),
+      {once: true}
+    );
+  });
 };
 
 /**
  * Handle the AI button click event
  * @param {Event} e - The click event
+ * @param {HTMLFormElement} form - The course edit form element
+ * @param {string} originalAction - The original form action URL
  */
-const handleAIButtonClick = async (e) => {
-  e.preventDefault();
-  const btn = e.currentTarget;
-  if (btn) {
-    btn.setAttribute("disabled", "disabled");
-    btn.classList.add("disabled");
+const onAICourseSubmit = async (e, form, originalAction) => {
+  if (!form.hasAttribute(OTHER_FLAG)) {
+    return;
+  }
+  if (form.hasAttribute(BYPASS_FLAG)) {
+    return;
   }
 
-  document.querySelector('input[name="local_coursegen_create_ai_course"]').value = 1;
-  document.querySelector('input[name="saveanddisplay"]').click();
+  if (e.defaultPrevented) {
+    form.removeAttribute(OTHER_FLAG);
+    return;
+  }
+
+  e.preventDefault();
+
+  clearServerErrors(form);
+
+  const hiddenFlag = form.querySelector(
+    'input[name="local_coursegen_create_ai_course"]'
+  );
+  if (hiddenFlag) {
+    hiddenFlag.value = 1;
+  }
+
+  const payload = new URLSearchParams(new FormData(form)).toString();
+
+  try {
+    const result = await Ajax.call([
+      {
+        methodname: VALIDATE_WS,
+        args: { payload },
+      },
+    ])[0];
+
+    if (!result.ok) {
+      const errorsMap = {};
+      (result.errors || []).forEach((err) => {
+        errorsMap[err.field] = err.msg;
+      });
+
+      showServerErrors(form, errorsMap);
+      form.setAttribute("action", originalAction);
+      return;
+    }
+
+    form.setAttribute(BYPASS_FLAG, "1");
+    form.setAttribute("action", NEW_ACTION_URL);
+    form.submit();
+  } catch (err) {
+    form.setAttribute("action", originalAction);
+  } finally {
+    form.removeAttribute(BYPASS_FLAG);
+    form.removeAttribute(OTHER_FLAG);
+  }
 };
 
 /**
@@ -92,4 +163,41 @@ const insertAIButton = async (targetElement) => {
 
   // Insert before the submit element
   targetElement.parentNode.insertBefore(buttonContainer, targetElement);
+};
+
+const clearServerErrors = (form) => {
+  form.querySelectorAll(".is-invalid").forEach((el) =>
+    el.classList.remove("is-invalid")
+  );
+  form
+    .querySelectorAll(
+      '.form-control-feedback.invalid-feedback[data-from-aicourse="1"]'
+    )
+    .forEach((el) => el.remove());
+};
+
+const showServerErrors = (form, errors) => {
+  Object.entries(errors).forEach(([field, msg]) => {
+    if (field === "_general") {
+      return;
+    }
+
+    const input = form.querySelector(`#id_${field}`);
+    if (!input) {
+      return;
+    }
+
+    input.classList.add("is-invalid");
+
+    let feedback = form.querySelector(`#id_error_${field}`);
+    if (!feedback) {
+      feedback = document.createElement("div");
+      feedback.className = "form-control-feedback invalid-feedback";
+      input.insertAdjacentElement("afterend", feedback);
+    }
+
+    feedback.setAttribute("data-from-aicourse", "1");
+    feedback.textContent = msg;
+    feedback.style.display = "block";
+  });
 };
