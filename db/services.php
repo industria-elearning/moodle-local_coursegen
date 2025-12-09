@@ -76,4 +76,12 @@ $functions = [
         'ajax' => true,
         'loginrequired' => true,
     ],
+    'local_coursegen_process_course_form' => [
+        'classname' => 'local_coursegen\\external\\process_course_form',
+        'methodname' => 'execute',
+        'description' => 'Store full course edit form payload for AI processing',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
 ];
