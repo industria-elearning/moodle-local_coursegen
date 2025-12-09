@@ -117,7 +117,9 @@ class chat_hook {
         global $PAGE, $COURSE, $CFG, $SESSION;
 
         // Check if we are on course/view.php page.
-        if ($PAGE->url->get_path() !== '/course/view.php') {
+        $path = $PAGE->url->get_path();
+        $iscourseviewpage = strpos($path, '/course/view.php') !== false;
+        if (!$iscourseviewpage) {
             return;
         }
 
