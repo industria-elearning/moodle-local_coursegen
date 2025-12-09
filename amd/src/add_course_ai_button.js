@@ -23,12 +23,12 @@
 
 import Ajax from "core/ajax";
 import Templates from "core/templates";
+import Notification from "core/notification";
+import * as FormEvents from "core_form/events";
+import * as FormChangeChecker from "core_form/changechecker";
 
-const OTHER_FLAG = "data-aicourse-pending";
-const BYPASS_FLAG = "data-aicourse-bypass";
 const VALIDATE_WS = "local_coursegen_validate_course_form";
-const NEW_ACTION_URL =
-  M.cfg.wwwroot + "/local/coursegen/createcourseai.php";
+const PROCESS_WS = "local_coursegen_process_course_form";
 
 /**
  * Initialize the AI button functionality
@@ -40,7 +40,7 @@ export const init = () => {
 /**
  * Add the AI button before the submit button
  */
-const addAIButton = async () => {
+const addAIButton = async() => {
   const form = document.querySelector("form.mform");
   if (!form) {
     return;
@@ -69,85 +69,80 @@ const addAIButton = async () => {
     return;
   }
 
-  const originalAction = form.getAttribute("action") || window.location.href;
+  button.addEventListener("click", async(e) => {
+    e.preventDefault();
 
-  button.addEventListener("click", () => {
-    form.setAttribute(OTHER_FLAG, "1");
-    form.addEventListener(
-      "submit",
-      (e) => onAICourseSubmit(e, form, originalAction),
-      {once: true}
-    );
-  });
-};
-
-/**
- * Handle the AI button click event
- * @param {Event} e - The click event
- * @param {HTMLFormElement} form - The course edit form element
- * @param {string} originalAction - The original form action URL
- */
-const onAICourseSubmit = async (e, form, originalAction) => {
-  if (!form.hasAttribute(OTHER_FLAG)) {
-    return;
-  }
-  if (form.hasAttribute(BYPASS_FLAG)) {
-    return;
-  }
-
-  if (e.defaultPrevented) {
-    form.removeAttribute(OTHER_FLAG);
-    return;
-  }
-
-  e.preventDefault();
-
-  clearServerErrors(form);
-
-  const hiddenFlag = form.querySelector(
-    'input[name="local_coursegen_create_ai_course"]'
-  );
-  if (hiddenFlag) {
-    hiddenFlag.value = 1;
-  }
-
-  const payload = new URLSearchParams(new FormData(form)).toString();
-
-  try {
-    const result = await Ajax.call([
-      {
-        methodname: VALIDATE_WS,
-        args: { payload },
-      },
-    ])[0];
-
-    if (!result.ok) {
-      const errorsMap = {};
-      (result.errors || []).forEach((err) => {
-        errorsMap[err.field] = err.msg;
-      });
-
-      showServerErrors(form, errorsMap);
-      form.setAttribute("action", originalAction);
+    // If we found invalid fields, focus on the first one and do not submit via ajax.
+    if (!validateElements(form)) {
       return;
     }
 
-    form.setAttribute(BYPASS_FLAG, "1");
-    form.setAttribute("action", NEW_ACTION_URL);
-    form.submit();
-  } catch (err) {
-    form.setAttribute("action", originalAction);
-  } finally {
-    form.removeAttribute(BYPASS_FLAG);
-    form.removeAttribute(OTHER_FLAG);
-  }
+    disableButtons(form);
+    clearServerErrors(form);
+
+    const hiddenFlag = form.querySelector(
+      'input[name="local_coursegen_create_ai_course"]'
+    );
+    if (hiddenFlag) {
+      hiddenFlag.value = 1;
+    }
+
+    const formData = new URLSearchParams(new FormData(form)).toString();
+
+    try {
+      // Primero, validación servidor.
+      const validation = await Ajax.call([
+        {
+          methodname: VALIDATE_WS,
+          args: {payload: formData},
+        },
+      ])[0];
+
+      if (!validation.ok) {
+        const errorsMap = {};
+        (validation.errors || []).forEach((err) => {
+          errorsMap[err.field] = err.msg;
+        });
+        showServerErrors(form, errorsMap);
+        enableButtons(form);
+        return;
+      }
+
+      // Si la validación OK, procesar vía webservice dinámico.
+      const response = await Ajax.call([
+        {
+          methodname: PROCESS_WS,
+          args: {formdata: formData},
+        },
+      ])[0];
+
+      if (!response.submitted) {
+        enableButtons(form);
+        return;
+      }
+
+      const data = response.data || {};
+
+      // Form was submitted properly: limpiar estado dirty y redirigir.
+      FormEvents.notifyFormSubmittedByJavascript(form, true);
+      FormChangeChecker.resetFormDirtyState(form);
+      enableButtons(form);
+
+      if (data.redirecturl) {
+        window.location.href = data.redirecturl;
+      }
+    } catch (err) {
+      enableButtons(form);
+      Notification.exception(err);
+    }
+  });
 };
 
 /**
  * Insert the AI button before the target element
  * @param {Element} targetElement - The element before which to insert the button
  */
-const insertAIButton = async (targetElement) => {
+const insertAIButton = async(targetElement) => {
   // Check if button already exists to avoid duplicates
   if (document.querySelector('[data-action="local_coursegen/add_ai_course"]')) {
     return;
@@ -163,6 +158,39 @@ const insertAIButton = async (targetElement) => {
 
   // Insert before the submit element
   targetElement.parentNode.insertBefore(buttonContainer, targetElement);
+};
+
+const validateElements = (form) => {
+  // Notificar envío JS (resetea autosave Atto, etc.).
+  FormEvents.notifyFormSubmittedByJavascript(form);
+
+  // Ahora verificamos campos inválidos.
+  const invalid = [...form.querySelectorAll('[aria-invalid="true"], .error')];
+  if (invalid.length) {
+    const focusField = invalid[0];
+    focusField.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+    setTimeout(() => {
+      focusField.focus({preventScroll: true});
+    }, 0);
+    return false;
+  }
+
+  return true;
+};
+
+const disableButtons = (form) => {
+  form
+    .querySelectorAll('input[type="submit"], button[type="submit"]')
+    .forEach((el) => el.setAttribute("disabled", true));
+};
+
+const enableButtons = (form) => {
+  form
+    .querySelectorAll('input[type="submit"], button[type="submit"]')
+    .forEach((el) => el.removeAttribute("disabled"));
 };
 
 const clearServerErrors = (form) => {
