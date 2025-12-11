@@ -48,6 +48,25 @@ class course_form_hook {
             'local_coursegen_header',
             get_string('custom_fields_header', 'local_coursegen')
         );
+        $mform->setExpanded('local_coursegen_header', true);
+
+        // Add option to generate images for the course.
+        $mform->addElement(
+            'select',
+            'local_coursegen_generate_images',
+            get_string('course_generate_images_field', 'local_coursegen'),
+            [
+                0 => get_string('noimages', 'local_coursegen'),
+                1 => get_string('yesimages', 'local_coursegen'),
+            ]
+        );
+        $mform->setType('local_coursegen_generate_images', PARAM_INT);
+        $mform->setDefault('local_coursegen_generate_images', 0);
+        $mform->addHelpButton(
+            'local_coursegen_generate_images',
+            'course_generate_images_field',
+            'local_coursegen'
+        );
 
         // Add context type selector.
         $contexttypes = [
@@ -98,7 +117,8 @@ class course_form_hook {
         $mform->addElement(
             'advcheckbox',
             'local_coursegen_use_system_instruction',
-            get_string('use_system_instruction_field', 'local_coursegen')
+            get_string('use_system_instruction_field', 'local_coursegen'),
+            get_string('use_system_instruction_field_label', 'local_coursegen')
         );
         $mform->addHelpButton('local_coursegen_use_system_instruction', 'use_system_instruction_field', 'local_coursegen');
 
@@ -197,6 +217,7 @@ class course_form_hook {
                 'local_coursegen_custom_prompt' => $prompttext,
                 'local_coursegen_use_system_instruction' => $useinstruction,
                 'local_coursegen_select_system_instruction' => $selectedinstruction,
+                'local_coursegen_generate_images' => 0,
             ]);
         }
     }
@@ -215,6 +236,7 @@ class course_form_hook {
         $contexttype = $data->local_coursegen_context_type ?? '';
         $draftitemid = $data->local_coursegen_syllabus_pdf ?? 0;
         $useinstruction = !empty($data->local_coursegen_use_system_instruction);
+        $generateimages = $data->local_coursegen_generate_images ?? 0;
 
         try {
             if ($contexttype === ai_context::CONTEXT_TYPE_SYLLABUS) {
@@ -246,7 +268,8 @@ class course_form_hook {
                     $contexttype,
                     $selectedinstruction,
                     $data->fullname,
-                    $promptmessage
+                    $promptmessage,
+                    $generateimages
                 );
             }
         } catch (\Exception $e) {
