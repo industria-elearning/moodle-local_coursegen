@@ -116,16 +116,23 @@ Follow these steps to create a new course using the Datacurso AI workflow:
 
 ### Configure the Datacurso section
 
-The `Datacurso` section controls how the AI will understand the course you want to create. It is divided into three main parts:
+The `Datacurso` section lets you define the context that the AI will use to understand the course you want to create and whether it should generate images. It is divided into four main configuration areas:
 
-- **1. Context type**
+- **1. Images for the course**
+  - Use the **Images for the course** selector to decide whether the AI should generate images for sections, activities and other visual elements of the course.
+  - By default this is set to **Do not generate images**.
+  - **Important:** Enabling image generation may drastically increase the number of credits consumed in your Datacurso AI Provider license key, because each generated image uses additional credits.
+
+  ![Image generation option](./_docs/images/local_coursegen_image_generation_option.png)
+
+- **2. Context type**
   - Use the **Context Type** selector to choose how you will provide the main context for the course:
     - **Custom prompt**: You describe the course context manually.
     - **Upload Syllabus (PDF)**: You provide an existing syllabus document.
 
     ![Context type](./_docs/images/local_coursegen_context_type.png)
 
-- **2. Context details**
+- **3. Context details**
   - **If you choose Custom prompt**
     - A textarea labeled **Prompt for AI** appears.
     - Enter a clear and detailed prompt that describes how you want the course to be generated (objectives, student profile, content, level, constraints, examples, etc.).
@@ -138,9 +145,9 @@ The `Datacurso` section controls how the AI will understand the course you want 
     
     ![Upload Syllabus](./_docs/images/local_coursegen_upload_syllabus.png)
 
-- **3. Optional system instructions (for any context type)**
+- **4. Optional system instructions (for any context type)**
   - You can reinforce **either** context type (`Custom prompt` or `Syllabus`) with a reusable system instruction.
-  - Tick the checkbox **Activate to use a system instruction** to enable this feature.
+  - Tick the checkbox **Check to use a system instruction** to enable this feature.
   - If there are system instructions configured (see [Manage system instructions](#manage-system-instructions)):
     - A selector labeled **System instruction to apply** appears with the available options.
     - The selected system instruction will be applied together with the chosen context (prompt or syllabus) when generating the course.
@@ -148,7 +155,6 @@ The `Datacurso` section controls how the AI will understand the course you want 
     - A notice is shown with a link to the ***Manage system instructions*** page so you can create them.
 
   ![System instruction to apply](./_docs/images/local_coursegen_system_instruction_to_apply.png)
-      
 
 ### Plan with AI
 
