@@ -36,6 +36,7 @@ class ai_course {
      * @param string $coursename Course name
      * @param string|null $promptmessage Plain text prompt summary when context type is customprompt
      * @param int $generateimages 1 indicates AI could generate images, 0 indicates AI could not generate images
+     * @param string|null $lang Language code to use in the AI request
      */
     public static function start_course_planning(
         int $courseid,
@@ -43,7 +44,8 @@ class ai_course {
         ?string $modelname,
         string $coursename,
         ?string $promptmessage = null,
-        int $generateimages = 0
+        int $generateimages = 0,
+        ?string $lang = null
     ): void {
         global $CFG;
 
@@ -67,6 +69,9 @@ class ai_course {
 
         // Whether the AI service should generate images for this course.
         $requestdata['generate_images'] = $generateimages === 1;
+        if (!empty($lang)) {
+            $requestdata['lang'] = $lang;
+        }
 
         $client = new ai_course_api();
         $result = $client->request('POST', '/course/v2/start', $requestdata);
