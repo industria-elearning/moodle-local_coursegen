@@ -50,6 +50,28 @@ class course_form_hook {
         );
         $mform->setExpanded('local_coursegen_header', true);
 
+        $languages = get_string_manager()->get_list_of_languages(null, 'iso6391');
+        $options = [];
+        foreach ($languages as $code => $name) {
+            $options[$code] = "$name ($code)";
+        }
+        $attributes = [
+            'multiple' => false,
+            'noselectionstring' => get_string('choosedots'),
+        ];
+        $mform->addElement(
+            'autocomplete',
+            'local_coursegen_lang',
+            get_string('language'),
+            $options,
+            $attributes
+        );
+
+        // Default to the current user language, matching available codes when possible.
+        $defaultcode = current_language();
+
+        $mform->setDefault('local_coursegen_lang', $defaultcode);
+
         // Add option to generate images for the course.
         $mform->addElement(
             'select',
@@ -81,28 +103,6 @@ class course_form_hook {
             $contexttypes
         );
         $mform->setDefault('local_coursegen_context_type', '');
-
-        $languages = get_string_manager()->get_list_of_languages(null, 'iso6391');
-        $options = [];
-        foreach ($languages as $code => $name) {
-            $options[$code] = "$name ($code)";
-        }
-        $attributes = [
-            'multiple' => false,
-            'noselectionstring' => get_string('choosedots'),
-        ];
-        $mform->addElement(
-            'autocomplete',
-            'local_coursegen_lang',
-            get_string('language'),
-            $options,
-            $attributes
-        );
-
-        // Default to the current user language, matching available codes when possible.
-        $defaultcode = current_language();
-
-        $mform->setDefault('local_coursegen_lang', $defaultcode);
 
         // Add custom prompt field (shown only when context type is custom prompt).
         $mform->addElement(
