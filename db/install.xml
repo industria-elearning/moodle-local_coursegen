@@ -48,6 +48,7 @@
                 <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" />
                 <FIELD NAME="context_type" TYPE="char" LENGTH="20" NOTNULL="false" SEQUENCE="false" COMMENT="Type of context: system_instruction, syllabus or customprompt" />
                 <FIELD NAME="system_instruction_id" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Selected system instruction ID if context_type is system_instruction" />
+                <FIELD NAME="lang" TYPE="char" LENGTH="20" NOTNULL="false" SEQUENCE="false" COMMENT="Language code to use in the AI requests. Example: es, en, etc." />
                 <FIELD NAME="prompt_text" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Custom prompt text when context_type is customprompt" />
                 <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" />
                 <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" />
