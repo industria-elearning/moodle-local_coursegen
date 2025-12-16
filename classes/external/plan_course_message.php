@@ -94,11 +94,17 @@ class plan_course_message extends external_api {
                 ];
             }
 
+            $lang = $DB->get_field('local_coursegen_course_context', 'lang', ['courseid' => $courseid]);
+
             // Prepare the request data.
             $requestdata = [
                 'session_id' => $session->session_id,
                 'text' => $text,
             ];
+
+            if (!empty($lang)) {
+                $requestdata['lang'] = $lang;
+            }
 
             $client = new ai_course_api();
             $result = $client->request('POST', '/course/message', $requestdata);

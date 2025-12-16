@@ -62,12 +62,12 @@ class course_form_hook {
         $mform->addElement(
             'autocomplete',
             'local_coursegen_lang',
-            get_string('language'),
+            get_string('ai_response_language', 'local_coursegen'),
             $options,
             $attributes
         );
 
-        $mform->addHelpButton('local_coursegen_lang', 'course_ai_language', 'local_coursegen');
+        $mform->addHelpButton('local_coursegen_lang', 'ai_response_language', 'local_coursegen');
 
         // Default to the current user language, matching available codes when possible.
         $defaultcode = current_language();
@@ -231,6 +231,7 @@ class course_form_hook {
             }
 
             $prompttext = !empty($contextdata->prompt_text) ? $contextdata->prompt_text : '';
+            $selectedlang = !empty($contextdata->lang) ? $contextdata->lang : '';
 
             $editform = $hook->formwrapper;
 
@@ -238,6 +239,7 @@ class course_form_hook {
                 'local_coursegen_syllabus_pdf' => $draftitemid,
                 'local_coursegen_context_type' => $contexttype,
                 'local_coursegen_custom_prompt' => $prompttext,
+                'local_coursegen_lang' => $selectedlang,
                 'local_coursegen_use_system_instruction' => $useinstruction,
                 'local_coursegen_select_system_instruction' => $selectedinstruction,
                 'local_coursegen_generate_images' => 0,
@@ -284,7 +286,7 @@ class course_form_hook {
             }
 
             // Store the context type and selected option in the database.
-            ai_context::save_course_context($courseid, $contexttype, $selectedinstruction, $promptmessage);
+            ai_context::save_course_context($courseid, $contexttype, $selectedinstruction, $selectedlang, $promptmessage);
 
             if (!empty($createaicourse)) {
                 ai_course::start_course_planning(
