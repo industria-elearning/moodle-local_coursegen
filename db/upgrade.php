@@ -208,5 +208,19 @@ function xmldb_local_coursegen_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025120303, 'local', 'coursegen');
     }
 
+    if ($oldversion < 2025121601) {
+        // Define field lang to be added to local_coursegen_course_context.
+        $table = new xmldb_table('local_coursegen_course_context');
+        $field = new xmldb_field('lang', XMLDB_TYPE_CHAR, '20', null, null, null, null, 'system_instruction_id');
+
+        // Conditionally launch add field lang.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Coursegen savepoint reached.
+        upgrade_plugin_savepoint(true, 2025121601, 'local', 'coursegen');
+    }
+
     return true;
 }

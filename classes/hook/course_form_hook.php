@@ -50,6 +50,29 @@ class course_form_hook {
         );
         $mform->setExpanded('local_coursegen_header', true);
 
+        $languages = get_string_manager()->get_list_of_languages(null, 'iso6391');
+        $options = [];
+        foreach ($languages as $code => $name) {
+            $options[$code] = "$name ($code)";
+        }
+        $attributes = [
+            'multiple' => false,
+            'noselectionstring' => get_string('choosedots'),
+        ];
+        $mform->addElement(
+            'autocomplete',
+            'local_coursegen_lang',
+            get_string('ai_response_language', 'local_coursegen'),
+            $options,
+            $attributes
+        );
+
+        $mform->addHelpButton('local_coursegen_lang', 'ai_response_language', 'local_coursegen');
+
+        // Default to the current user language, matching available codes when possible.
+        $defaultcode = current_language();
+        $mform->setDefault('local_coursegen_lang', $defaultcode);
+
         // Add option to generate images for the course.
         $mform->addElement(
             'select',
@@ -208,6 +231,7 @@ class course_form_hook {
             }
 
             $prompttext = !empty($contextdata->prompt_text) ? $contextdata->prompt_text : '';
+            $selectedlang = !empty($contextdata->lang) ? $contextdata->lang : '';
 
             $editform = $hook->formwrapper;
 
@@ -215,6 +239,7 @@ class course_form_hook {
                 'local_coursegen_syllabus_pdf' => $draftitemid,
                 'local_coursegen_context_type' => $contexttype,
                 'local_coursegen_custom_prompt' => $prompttext,
+                'local_coursegen_lang' => $selectedlang,
                 'local_coursegen_use_system_instruction' => $useinstruction,
                 'local_coursegen_select_system_instruction' => $selectedinstruction,
                 'local_coursegen_generate_images' => 0,
@@ -237,6 +262,7 @@ class course_form_hook {
         $draftitemid = $data->local_coursegen_syllabus_pdf ?? 0;
         $useinstruction = !empty($data->local_coursegen_use_system_instruction);
         $generateimages = $data->local_coursegen_generate_images ?? 0;
+        $selectedlang = $data->local_coursegen_lang ?? null;
 
         try {
             if ($contexttype === ai_context::CONTEXT_TYPE_SYLLABUS) {
@@ -260,7 +286,7 @@ class course_form_hook {
             }
 
             // Store the context type and selected option in the database.
-            ai_context::save_course_context($courseid, $contexttype, $selectedinstruction, $promptmessage);
+            ai_context::save_course_context($courseid, $contexttype, $selectedinstruction, $selectedlang, $promptmessage);
 
             if (!empty($createaicourse)) {
                 ai_course::start_course_planning(
@@ -269,7 +295,8 @@ class course_form_hook {
                     $selectedinstruction,
                     $data->fullname,
                     $promptmessage,
-                    $generateimages
+                    $generateimages,
+                    $selectedlang
                 );
             }
         } catch (\Exception $e) {

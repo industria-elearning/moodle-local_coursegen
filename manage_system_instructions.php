@@ -63,7 +63,8 @@ if ($action === 'delete' && $id > 0) {
         $cancelurl = $PAGE->url;
 
         echo $OUTPUT->confirm(
-            get_string('confirmdeletesysteminstruction', 'local_coursegen') . '<br><strong>' . format_string($model->name) . '</strong>',
+            get_string('confirmdeletesysteminstruction', 'local_coursegen') .
+                '<br><strong>' . format_string($model->name) . '</strong>',
             $confirmurl,
             $cancelurl
         );

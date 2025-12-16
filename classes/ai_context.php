@@ -141,12 +141,14 @@ class ai_context {
      * @param int $courseid Course ID
      * @param string $contexttype Context type (system_instruction, syllabus or customprompt)
      * @param int|null $systeminstructionid Selected system instruction ID (if context type is system instruction)
+     * @param string|null $lang Language code to use in the AI requests
      * @param string|null $prompttext Custom prompt text (if context type is custom prompt)
      */
     public static function save_course_context(
         int $courseid,
         string $contexttype,
         ?int $systeminstructionid = null,
+        ?string $lang = null,
         ?string $prompttext = null
     ): void {
         global $DB, $USER;
@@ -162,6 +164,7 @@ class ai_context {
             $record->id = $existingrecord->id;
             $record->context_type = $contexttype;
             $record->system_instruction_id = $systeminstructionid;
+            $record->lang = $lang;
             $record->prompt_text = $prompttext;
             $record->timemodified = $now;
             $record->usermodified = $USER->id;
@@ -173,6 +176,7 @@ class ai_context {
             $record->courseid = $courseid;
             $record->context_type = $contexttype;
             $record->system_instruction_id = $systeminstructionid;
+            $record->lang = $lang;
             $record->prompt_text = $prompttext;
             $record->timecreated = $now;
             $record->timemodified = $now;
@@ -192,7 +196,7 @@ class ai_context {
         global $DB;
 
         $aicontext = $DB->get_record_sql(
-            'SELECT cc.context_type, cc.prompt_text, si.name AS system_instruction_name
+            'SELECT cc.context_type, cc.prompt_text, cc.lang, si.name AS system_instruction_name
             FROM
                 {local_coursegen_course_context} cc
                 LEFT JOIN {local_coursegen_system_instruction} si ON cc.system_instruction_id = si.id
