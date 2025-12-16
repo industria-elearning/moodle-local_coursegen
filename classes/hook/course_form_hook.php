@@ -67,9 +67,10 @@ class course_form_hook {
             $attributes
         );
 
+        $mform->addHelpButton('local_coursegen_lang', 'course_ai_language', 'local_coursegen');
+
         // Default to the current user language, matching available codes when possible.
         $defaultcode = current_language();
-
         $mform->setDefault('local_coursegen_lang', $defaultcode);
 
         // Add option to generate images for the course.
