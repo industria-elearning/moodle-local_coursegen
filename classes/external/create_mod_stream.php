@@ -108,7 +108,10 @@ class create_mod_stream extends external_api {
                 'system_instruction_name' => $aicontext ? $aicontext->name : null,
             ];
 
-            $client = new ai_course_api();
+            $baseurl = get_config('local_coursegen', 'datacurso_service_url') ?: null;
+            $baseurleu = get_config('local_coursegen', 'datacurso_service_url_eu') ?: null;
+
+            $client = new ai_course_api(null, $baseurl, $baseurleu);
             $result = $client->request('POST', '/resources/create-mod?stream=true', $payload);
 
             if (!isset($result['job_id'])) {

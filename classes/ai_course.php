@@ -73,7 +73,10 @@ class ai_course {
             $requestdata['lang'] = $lang;
         }
 
-        $client = new ai_course_api();
+        $baseurl = get_config('local_coursegen', 'datacurso_service_url') ?: null;
+        $baseurleu = get_config('local_coursegen', 'datacurso_service_url_eu') ?: null;
+
+        $client = new ai_course_api(null, $baseurl, $baseurleu);
         $result = $client->request('POST', '/course/v2/start', $requestdata);
 
         if (!isset($result['session_id'])) {

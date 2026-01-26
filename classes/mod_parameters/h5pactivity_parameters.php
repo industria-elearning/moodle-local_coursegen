@@ -37,7 +37,10 @@ class h5pactivity_parameters extends base_parameters {
      */
     public function get_parameters() {
         $modsettings = $this->parameters->mod_settings;
-        $client = new ai_course_api();
+        $baseurl = get_config('local_coursegen', 'datacurso_service_url') ?: null;
+        $baseurleu = get_config('local_coursegen', 'datacurso_service_url_eu') ?: null;
+
+        $client = new ai_course_api(null, $baseurl, $baseurleu);
         $endpoint = '/files/download?path=' . $modsettings['file_path'];
         $file = $client->download_file($endpoint, $modsettings['file_name']);
         $this->parameters->packagefile = $file->get_itemid();

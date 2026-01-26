@@ -50,7 +50,10 @@ class ai_context {
                 'site_id' => $siteid,
             ];
 
-            $client = new ai_course_api();
+            $baseurl = get_config('local_coursegen', 'datacurso_service_url') ?: null;
+            $baseurleu = get_config('local_coursegen', 'datacurso_service_url_eu') ?: null;
+
+            $client = new ai_course_api(null, $baseurl, $baseurleu);
             $client->request('POST', '/context/upload-model-context', $postdata);
         } catch (\Exception $e) {
             // Show error notification to the user.
@@ -91,7 +94,10 @@ class ai_context {
             'course_id' => $courseid,
         ];
 
-        $client = new ai_course_api();
+        $baseurl = get_config('local_coursegen', 'datacurso_service_url') ?: null;
+        $baseurleu = get_config('local_coursegen', 'datacurso_service_url_eu') ?: null;
+
+        $client = new ai_course_api(null, $baseurl, $baseurleu);
         $client->upload_file('/context/upload', $filepath, $file->get_mimetype(), $file->get_filename(), $postdata);
     }
 
