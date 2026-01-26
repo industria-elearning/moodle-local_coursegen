@@ -74,6 +74,10 @@ $string['custom_prompt_field'] = 'Invite pour l\'IA';
 $string['custom_prompt_field_help'] = 'Rédigez une invite détaillée que l\'IA utilisera comme contexte principal pour concevoir le cours (objectifs, profil des étudiant·e·s, contenus, niveau, contraintes, etc.).';
 $string['custom_system_instruction_select_field'] = 'Instruction système à appliquer';
 $string['custom_system_instruction_select_field_help'] = 'Choisissez quelle instruction système sera appliquée avec le contexte sélectionné. Chaque instruction système contient des règles et des lignes directrices prédéfinies (ton, structure, contraintes, etc.) que l\'IA respectera toujours lors de la génération du contenu du cours.';
+$string['datacurso_service_url'] = 'URL du service DataCurso';
+$string['datacurso_service_url_desc'] = 'URL par défaut du service IA DataCurso (région standard).';
+$string['datacurso_service_url_eu'] = 'URL du service DataCurso (UE)';
+$string['datacurso_service_url_eu_desc'] = 'URL par défaut du service IA DataCurso hébergé dans la région UE (conforme au RGPD).';
 $string['delete'] = 'Supprimer';
 $string['deletesysteminstruction'] = 'Supprimer l\'instruction système';
 $string['edit'] = 'Modifier';
@@ -191,3 +195,4 @@ $string['unauthorized'] = 'Accès non autorisé';
 $string['use_system_instruction_field'] = 'Activer pour utiliser une instruction système';
 $string['use_system_instruction_field_help'] = 'Activez cette option lorsque vous souhaitez compléter le contexte sélectionné (invite ou programme) par une instruction système réutilisable. Les instructions système définissent des règles globales que l\'IA doit toujours respecter lors de la génération de contenu de cours.';
 $string['yesimages'] = 'Générer des images';
+

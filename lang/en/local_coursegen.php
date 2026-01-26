@@ -74,6 +74,10 @@ $string['custom_prompt_field'] = 'Prompt for AI';
 $string['custom_prompt_field_help'] = 'Write a detailed prompt that the AI will use as the main context to design the course (objectives, student profile, content, level, constraints, etc.).';
 $string['custom_system_instruction_select_field'] = 'System instruction to apply';
 $string['custom_system_instruction_select_field_help'] = 'Choose which system instruction will be applied together with the selected context. Each system instruction contains predefined rules and guidelines (tone, structure, constraints, etc.) that the AI will always respect when generating course content.';
+$string['datacurso_service_url'] = 'DataCurso service URL';
+$string['datacurso_service_url_desc'] = 'Default URL for the DataCurso AI service (standard region).';
+$string['datacurso_service_url_eu'] = 'DataCurso service URL (EU)';
+$string['datacurso_service_url_eu_desc'] = 'Default URL for the DataCurso AI service hosted in the EU region (GDPR-compliant).';
 $string['delete'] = 'Delete';
 $string['deletesysteminstruction'] = 'Delete system instruction';
 $string['edit'] = 'Edit';
@@ -192,3 +196,4 @@ $string['use_system_instruction_field'] = 'Use system instruction';
 $string['use_system_instruction_field_help'] = 'Enable this option when you want to complement the selected context (prompt or syllabus) with a reusable system instruction. System instructions define global rules that the AI must always follow when generating course content.';
 $string['use_system_instruction_field_label'] = 'Check to use a system instruction';
 $string['yesimages'] = 'Generate images';
+

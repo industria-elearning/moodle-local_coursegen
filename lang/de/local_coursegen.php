@@ -74,6 +74,10 @@ $string['custom_prompt_field'] = 'Eingabe für die KI';
 $string['custom_prompt_field_help'] = 'Schreiben Sie einen ausführlichen Prompt, den die KI als Hauptkontext für die Kursgestaltung verwendet (Lernziele, Zielgruppe/Teilnehmerprofil, Inhalte, Niveau, Einschränkungen usw.).';
 $string['custom_system_instruction_select_field'] = 'Anzuwendende Systemanweisung';
 $string['custom_system_instruction_select_field_help'] = 'Wählen Sie, welche Systemanweisung zusammen mit dem ausgewählten Kontext angewendet wird. Jede Systemanweisung enthält vordefinierte Regeln und Richtlinien (Ton, Struktur, Einschränkungen usw.), an die sich die KI bei der Generierung von Kursinhalten immer hält.';
+$string['datacurso_service_url'] = 'DataCurso-Service-URL';
+$string['datacurso_service_url_desc'] = 'Standard-URL für den DataCurso-AI-Service (Standardregion).';
+$string['datacurso_service_url_eu'] = 'DataCurso-Service-URL (EU)';
+$string['datacurso_service_url_eu_desc'] = 'Standard-URL für den DataCurso-AI-Service in der EU-Region (DSGVO-konform).';
 $string['delete'] = 'Löschen';
 $string['deletesysteminstruction'] = 'Systemanweisung löschen';
 $string['edit'] = 'Bearbeiten';
@@ -192,3 +196,4 @@ $string['unauthorized'] = 'Unbefugter Zugriff';
 $string['use_system_instruction_field'] = 'Aktivieren, um eine Systemanweisung zu verwenden';
 $string['use_system_instruction_field_help'] = 'Aktivieren Sie diese Option, wenn Sie den ausgewählten Kontext (Prompt oder Syllabus) mit einer wiederverwendbaren Systemanweisung ergänzen möchten. Systemanweisungen definieren globale Regeln, die die KI bei der Erstellung von Kursinhalten stets beachten muss.';
 $string['yesimages'] = 'Bilder generieren';
+

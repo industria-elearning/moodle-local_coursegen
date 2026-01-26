@@ -74,6 +74,10 @@ $string['custom_prompt_field'] = 'Prompt untuk AI';
 $string['custom_prompt_field_help'] = 'Tulis prompt terperinci yang akan digunakan AI sebagai konteks utama untuk merancang kursus (tujuan pembelajaran, profil peserta, konten, tingkat, batasan, dll.).';
 $string['custom_system_instruction_select_field'] = 'Instruksi sistem yang akan diterapkan';
 $string['custom_system_instruction_select_field_help'] = 'Pilih instruksi sistem yang akan diterapkan bersama dengan konteks yang dipilih. Setiap instruksi sistem berisi aturan dan pedoman yang telah ditentukan (nada, struktur, batasan, dll.) yang akan selalu dipatuhi AI saat menghasilkan konten kursus.';
+$string['datacurso_service_url'] = 'URL layanan DataCurso';
+$string['datacurso_service_url_desc'] = 'URL default untuk layanan AI DataCurso (wilayah standar).';
+$string['datacurso_service_url_eu'] = 'URL layanan DataCurso (UE)';
+$string['datacurso_service_url_eu_desc'] = 'URL default untuk layanan AI DataCurso yang dihosting di wilayah UE (sesuai GDPR).';
 $string['delete'] = 'Hapus';
 $string['deletesysteminstruction'] = 'Hapus instruksi sistem';
 $string['edit'] = 'Edit';
@@ -192,3 +196,4 @@ $string['unauthorized'] = 'Akses tidak sah';
 $string['use_system_instruction_field'] = 'Aktifkan untuk menggunakan instruksi sistem';
 $string['use_system_instruction_field_help'] = 'Aktifkan opsi ini ketika Anda ingin melengkapi konteks yang dipilih (prompt atau silabus) dengan instruksi sistem yang dapat digunakan kembali. Instruksi sistem menentukan aturan global yang harus selalu diikuti AI saat menghasilkan konten kursus.';
 $string['yesimages'] = 'Hasilkan gambar';
+
