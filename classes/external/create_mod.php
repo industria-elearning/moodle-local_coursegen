@@ -94,7 +94,10 @@ class create_mod extends external_api {
                 ];
             }
 
-            $client = new ai_course_api();
+            $baseurl = get_config('local_coursegen', 'datacurso_service_url') ?: null;
+            $baseurleu = get_config('local_coursegen', 'datacurso_service_url_eu') ?: null;
+
+            $client = new ai_course_api(null, $baseurl, $baseurleu);
             $result = $client->request('GET', '/resources/create-mod/result?job_id=' . urlencode($jobid));
 
             $newcm = mod_manager::create_from_ai_result($result, $course, $sectionnum, $beforemod);

@@ -106,7 +106,10 @@ class plan_course_message extends external_api {
                 $requestdata['lang'] = $lang;
             }
 
-            $client = new ai_course_api();
+            $baseurl = get_config('local_coursegen', 'datacurso_service_url') ?: null;
+            $baseurleu = get_config('local_coursegen', 'datacurso_service_url_eu') ?: null;
+
+            $client = new ai_course_api(null, $baseurl, $baseurleu);
             $result = $client->request('POST', '/course/message', $requestdata);
 
             // Build streaming URL and return success response with API status.

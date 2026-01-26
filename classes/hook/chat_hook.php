@@ -148,7 +148,10 @@ class chat_hook {
                 return;
             }
 
-            $client = new ai_course_api();
+            $baseurl = get_config('local_coursegen', 'datacurso_service_url') ?: null;
+            $baseurleu = get_config('local_coursegen', 'datacurso_service_url_eu') ?: null;
+
+            $client = new ai_course_api(null, $baseurl, $baseurleu);
             $streamingurl = $client->get_streaming_url_for_session($session->session_id);
 
             $PAGE->requires->js_call_amd('local_coursegen/add_course_ai_modal', 'init', [

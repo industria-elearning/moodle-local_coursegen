@@ -29,6 +29,25 @@ if ($hassiteconfig) {
     $pluginname = 'local_coursegen';
     $admincategory = new admin_category($pluginname, get_string('pluginname', $pluginname));
     $ADMIN->add('localplugins', $admincategory);
+    $settings = new admin_settingpage('local_coursegen_settings', get_string('generalsettings', 'local_coursegen'));
+
+    $settings->add(new admin_setting_configtext(
+        'local_coursegen/datacurso_service_url',
+        get_string('datacurso_service_url', 'local_coursegen'),
+        get_string('datacurso_service_url_desc', 'local_coursegen'),
+        '',
+        PARAM_URL
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'local_coursegen/datacurso_service_url_eu',
+        get_string('datacurso_service_url_eu', 'local_coursegen'),
+        get_string('datacurso_service_url_eu_desc', 'local_coursegen'),
+        '',
+        PARAM_URL
+    ));
+
+    $ADMIN->add($pluginname, $settings);
     // Add Manage system instructions page.
     $ADMIN->add($pluginname, new admin_externalpage(
         'local_coursegen_manage_system_instructions',

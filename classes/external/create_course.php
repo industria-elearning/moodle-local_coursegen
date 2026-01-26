@@ -100,7 +100,10 @@ class create_course extends external_api {
             // Release the session so other tabs in the same session are not blocked.
             \core\session\manager::write_close();
 
-            $client = new ai_course_api();
+            $baseurl = get_config('local_coursegen', 'datacurso_service_url') ?: null;
+            $baseurleu = get_config('local_coursegen', 'datacurso_service_url_eu') ?: null;
+
+            $client = new ai_course_api(null, $baseurl, $baseurleu);
             $result = $client->request('GET', '/course/result?session_id=' . urlencode($session->session_id));
 
             // Check if the plan is completed.
