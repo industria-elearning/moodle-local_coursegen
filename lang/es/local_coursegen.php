@@ -196,4 +196,3 @@ $string['unauthorized'] = 'Acceso no autorizado';
 $string['use_system_instruction_field'] = 'Activar para usar una instrucción del sistema';
 $string['use_system_instruction_field_help'] = 'Activa esta opción cuando quieras complementar el contexto seleccionado (prompt o silabo) con una instrucción del sistema reutilizable. Las instrucciones del sistema definen reglas globales que la IA debe seguir siempre al generar contenido del curso.';
 $string['yesimages'] = 'Generar imágenes';
-

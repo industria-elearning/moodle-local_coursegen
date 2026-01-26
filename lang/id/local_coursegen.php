@@ -196,4 +196,3 @@ $string['unauthorized'] = 'Akses tidak sah';
 $string['use_system_instruction_field'] = 'Aktifkan untuk menggunakan instruksi sistem';
 $string['use_system_instruction_field_help'] = 'Aktifkan opsi ini ketika Anda ingin melengkapi konteks yang dipilih (prompt atau silabus) dengan instruksi sistem yang dapat digunakan kembali. Instruksi sistem menentukan aturan global yang harus selalu diikuti AI saat menghasilkan konten kursus.';
 $string['yesimages'] = 'Hasilkan gambar';
-

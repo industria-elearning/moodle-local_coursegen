@@ -196,4 +196,3 @@ $string['unauthorized'] = 'Unbefugter Zugriff';
 $string['use_system_instruction_field'] = 'Aktivieren, um eine Systemanweisung zu verwenden';
 $string['use_system_instruction_field_help'] = 'Aktivieren Sie diese Option, wenn Sie den ausgewählten Kontext (Prompt oder Syllabus) mit einer wiederverwendbaren Systemanweisung ergänzen möchten. Systemanweisungen definieren globale Regeln, die die KI bei der Erstellung von Kursinhalten stets beachten muss.';
 $string['yesimages'] = 'Bilder generieren';
-

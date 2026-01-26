@@ -196,4 +196,3 @@ $string['use_system_instruction_field'] = 'Use system instruction';
 $string['use_system_instruction_field_help'] = 'Enable this option when you want to complement the selected context (prompt or syllabus) with a reusable system instruction. System instructions define global rules that the AI must always follow when generating course content.';
 $string['use_system_instruction_field_label'] = 'Check to use a system instruction';
 $string['yesimages'] = 'Generate images';
-
